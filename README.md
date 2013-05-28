@@ -2,9 +2,9 @@
 
 This application shows an implementation of a fictitious airline called "Acme Air".  The application was built with the some key business requirements: the ability to scale to billions of web API calls per day, the need to develop and deploy the application in public clouds (as opposed to dedicated pre-allocated infrastructure), and the need to support multiple channels for user interaction (with mobile enablement first and browser/Web 2.0 second).
 
-There are two implementations of the application
-- ** NodeJS to Mongodb **
-- ** Java / WebSphere Liberty Profile to WebSphere eXtreme Scale **
+There are two implementations of the application each with an application tier and a data tier.  They are:
+- **NodeJS to Mongodb**
+- **Java / WebSphere Liberty Profile to WebSphere eXtreme Scale**
 
 ## Repository Contents
 
