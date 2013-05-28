@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+	version="3.0">
+	<display-name>scale-webapp</display-name>
+	<welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+		<welcome-file>index.htm</welcome-file>
+		<welcome-file>index.jsp</welcome-file>
+		<welcome-file>default.html</welcome-file>
+		<welcome-file>default.htm</welcome-file>
+		<welcome-file>default.jsp</welcome-file>
+	</welcome-file-list>
+
+	<!-- Configure ContextLoaderListener to use AnnotationConfigWebApplicationContext 
+		instead of the default XmlWebApplicationContext -->
+	<context-param>
+		<param-name>contextClass</param-name>
+		<param-value>
+          org.springframework.web.context.support.AnnotationConfigWebApplicationContext
+      </param-value>
+	</context-param>
+
+	<!-- Configuration locations must consist of one or more comma- or space-delimited 
+		fully-qualified @Configuration classes. Fully-qualified packages may also 
+		be specified for component-scanning -->
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>com.acmeair.web.config.WXSDirectAppConfig</param-value>
+	</context-param>
+
+	<filter>
+    	<filter-name>CookieFilter</filter-name>
+    	<filter-class>com.acmeair.web.RESTCookieSessionFilter</filter-class>
+	</filter>
+	<filter-mapping>
+    	<filter-name>CookieFilter</filter-name>
+    	<url-pattern>/rest/api/*</url-pattern>
+	</filter-mapping>
+
+	<!-- Bootstrap the root application context as usual using ContextLoaderListener -->
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+	<servlet>
+		<servlet-name>javax.ws.rs.core.Application</servlet-name>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>javax.ws.rs.core.Application</servlet-name>
+		<url-pattern>/rest/api/*</url-pattern>
+	</servlet-mapping>
+
+</web-app>

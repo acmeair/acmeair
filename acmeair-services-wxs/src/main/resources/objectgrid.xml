@@ -1,0 +1,97 @@
+<!-- ***************************************************************************
+* Copyright (c) 2013 IBM Corp.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+**************************************************************************** -->
+<objectGridConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://ibm.com/ws/objectgrid/config ../objectGrid.xsd"
+ xmlns="http://ibm.com/ws/objectgrid/config">
+
+    <objectGrids>
+        <objectGrid name="AcmeGrid">
+            <backingMap name="AirportCodeMapping" copyMode="COPY_TO_BYTES" pluginCollectionRef="AirportCodeMappingPlugins"/>
+            <backingMap name="Booking" copyMode="COPY_TO_BYTES" pluginCollectionRef="BookingPlugins"/>
+            <backingMap name="Customer" copyMode="COPY_TO_BYTES" pluginCollectionRef="CustomerPlugins"/>
+            <backingMap name="CustomerSession" copyMode="COPY_TO_BYTES" pluginCollectionRef="CustomerSessionPlugins"/>
+            <backingMap name="Flight" copyMode="COPY_TO_BYTES" pluginCollectionRef="FlightPlugins"/>
+            <backingMap name="FlightSegment" copyMode="COPY_TO_BYTES" pluginCollectionRef="FlightSegmentPlugins"/>
+            
+	        <querySchema>
+				<mapSchemas>
+					<mapSchema mapName="AirportCodeMapping" valueClass="com.acmeair.entities.AirportCodeMapping" primaryKeyField="airportCode" accessType="PROPERTY"/>
+					<mapSchema mapName="Booking" valueClass="com.acmeair.entities.Booking" primaryKeyField="pkey" accessType="PROPERTY"/>
+					<mapSchema mapName="Customer" valueClass="com.acmeair.entities.Customer" primaryKeyField="username" accessType="PROPERTY"/> 
+					<mapSchema mapName="CustomerSession" valueClass="com.acmeair.entities.CustomerSession" primaryKeyField="id" accessType="PROPERTY"/>
+					<mapSchema mapName="Flight" valueClass="com.acmeair.entities.Flight" primaryKeyField="pkey" accessType="PROPERTY"/>
+					<mapSchema mapName="FlightSegment" valueClass="com.acmeair.entities.FlightSegment" primaryKeyField="flightName" accessType="PROPERTY"/>
+				</mapSchemas>
+			</querySchema>	
+        </objectGrid>
+    </objectGrids>
+
+	<backingMapPluginCollections>
+		<backingMapPluginCollection id="AirportCodeMappingPlugins">
+		    <!-- There is no such need as there is no findByAirportName defined --> 
+			<!--bean id="MapIndexPlugin" className="com.ibm.websphere.objectgrid.plugins.index.HashIndex">
+				<property name="Name" type="java.lang.String" value="AirportCodeMapping_airportName" />
+				<property name="AttributeName" type="java.lang.String" value="airportName" />
+			</bean-->
+		</backingMapPluginCollection>
+		<backingMapPluginCollection id="BookingPlugins">
+		    <!-- To support findByCustomerId(String customerId); --> 
+			<bean id="MapIndexPlugin" className="com.ibm.websphere.objectgrid.plugins.index.HashIndex">
+				<property name="Name" type="java.lang.String" value="Booking_customerId" />
+				<property name="AttributeName" type="java.lang.String" value="customerId" />
+			</bean>
+		</backingMapPluginCollection>
+		<backingMapPluginCollection id="CustomerPlugins">
+		    <!-- There is no such need as there is no findByStatus defined --> 
+			<!--bean id="MapIndexPlugin" className="com.ibm.websphere.objectgrid.plugins.index.HashIndex">
+				<property name="Name" type="java.lang.String" value="Customer_status" />
+				<property name="AttributeName" type="java.lang.String" value="status" />
+			</bean-->
+		</backingMapPluginCollection>
+		<backingMapPluginCollection id="CustomerSessionPlugins">
+		    <!-- To support findByCustomerId(String customerId); The method is not used any more--> 
+			<!--bean id="MapIndexPlugin" className="com.ibm.websphere.objectgrid.plugins.index.HashIndex">
+				<property name="Name" type="java.lang.String" value="CustomerSession_customerId" />
+				<property name="AttributeName" type="java.lang.String" value="customerid" />
+			</bean-->
+		</backingMapPluginCollection>
+		<backingMapPluginCollection id="FlightPlugins">
+		    <!-- To support findByFlightSegmentIdAndScheduledDepartureTime(String flightSegmentId, Date scheduledDepartureDate); --> 
+			<bean id="MapIndexPlugin" className="com.ibm.websphere.objectgrid.plugins.index.HashIndex">
+				<property name="Name" type="java.lang.String" value="Flight_flightSegmentIdAndScheduledDepartureTime" />
+				<property name="AttributeName" type="java.lang.String" value="scheduledDepartureTime,flightSegmentId" />
+			</bean>
+		</backingMapPluginCollection>
+		<backingMapPluginCollection id="FlightSegmentPlugins">
+		    <!-- To support findByDestPort(String destPort) --> 
+			<!--bean id="MapIndexPlugin" className="com.ibm.websphere.objectgrid.plugins.index.HashIndex">
+				<property name="Name" type="java.lang.String" value="FlightSegment_destPort" />
+				<property name="AttributeName" type="java.lang.String" value="destPort" />
+			</bean-->
+		    <!-- To support findByOriginPort(String originPort) --> 
+			<bean id="MapIndexPlugin" className="com.ibm.websphere.objectgrid.plugins.index.HashIndex">
+				<property name="Name" type="java.lang.String" value="FlightSegment_originPort" />
+				<property name="AttributeName" type="java.lang.String" value="originPort" />
+			</bean>
+		    <!-- To support findByOriginPortAndDestPort(String originPort, String destPort) --> 
+			<bean id="MapIndexPlugin" className="com.ibm.websphere.objectgrid.plugins.index.HashIndex">
+				<property name="Name" type="java.lang.String" value="FlightSegment_originPortAndDestPort" />
+				<property name="AttributeName" type="java.lang.String" value="destPort,originPort" />
+			</bean>
+		</backingMapPluginCollection>
+	</backingMapPluginCollections>
+ 
+</objectGridConfig>
