@@ -29,6 +29,6 @@ We use github issues to report and handle bug reports.
 
 ## OSS Contributions
 
-We accepts contributions via pull requests.
+We accept contributions via pull requests.
 
 We will be posting important information about CLA agreements needed for us to accept pull requests soon.
