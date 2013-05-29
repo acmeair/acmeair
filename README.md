@@ -19,7 +19,8 @@ Source:
 
 ## How to get started
 
-* See the [https://github.com/acmeair/acmeair/wiki](wiki)
+* See the [wiki](https://github.com/acmeair/acmeair/wiki)
+
 
 ## Ask Questions
 
