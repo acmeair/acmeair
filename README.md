@@ -17,6 +17,10 @@ Source:
 - **acmeair-webapp**:  The Web 2.0 application and associated Java REST services
 - **acmeair-webapp-nodejs**: A implementation of the Acme Air application in NodeJS with a MongoDB data store backend
 
+## How to get started
+
+* See the [https://github.com/acmeair/acmeair/wiki](wiki)
+
 ## Ask Questions
 
 Questions about the Acme Air Open Source Project can be directed to our Google Groups.
