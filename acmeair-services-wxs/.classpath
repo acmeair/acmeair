@@ -5,7 +5,7 @@
 	<classpathentry kind="var" path="M2_REPO/com/google/guava/guava/12.0/guava-12.0.jar"/>
 	<classpathentry kind="var" path="M2_REPO/com/google/code/findbugs/jsr305/1.3.9/jsr305-1.3.9.jar"/>
 	<classpathentry kind="src" path="/acmeair-common"/>
-	<classpathentry kind="var" path="M2_REPO/com/ibm/websphere/objectgrid/objectgrid/8.6.0.0-GA/objectgrid-8.6.0.0-GA.jar"/>
+	<classpathentry kind="var" path="M2_REPO/com/ibm/websphere/objectgrid/objectgrid/8.6.0.1/objectgrid-8.6.0.1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/ch/qos/logback/logback-classic/1.0.6/logback-classic-1.0.6.jar"/>
 	<classpathentry kind="var" path="M2_REPO/ch/qos/logback/logback-core/1.0.6/logback-core-1.0.6.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/slf4j/slf4j-api/1.6.5/slf4j-api-1.6.5.jar"/>
