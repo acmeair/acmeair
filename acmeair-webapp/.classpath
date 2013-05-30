@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry including="**/*.java" kind="src" path="src/main/java"/>
-	<classpathentry excluding="**/*.java" kind="src" path="src/main/resources"/>
 	<classpathentry kind="src" path="/acmeair-common"/>
 	<classpathentry kind="var" path="M2_REPO/com/ibm/websphere/objectgrid/objectgrid/8.6.0.0-GA/objectgrid-8.6.0.0-GA.jar"/>
 	<classpathentry kind="var" path="M2_REPO/ch/qos/logback/logback-classic/1.0.6/logback-classic-1.0.6.jar"/>
