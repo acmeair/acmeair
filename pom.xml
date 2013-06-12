@@ -24,6 +24,7 @@
   <properties>
         <objectgrid.version>8.6.0.1</objectgrid.version>
         <spring.version>3.1.2.RELEASE</spring.version>
+        <jmeter.version>2.7</jmeter.version>
   </properties>
 
   <modules>
@@ -32,6 +33,7 @@
     <module>acmeair-services</module>
     <module>acmeair-services-wxs</module>
     <module>acmeair-webapp</module>
+    <module>acmeair-driver</module>
   </modules>
 
   <dependencies>
@@ -48,8 +50,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
                 <version>2.5.1</version>
 				<configuration>
-					<source>1.5</source>
-					<target>1.5</target>
+					<source>1.6</source>
+					<target>1.6</target>
 				</configuration>
 			</plugin>
 		</plugins>
