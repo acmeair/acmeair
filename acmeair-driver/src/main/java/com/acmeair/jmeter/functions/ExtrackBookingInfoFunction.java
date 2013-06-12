@@ -80,11 +80,8 @@ public class ExtrackBookingInfoFunction extends AbstractFunction {
 		try {
 			Object returnObject =  new JSONParser().parse(responseDataAsString);
 			JSONArray jsonArray;
-			if (returnObject instanceof JSONArray) {//talk directly to WLP
+			if (returnObject instanceof JSONArray) {
 				jsonArray = (JSONArray) returnObject;
-			}else if (returnObject instanceof JSONObject) { //talk to WL adapter
-				JSONObject jSONObject = (JSONObject) returnObject;
-				jsonArray = (JSONArray) jSONObject.get("array");
 			}else {
 				throw new RuntimeException("failed to parse booking information: " + returnObject.toString());
 			}
