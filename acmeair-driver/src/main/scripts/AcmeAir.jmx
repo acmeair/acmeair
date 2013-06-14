@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jmeterTestPlan version="1.2" properties="2.3">
+<jmeterTestPlan version="1.2" properties="2.4" jmeter="2.9 r1437961">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="acmeair" enabled="true">
       <stringProp name="TestPlan.comments">
@@ -33,17 +33,19 @@
           <boolProp name="LoopController.continue_forever">false</boolProp>
           <intProp name="LoopController.loops">-1</intProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">60</stringProp>
+        <stringProp name="ThreadGroup.num_threads">1</stringProp>
         <stringProp name="ThreadGroup.ramp_time">30</stringProp>
         <boolProp name="ThreadGroup.scheduler">true</boolProp>
         <stringProp name="ThreadGroup.duration">600</stringProp>
         <stringProp name="ThreadGroup.delay">10</stringProp>
+        <longProp name="ThreadGroup.start_time">1370979917000</longProp>
+        <longProp name="ThreadGroup.end_time">1370979917000</longProp>
       </ThreadGroup>
       <hashTree>
         <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="CSV Data Set Config" enabled="true">
           <stringProp name="delimiter">,</stringProp>
           <stringProp name="fileEncoding"></stringProp>
-          <stringProp name="filename">hosts.cvs</stringProp>
+          <stringProp name="filename">hosts.csv</stringProp>
           <boolProp name="quotedData">false</boolProp>
           <boolProp name="recycle">true</boolProp>
           <stringProp name="shareMode">Current thread</stringProp>
@@ -61,20 +63,31 @@
           <stringProp name="HTTPSampler.response_timeout"></stringProp>
           <stringProp name="HTTPSampler.protocol"></stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-          <stringProp name="HTTPSampler.path">/acmeair-webapp</stringProp>
+          <stringProp name="HTTPSampler.path"></stringProp>
           <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
         </ConfigTestElement>
+        <hashTree/>
+        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+          <collectionProp name="Arguments.arguments">
+            <elementProp name="CONTEXT_ROOT" elementType="Argument">
+              <stringProp name="Argument.name">CONTEXT_ROOT</stringProp>
+              <stringProp name="Argument.value">/acmeair-webapp</stringProp>
+              <stringProp name="Argument.desc">prepended to all http urls</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+          </collectionProp>
+        </Arguments>
         <hashTree/>
         <CookieManager guiclass="CookiePanel" testclass="CookieManager" testname="HTTP Cookie Manager" enabled="true">
           <collectionProp name="CookieManager.cookies"/>
           <boolProp name="CookieManager.clearEachIteration">false</boolProp>
         </CookieManager>
         <hashTree/>
-        <RandomVariableConfig guiclass="TestBeanGUI" testclass="RandomVariableConfig" testname="Random Variable" enabled="true">
+        <RandomVariableConfig guiclass="TestBeanGUI" testclass="RandomVariableConfig" testname="Random User id" enabled="true">
           <stringProp name="variableName">USER_ID</stringProp>
           <stringProp name="outputFormat"></stringProp>
           <stringProp name="minimumValue">0</stringProp>
-          <stringProp name="maximumValue">9999</stringProp>
+          <stringProp name="maximumValue">199</stringProp>
           <stringProp name="randomSeed"></stringProp>
           <boolProp name="perThread">false</boolProp>
         </RandomVariableConfig>
@@ -173,49 +186,6 @@
             <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
           </HTTPSamplerProxy>
           <hashTree>
-            <BSFPreProcessor guiclass="TestBeanGUI" testclass="BSFPreProcessor" testname="Generate Request" enabled="false">
-              <stringProp name="scriptLanguage">javascript</stringProp>
-              <stringProp name="parameters"></stringProp>
-              <stringProp name="filename"></stringProp>
-              <stringProp name="script">eval(&apos;var ResponseData = &apos; + prev.getResponseDataAsString());
-
-function updateAddress(str) {
-    var num = str.substring(0, str.indexOf(&quot; &quot;));
-    
-    return (parseInt(num) + 1 ) + str.substring(str.indexOf(&quot; &quot;));
-}
-
-function updatePostalCode(str) {
-   var postalCode = parseInt(str);
-   if(postalCode &gt; 99999){
-      return 10000;
-   }else{
-      return postalCode + 1;
-   }
-}
-
-//Build the JSON data
-var parmString =  &quot;{&quot;;
-parmString +=  &quot;\&quot;username\&quot;:\&quot;&quot;+ResponseData.username +&quot;\&quot;&quot;;
-parmString +=  &quot;,\&quot;password\&quot;:\&quot;password\&quot;&quot;;
-parmString +=  &quot;,\&quot;phoneNumber\&quot;:\&quot;&quot;+ResponseData.phoneNumber+&quot;\&quot;&quot;;
-parmString +=  &quot;,\&quot;phoneNumberType\&quot;:\&quot;&quot;+ResponseData.phoneNumberType+&quot;\&quot;&quot;;
-parmString += &quot;,\&quot;address\&quot;:{&quot;;
-parmString +=  &quot;\&quot;streetAddress1\&quot;:\&quot;&quot;+updateAddress(ResponseData.address.streetAddress1)+&quot;\&quot;&quot;;
-if(typeof  ResponseData.address.streetAddress2 != &quot;undefined&quot;) {
-   parmString +=  &quot;,\&quot;streetAddress2\&quot;:\&quot;&quot;+ResponseData.address.streetAddress2+&quot;\&quot;&quot;;
-}
-parmString +=  &quot;,\&quot;city\&quot;:\&quot;&quot;+ResponseData.address.city+&quot;\&quot;&quot;;
-parmString +=  &quot;,\&quot;stateProvince\&quot;:\&quot;&quot;+ResponseData.address.stateProvince+&quot;\&quot;&quot;;
-parmString +=  &quot;,\&quot;country\&quot;:\&quot;&quot;+ResponseData.address.country+&quot;\&quot;&quot;;
-
-parmString +=  &quot;,\&quot;postalCode\&quot;:\&quot;&quot;+ updatePostalCode(ResponseData.address.postalCode) +&quot;\&quot;&quot;;
-parmString += &quot;}}&quot;;
-
-vars.put(&quot;UPDATE_CUST&quot;, parmString );
-</stringProp>
-            </BSFPreProcessor>
-            <hashTree/>
             <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
               <collectionProp name="HeaderManager.headers">
                 <elementProp name="Content-Type" elementType="Header">
@@ -304,76 +274,13 @@ vars.put(&quot;UPDATE_CUST&quot;, parmString );
             <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
           </HTTPSamplerProxy>
           <hashTree>
-            <BSFPreProcessor guiclass="TestBeanGUI" testclass="BSFPreProcessor" testname="BSF PreProcessor" enabled="false">
-              <stringProp name="filename"></stringProp>
-              <stringProp name="parameters"></stringProp>
-              <stringProp name="script">function generateRandomDate(start, end) {
-    return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
-}
-var currentDate = new Date();
-var ramdonDate = generateRandomDate(currentDate,  new Date(currentDate.getFullYear(), currentDate.getMonth(),currentDate.getDate()+5));
-//remove time section, looks like having time section will cause null return 
-var fromDate = new Date(ramdonDate.getFullYear(), ramdonDate.getMonth(),ramdonDate.getDate());
-vars.put(&quot;FROM_DATE&quot;, fromDate); 
-//set the return date to be 12 days in the furture from FROM_DATE
-vars.put(&quot;RETURN_DATE&quot;, new Date(ramdonDate.getFullYear(),ramdonDate.getMonth(),ramdonDate.getDate()+12)); 
-
-</stringProp>
-              <stringProp name="scriptLanguage">javascript</stringProp>
-            </BSFPreProcessor>
+            <com.acmeair.jmeter.functions.FlightsPostProcessor guiclass="com.acmeair.jmeter.functions.FlightsPostProcessorGui" testclass="com.acmeair.jmeter.functions.FlightsPostProcessor" testname="Flights PostProcessor" enabled="true"/>
             <hashTree/>
-            <BSFPostProcessor guiclass="TestBeanGUI" testclass="BSFPostProcessor" testname="ExtractInfo" enabled="false">
-              <stringProp name="scriptLanguage">javascript</stringProp>
-              <stringProp name="parameters"></stringProp>
-              <stringProp name="filename"></stringProp>
-              <stringProp name="script">eval(&apos;var ResponseData = &apos; + prev.getResponseDataAsString());
-
-//
-// Clear Vars
-vars.put(&quot;numOfToFlights&quot;, 0); 
-vars.put(&quot;numOfRetFlights&quot;, 0); 
-vars.put(&quot;TOFLIGHT&quot;, &quot;&quot;); 
-vars.put(&quot;TOSEGMENTID&quot;, &quot;&quot;);
-vars.put(&quot;RETFLIGHT&quot;, &quot;&quot;); 
-vars.put(&quot;RESEGMENTID&quot;, &quot;&quot;);
-vars.put(&quot;ONEWAY&quot;, &quot;true&quot;); 
-
-vars.put(&quot;tripLegs&quot;, ResponseData.tripLegs);
-vars.put(&quot;flightsLen&quot;, ResponseData.tripFlights.length); 
-for (var counter = 1; counter &lt;= ResponseData.tripFlights.length; counter++) {
-    vars.put(&quot;flightOptionsLen&quot; + counter, ResponseData.tripFlights[counter - 1].flightsOptions.length); 
-    if(counter == 1){
-        vars.put(&quot;numOfToFlights&quot;, ResponseData.tripFlights[counter - 1].flightsOptions.length); 
-    } else if (counter == 2){
-        vars.put(&quot;numOfRetFlights&quot;, ResponseData.tripFlights[counter - 1].flightsOptions.length); 
-    }
-    var trip = ResponseData.tripFlights[counter - 1]; 
-
-    for (var tripCounter = 1; tripCounter &lt;= trip.flightsOptions.length; tripCounter++) {
-           vars.put(&quot;flightSegmentId&quot; + counter + &quot;_&quot;+ tripCounter, trip.flightsOptions[tripCounter - 1].flightSegmentId); 
-           vars.put(&quot;Id&quot; + counter + &quot;_&quot;+ tripCounter, trip.flightsOptions[tripCounter - 1].id); 
-           if(counter == 1){
-               vars.put(&quot;TOFLIGHT&quot;, trip.flightsOptions[tripCounter - 1].pkey.id); 
-               vars.put(&quot;TOSEGMENTID&quot;, trip.flightsOptions[tripCounter - 1].pkey.flightSegmentId); 
-          } else if (counter == 2){
-               vars.put(&quot;RETFLIGHT&quot;, trip.flightsOptions[tripCounter - 1].pkey.id); 
-               vars.put(&quot;RESEGMENTID&quot;, trip.flightsOptions[tripCounter - 1].pkey.flightSegmentId);  
-         }
-    }  
-}
-
-if (vars.get(&quot;numOfRetFlights&quot;) &gt; 0 )  {
-    vars.put(&quot;ONEWAY&quot;, &quot;false&quot;); 
-}</stringProp>
-            </BSFPostProcessor>
-            <hashTree/>
-          <com.acmeair.jmeter.functions.FlightsPostProcessor guiclass="com.acmeair.jmeter.functions.FlightsPostProcessorGui" testclass="com.acmeair.jmeter.functions.FlightsPostProcessor" testname="Flights PostProcessor" enabled="true">
-          </com.acmeair.jmeter.functions.FlightsPostProcessor>                     
           </hashTree>
           <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="CSV Data Set Config" enabled="true">
             <stringProp name="delimiter">,</stringProp>
             <stringProp name="fileEncoding"></stringProp>
-            <stringProp name="filename">Airports.cvs</stringProp>
+            <stringProp name="filename">Airports.csv</stringProp>
             <boolProp name="quotedData">false</boolProp>
             <boolProp name="recycle">true</boolProp>
             <stringProp name="shareMode">All threads</stringProp>
@@ -382,7 +289,7 @@ if (vars.get(&quot;numOfRetFlights&quot;) &gt; 0 )  {
           </CSVDataSet>
           <hashTree/>
           <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="CSV Data Set Config" enabled="true">
-            <stringProp name="filename">Airports2.cvs</stringProp>
+            <stringProp name="filename">Airports2.csv</stringProp>
             <stringProp name="fileEncoding"></stringProp>
             <stringProp name="variableNames">FROM_AIRPORT_CODE</stringProp>
             <stringProp name="delimiter">,</stringProp>
@@ -482,30 +389,7 @@ if (vars.get(&quot;numOfRetFlights&quot;) &gt; 0 )  {
           <boolProp name="HTTPSampler.monitor">false</boolProp>
           <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
         </HTTPSamplerProxy>
-        <hashTree>
-          <BSFPostProcessor guiclass="TestBeanGUI" testclass="BSFPostProcessor" testname="get Booking ID" enabled="false">
-            <stringProp name="scriptLanguage">javascript</stringProp>
-            <stringProp name="parameters"></stringProp>
-            <stringProp name="filename"></stringProp>
-            <stringProp name="script">eval(&apos;var ResponseData = &apos; + prev.getResponseDataAsString());
-
-vars.put(&quot;BOOKING_ID&quot;, &quot;&quot;); 
-vars.put(&quot;NUMBER_OF_BOOKINGS&quot;, ResponseData.length); 
-if( ResponseData.length &gt; 2) {
-      vars.put(&quot;NUMBER_TO_CANCEL&quot;, ResponseData.length - 2); 
-} else {
-      vars.put(&quot;NUMBER_TO_CANCEL&quot;, 0); 
-}
-
-var bookingList =new Array();
-for ( var counter = 0; counter &lt; ResponseData.length ; counter++ ){
-    bookingList[counter] = ResponseData[counter].pkey.id;
-}
-
-vars.putObject(&quot;BOOKING_LIST&quot;, bookingList); </stringProp>
-          </BSFPostProcessor>
-          <hashTree/>
-        </hashTree>
+        <hashTree/>
         <ThroughputController guiclass="ThroughputControllerGui" testclass="ThroughputController" testname="Cancel Booking" enabled="true">
           <intProp name="ThroughputController.style">1</intProp>
           <boolProp name="ThroughputController.perThread">false</boolProp>
@@ -567,29 +451,7 @@ vars.putObject(&quot;BOOKING_LIST&quot;, bookingList); </stringProp>
               <boolProp name="HTTPSampler.monitor">false</boolProp>
               <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
             </HTTPSamplerProxy>
-            <hashTree>
-              <BSFPreProcessor guiclass="TestBeanGUI" testclass="BSFPreProcessor" testname="get Booking ID" enabled="false">
-                <stringProp name="scriptLanguage">javascript</stringProp>
-                <stringProp name="parameters"></stringProp>
-                <stringProp name="filename"></stringProp>
-                <stringProp name="script">//eval(&apos;var ResponseData = &apos; + prev.getResponseDataAsString());
-
-//vars.put(&quot;BOOKING_ID&quot;, &quot;&quot;); 
-
-//if ( ResponseData.length &gt;= 1 ){
-//    vars.put(&quot;BOOKING_ID&quot;, ResponseData[0].id);    
-//}
-
-var bookingList =new Array();
-var bookingIndex = parseInt(vars.get(&quot;BOOKING_ID_COUNTER&quot;));
-bookingList = vars.getObject(&quot;BOOKING_LIST&quot;);
-vars.put(&quot;BOOKING_ID&quot;,   bookingList[bookingIndex]); 
-
-
-</stringProp>
-              </BSFPreProcessor>
-              <hashTree/>
-            </hashTree>
+            <hashTree/>
           </hashTree>
         </hashTree>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="logout" enabled="true">
@@ -760,17 +622,6 @@ vars.put(&quot;BOOKING_ID&quot;,   bookingList[bookingIndex]);
           </objProp>
           <stringProp name="filename"></stringProp>
         </ResultCollector>
-        <hashTree/>
-        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-          <collectionProp name="Arguments.arguments">
-            <elementProp name="CONTEXT_ROOT" elementType="Argument">
-              <stringProp name="Argument.name">CONTEXT_ROOT</stringProp>
-              <stringProp name="Argument.value">/acmeair-webapp</stringProp>
-              <stringProp name="Argument.desc">prepended to all http urls</stringProp>
-              <stringProp name="Argument.metadata">=</stringProp>
-            </elementProp>
-          </collectionProp>
-        </Arguments>
         <hashTree/>
       </hashTree>
     </hashTree>

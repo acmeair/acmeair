@@ -45,8 +45,14 @@ public class ExtractFlightsInfoFunction extends AbstractFunction {
 	private static final String FLIGHT_RET_COUNT = "FLIGHTRETCOUNT";
 	FlightsContext context;
 	
-	public static final boolean pureIDs = false; // if false use the PK sub objects as created by WXS storage, if true, simpler _id at root level
+	public static boolean pureIDs = false; // if false use the PK sub objects as created by WXS storage, if true, simpler _id at root level
 	
+	static {		
+		if (System.getProperty("usePureIDs") != null) {
+			pureIDs = true;
+			System.out.println("usePureIDs property was set.");
+		}
+	}
 	
 	@Override
 	synchronized public String execute(SampleResult arg0, Sampler arg1)
