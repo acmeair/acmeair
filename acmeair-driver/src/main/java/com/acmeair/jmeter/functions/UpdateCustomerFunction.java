@@ -93,6 +93,7 @@ public class UpdateCustomerFunction extends AbstractFunction {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		} catch (NullPointerException e) {
+			e.printStackTrace();
 			System.out.println("NullPointerException in UpdateCustomerFunction - ResponseData =" + responseDataAsString);
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -153,6 +153,7 @@ public class FlightsPostProcessor extends AbstractTestElement implements PostPro
 			e.printStackTrace();
 		}
 		catch (NullPointerException e) {
+			e.printStackTrace();
 			System.out.println("NullPointerException in FlightsPostProcessor - ResponseData =" + responseDataAsString);
 		}
 		catch (Exception e) {
