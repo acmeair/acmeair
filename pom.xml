@@ -22,7 +22,7 @@
   <packaging>pom</packaging>
 
   <properties>
-        <objectgrid.version>8.6.0.1</objectgrid.version>
+        <objectgrid.version>8.6.0.2</objectgrid.version>
         <spring.version>3.1.2.RELEASE</spring.version>
         <jmeter.version>2.7</jmeter.version>
   </properties>
