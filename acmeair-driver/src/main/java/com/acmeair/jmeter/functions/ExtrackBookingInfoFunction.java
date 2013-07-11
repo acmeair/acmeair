@@ -48,12 +48,15 @@ public class ExtrackBookingInfoFunction extends AbstractFunction {
 			BookingThreadLocal.unset();
 			return "";
 		}
-
+		if(arg0.getErrorCount()>0){
+			System.out.println("ExtrackBookingInfoFunction - Last sample received an error. Response Code = " + arg0.getResponseCode() +".");			
+			return "";			
+		}
+		
 		context = BookingThreadLocal.get();
 		if (context == null) {
 			context = new BookingContext();
-			processJSonString(arg0.getResponseDataAsString());
-
+			processJSonString(arg0);
 		}
 
 		if (value.equalsIgnoreCase("BOOKING_ID")) {
@@ -66,7 +69,7 @@ public class ExtrackBookingInfoFunction extends AbstractFunction {
 		if (value.equalsIgnoreCase("NUMBER_TO_CANCEL")) {
 			if (context == null) {
 				context = new BookingContext();
-				processJSonString(arg0.getResponseDataAsString());
+				processJSonString(arg0);
 			}
 			return context.getNUMBER_TO_CANCEL();
 		}
@@ -75,10 +78,10 @@ public class ExtrackBookingInfoFunction extends AbstractFunction {
 
 	}
 
-	public void processJSonString(String responseDataAsString) {
+	private void processJSonString(SampleResult sample) {
 
-		try {
-			Object returnObject =  new JSONParser().parse(responseDataAsString);
+		try {			
+			Object returnObject =  new JSONParser().parse(sample.getResponseDataAsString());
 			JSONArray jsonArray;
 			if (returnObject instanceof JSONArray) {
 				jsonArray = (JSONArray) returnObject;
@@ -111,11 +114,12 @@ public class ExtrackBookingInfoFunction extends AbstractFunction {
 			BookingThreadLocal.set(context);
 
 		} catch (ParseException e) {
-			System.out.println("responseDataAsString = " + responseDataAsString);
+			System.out.println("responseDataAsString = " + sample.getResponseDataAsString());
 			e.printStackTrace();
 		}
 		catch (NullPointerException e) {
-			System.out.println("NullPointerException in ExtrackBookingInfoFunction - ResponseData =" + responseDataAsString);
+			System.out.println("NullPointerException in ExtrackBookingInfoFunction - ResponseData =" + sample.getResponseDataAsString());
+			e.printStackTrace();
 		}
 		catch (Exception e) {
 			e.printStackTrace();

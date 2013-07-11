@@ -61,7 +61,10 @@ public class FlightsPostProcessor extends AbstractTestElement implements PostPro
 	@Override
 	public void process() {
 		 SampleResult prev = JMeterContextService.getContext().getPreviousResult();
-		 
+		 if(prev.getErrorCount()>0){
+			 System.out.println("FlightsPostProcessor - Last sample received an error. Response Code = " + prev.getResponseCode() +"."); 
+			 return;
+		 }
 		 context = FlightsThreadLocal.get();
 		  if (context == null) {
 			context = new FlightsContext();
