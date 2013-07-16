@@ -158,8 +158,8 @@ exports.bookflights = function(req, res) {
 	logger.debug('booking flights');
 	
 	var userid = req.body.userid;
-	var toFlight = req.body.toFlight;
-	var retFlight = req.body.retFlight;
+	var toFlight = req.body.toFlightId;
+	var retFlight = req.body.retFlightId;
 	var oneWay = (req.body.oneWayFlight == 'true');
 	
 	bookFlight(toFlight, userid, function (error, toBookingId) {
