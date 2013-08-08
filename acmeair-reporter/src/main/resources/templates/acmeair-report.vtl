@@ -1,0 +1,349 @@
+<!-- ***************************************************************************
+* Copyright (c) 2013 IBM Corp.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+**************************************************************************** -->
+#set($numFormat = '#,##0.###')
+#set($intFormat = '#,##0')
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Acme Air Results Report</title>
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" />
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+<script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+<script>
+$(function() {
+  $( document ).tooltip({
+      position: {
+         my: "center bottom-20",
+         at: "center top",
+         using: function( position, feedback ) {
+            $( this ).css( position );
+            $( "<div>" )
+            .addClass( "arrow" )
+            .addClass( feedback.vertical )
+            .addClass( feedback.horizontal )
+            .appendTo( this );
+         }
+      },
+      content: function() {
+        return $(this).attr('title');
+     },
+     showURL: false
+  });
+});
+</script>
+
+<style>
+.ui-tooltip, .arrow:after {
+  background: black;
+  border: 2px solid white;
+}
+.ui-tooltip {
+  padding: 10px 20px;
+  color: white;
+  border-radius: 20px;
+  box-shadow: 0 0 7px black;
+}
+
+.arrow {
+  width: 70px;
+  height: 16px;
+  overflow: hidden;
+  position: absolute;
+  left: 50%;
+  margin-left: -35px;
+  bottom: -16px;
+}
+.arrow.top {
+  top: -16px;
+  bottom: auto;
+}
+
+.arrow.left {
+  left: 20%;
+}
+
+.arrow:after {
+  content: "";
+  position: absolute;
+  left: 20px;
+  top: -20px;
+  width: 25px;
+  height: 25px;
+  box-shadow: 6px 5px 9px -9px black;
+  -webkit-transform: rotate(45deg);
+  -moz-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  -o-transform: rotate(45deg);
+  tranform: rotate(45deg);
+}
+.arrow.top:after {
+  bottom: -20px;
+  top: auto;
+}
+</style>
+
+
+#foreach ($mapEntry in $totalUrlMap.entrySet())
+	#if ($mapEntry.key != "Error: ")
+	#set ( $rspTimes = $mapEntry.value.cntByTime())
+
+	<script type="text/javascript">
+		google.load("visualization", "1", {packages:["corechart"]});
+		google.setOnLoadCallback(drawChart1);
+		function drawChart1() {
+			var data = new google.visualization.DataTable();
+			data.addColumn('string', 'Time'); // Implicit domain label col
+			data.addColumn('number', 'Num Req'); // Implicit series 1 data col.
+			data.addColumn({type:'string',role:'tooltip'});
+			data.addRows([		
+			#foreach ($rspEntry in $rspTimes.entrySet())
+				['${rspEntry.key}',${rspEntry.value},'${rspEntry.key} \n Num Request: ${number.format($intFormat ,${rspEntry.value})} (${number.percent(${math.div($rspEntry.value,${mapEntry.value.getCount()})})}) of ${number.format($intFormat ,${mapEntry.value.getCount()})}'] #if( $foreach.hasNext ),#end
+			#end]);
+			var options = {
+				title: '${mapEntry.key}',
+				vAxis: {title: 'number of requests', titleTextStyle: {color: 'black'}},
+				series: [{color: 'blue', visibleInLegend: false}],
+				hAxis: {title: 'latency', titleTextStyle: {color: 'black'}},
+				width: 1200,
+			    height: 500
+			};
+			var chart = new google.visualization.LineChart(document.getElementById('chart_${math.add(${foreach.count},1)}'));
+			chart.draw(data, options);
+		}
+	</script>
+	#end
+#end
+
+<script>
+$(function() {
+$( "#Latency_tabs" ).tabs();
+});
+</script>
+
+
+</head>
+
+<body>
+	<div id="main">
+		<div id="logo">
+			<div id="logo_text">
+				<center>
+					<h1>Acme Air Results Report</h1>
+				</center>
+			</div>
+		</div>
+		<div class="content">
+
+
+	<font size="4">Average Throughput $number.format($numFormat ,${jmeterStats.average}) </font><br/> 
+	<font size="4">Operations per day $number.format($numFormat ,$math.mul(${jmeterStats.average}, 86400))
+				(projection based on average throughput) </font><br/> 
+	Min Throughput $number.format($numFormat ,${jmeterStats.min})<br/> 
+	Max Throughput $number.format($numFormat ,${jmeterStats.max})<br/> 
+    <font size="1">(Omitted the first and last data points for above statistics ) </font> <br/> <br/>
+    #if (${testStart})
+		Benchmark Start: ${testStart} <br/>
+	#end
+	#if (${testEnd})
+		Benchmark End:   ${testEnd} <br/>
+	#end
+
+<br/><br/>
+#if ($totals.getFilesCount() > 0)
+	<h2>Response times</h2>
+
+
+	<table border="1">
+				<tr>
+					<th></th>
+					<th>Average</th>
+					<th>Min</th>
+					<th>Max</th>
+					<th>90%</th>
+					<th>Number of Requests</th>
+					<th>Errors</th>
+				</tr>
+				<tr>
+					<td> Overall </td>
+					<td>${totals.getAverageResponseTime()} mn </td>
+					<td>${totals.getMinResponseTime()} ms </td> 
+					<td>${number.format($intFormat ,${totals.getMaxResponseTime()})} ms</td>
+					<td>${totals.get90thPrecentile()} ms</td>
+					<td>$number.format($intFormat ,${totals.getCount()})</td>
+					#if ($totals.getFailures() > 0 )
+					    <td> 
+					    #set ($rcMap = ${totals.getReturnCodeCounts()}) 
+					    <a href="#" title="#foreach ($rcEntry in $rcMap.entrySet())
+					     rc${rcEntry.key} = ${rcEntry.value}<br/> 
+					    #end"><b><font color="red">${totals.getFailures()}</font></b></a>
+					    </td>
+					#else
+					    <td>${totals.getFailures()}</td>
+					#end  
+				</tr>
+	</table> 
+<br/> 
+Breakdown by URL 
+	<table border="1"> 
+				<tr>
+					<th>URL</th>
+					<th>Average</th>
+					<th>Min</th>
+					<th>Max</th>
+					<th>90%</th>
+					<th>Num of Reqs</th>
+					<th>% of All Reqs</th>
+					<th>Errors</th>
+				</tr>
+				
+		#foreach ($totalUrlEntry in $totalUrlMap.entrySet())
+ 			  	<tr><td>${totalUrlEntry.key}</td> 
+	    			<td nowrap="nowrap"> ${totalUrlEntry.value.getAverageResponseTime()} ms </td>
+	    			<td nowrap="nowrap"> ${totalUrlEntry.value.getMinResponseTime()} ms </td> 
+	    			<td nowrap="nowrap"> ${number.format($intFormat ,${totalUrlEntry.value.getMaxResponseTime()})} ms</td>
+	    			<td nowrap="nowrap"> ${totalUrlEntry.value.get90thPrecentile()} ms</td>
+	    			<td align="right"> $number.format($intFormat ,${totalUrlEntry.value.getCount()}) </td>
+	    			#set($percentOfReq = ${totalUrlEntry.value.getCount()} / ${totals.getCount()} ) 
+	    	        <td align="right">$number.percent($math.div(${totalUrlEntry.value.getCount()} , ${totals.getCount()}))</td> 	    	            
+	    	        #if (${totalUrlEntry.value.getFailures()} > 0)
+	    	            <td align="right">						
+					    <a href="#" title="#foreach ($rcEntry in $rcMap.entrySet())
+					     rc${rcEntry.key} = ${rcEntry.value}<br/> 
+					    #end"><b><font color="red">${totalUrlEntry.value.getFailures()}</font></b></a>
+					    </td>
+				    #else
+				    	<td>${totalUrlEntry.value.getFailures()}</td>
+				    #end  
+            	</tr>
+		#end
+	</table> 
+	
+<h2> Latency Distribution </h2> 
+	<div id="Latency_tabs">	
+	<ul>
+	#foreach ($totalUrlEntry in $totalUrlMap.entrySet())
+       #if ($totalUrlEntry.key != "Error: ")
+          <li><a href="#tabs-${math.add(${foreach.count},1)}">${totalUrlEntry.key}</a></li>
+       #end
+    #end	
+	</ul>
+		
+  #foreach ($totalUrlEntry in $totalUrlMap.entrySet())
+ 	#if ($totalUrlEntry.key != "Error: ")		
+		<div id="tabs-${math.add(${foreach.count},1)}">
+		<div id="chart_${math.add(${foreach.count}, 1)}"></div>
+		</div>
+	#end
+  #end	
+	</div>
+	
+		
+	<h2> Run Statistics  </h2> 
+	<table border="1"> 
+		<tr><th>Statistic </th><th> Count</th> </tr>
+		<tr><td>Total number of virtual users  </td>    <td nowrap="nowrap" align="right">${number.format($intFormat , ${math.mul(${totals.getThreadMap().size()}, ${totals.getFilesCount()})})} </td> </tr>
+		<tr><td>Virtual users per workload driver  </td><td nowrap="nowrap" align="right">${number.format($intFormat , ${totals.getThreadMap().size()})} </td> </tr>
+		<tr><td>jMeter files processed   </td>          <td nowrap="nowrap" align="right">${number.format($intFormat , ${totals.getFilesCount()})} </td> </tr>
+		<tr><td>Flights queries with zero results  </td>
+		#if (${queryTotals})
+			<td nowrap="nowrap" align="right"> ${number.format($intFormat ,${queryTotals.getEmptyToFlightCount()})}</td></tr>
+		#else
+			<td nowrap="nowrap"><b><font color="red"> UNKNOWN </font></b></td></tr>
+		#end
+		<tr><td> Number of flights returned  </td>   
+		#if (${queryTotals})   
+			<td nowrap="nowrap" align="right"> ${number.format($intFormat ,${queryTotals.getFlightToSum()})}</td></tr>
+		#else
+			<td nowrap="nowrap"><b><font color="red"> UNKNOWN </font></b></td></tr>
+		#end
+		<tr><td> Average number of flights returned </td>
+		#if (${queryTotals}) 
+			#if (${queryTotals.getFlightToSum()} > 0)
+				<td nowrap="nowrap" align="right"> ${number.format($numFormat ,${queryTotals.getAverageToFlights()})} </td></tr>
+			#else
+				<td nowrap="nowrap"><b><font color="red"> UNKNOWN </font></b></td></tr>
+			#end
+		#else
+			<td nowrap="nowrap"><b><font color="red"> UNKNOWN </font></b></td></tr>
+		#end
+		<tr><td> Total One Way flights booked   </td>
+		#if (${bookingTotals}) 
+			<td nowrap="nowrap" align="right"> ${number.format($intFormat ,${bookingTotals.getOneWayCount()})}</td></tr>
+		#else
+			<td nowrap="nowrap"><b><font color="red"> UNKNOWN </font></b></td></tr>
+		#end
+		<tr><td> Percent of flight queries with zero results  </td>
+		#if (${queryTotals}) 
+			#if  (${queryTotals.getEmptyToFlightCount()} > 0 && ${queryTotals.getEmptyToFlightCount()} && ${queryTotals.getFlightToSum()} > 0)
+				<td nowrap="nowrap" align="right"> ${number.percent(${math.div(${queryTotals.getEmptyToFlightCount()}, $math.add(${queryTotals.getEmptyToFlightCount()}, ${queryTotals.getFlightToSum()}))})} </td></tr>
+			#else
+				<td nowrap="nowrap"><b><font color="red"> UNKNOWN </font></b></td></tr>
+			#end
+			
+		#else
+			<td nowrap="nowrap"><b><font color="red"> UNKNOWN </font></b></td></tr>
+		#end
+		
+		<tr><td> Percent of bookings skipped due to zero results on query flights </td>
+		#if (${bookingTotals}) 
+			#if (${loginTotals}) 
+				<td nowrap="nowrap" align="right">${number.percent(${math.div(${math.sub(${loginTotals.getCount()}, ${bookingTotals.getCount()})}, ${loginTotals.getCount()})})} </td></tr>
+			#else
+				<td nowrap="nowrap"><b><font color="red"> UNKNOWN </font></b></td></tr>
+			#end			
+		#else
+			<td nowrap="nowrap"><b><font color="red"> UNKNOWN </font></b></td></tr>
+		#end
+	</table> 
+#end
+	
+#if (${cpuList.size()} > 0)
+	<h2> CPU Summary </h2> 
+	<table border="1"> 
+		<tr><th></th><th>CPU Average</th><th>CPU Min</th> <th>CPU Max</th><th>Number of Systems</th></tr>
+		#foreach ($cpuEntry in $cpuList.entrySet())		
+			<tr><td>${cpuEntry.key}</td><td>${number.format($numFormat ,${cpuEntry.value.average})}%</td><td>${number.format($numFormat ,${cpuEntry.value.min})}%</td> <td>${number.format($numFormat ,${cpuEntry.value.max})}%</td> <td>${number.format($intFormat ,${cpuEntry.value.numberOfResults})}</td> </tr> 
+		#end
+	</table> 
+#end
+	
+	
+<br/><hr/>
+<h2> Result Graphs </h2> 
+   
+   <ul>
+    #foreach ($charUrlEntry in $charUrlMap.entrySet())	 	
+		<li><a href="#${charUrlEntry.key}">${charUrlEntry.key}</a></li>
+	#end
+	</ul>
+	
+		#foreach ($charUrlEntry in $charUrlMap.entrySet())		
+		  	<a name="${charUrlEntry.key}"></a><h3>${charUrlEntry.key}</h3>
+		  	#foreach ($charUrl in $charUrlEntry.value)
+		  		#if (${charUrl})	
+					<img src="${charUrl}">
+				 #end
+		  	#end
+	  	#end
+	  	
+<br/><hr/>
+Report generated: ${date} Acme Air Benchmark test results </br>
+	</div>
+</body>
+</html> 

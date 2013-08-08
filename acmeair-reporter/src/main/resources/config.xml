@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<ReportGenerator>
+	<inputDirectory>JMeterLogDirectory
+	</inputDirectory>
+	<parsers>
+		<JmeterJTLParser enabled="true">
+			<directory relative="false">${inputDirectory}</directory>
+			<fileName>AcmeAir[1-9].jtl</fileName>
+		</JmeterJTLParser>
+	
+		<nmonParser enabled="false">
+			<directory relative="true">jmeter</directory>
+			<label>JMeter</label>
+			<chartTitle>JMeter Server CPU Utilization</chartTitle>
+		</nmonParser>
+		<nmonParser enabled="false">
+			<directory>appserver</directory>
+			<fileName>output.nmon</fileName>
+			<label>AppServer</label>
+			<chartTitle>Application Server CPU Utilization</chartTitle>
+		</nmonParser>
+	</parsers>
+</ReportGenerator>
