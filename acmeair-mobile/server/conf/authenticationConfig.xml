@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tns:loginConfiguration xmlns:tns="http://www.worklight.com/auth/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+<!-- ***************************************************************************
+* Copyright (c) 2013 IBM Corp.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+**************************************************************************** -->
+
+	 <securityTests>
+		<customSecurityTest name="AcmeairMobile-adapter-securityTest">
+			<test isInternalUserID="true" realm="AcmeairMobileRealm" />
+		</customSecurityTest>
+	</securityTests> 
+	
+	<realms>
+		<realm name="WorklightConsole" loginModule="requireLogin">
+			<className>com.worklight.core.auth.ext.FormBasedAuthenticator</className>
+			<onLoginUrl>/console</onLoginUrl>
+		</realm>
+		
+		<realm loginModule="AcmeairLoginModule" name="AcmeairMobileRealm">
+			<className>com.worklight.integration.auth.AdapterAuthenticator</className>
+			<parameter name="login-function" value="acmeairAdapter.onAuthRequired"/>
+			<parameter name="logout-function" value="acmeairAdapter.onLogout"/>
+		</realm>
+	</realms>
+
+	<loginModules>		
+		<loginModule name="requireLogin">
+			<className>com.worklight.core.auth.ext.SingleIdentityLoginModule</className>
+		</loginModule>
+		
+		<loginModule name="AcmeairLoginModule">
+			<className>com.worklight.core.auth.ext.NonValidatingLoginModule</className>
+		</loginModule>
+	</loginModules>
+
+</tns:loginConfiguration>

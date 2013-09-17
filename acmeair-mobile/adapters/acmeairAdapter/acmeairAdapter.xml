@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ***************************************************************************
+* Copyright (c) 2013 IBM Corp.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+**************************************************************************** -->
+<wl:adapter name="acmeairAdapter"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:wl="http://www.worklight.com/integration"
+	xmlns:http="http://www.worklight.com/integration/http">
+
+	<displayName>acmeairAdapter</displayName>
+	<description>acmeairAdapter</description>
+	<connectivity>
+		<connectionPolicy xsi:type="http:HTTPConnectionPolicyType">
+			<protocol>http</protocol>
+			<domain>9.10.79.139</domain>
+			<port>9080</port>			
+		</connectionPolicy>
+		<loadConstraints maxConcurrentConnectionsPerNode="32" />
+	</connectivity>
+
+	<procedure name="bookFlights" connectAs="endUser" securityTest="AcmeairMobile-adapter-securityTest"/>
+	<procedure name="cancelBooking" connectAs="endUser" securityTest="AcmeairMobile-adapter-securityTest"/>
+	<procedure name="listBookings" connectAs="endUser" securityTest="AcmeairMobile-adapter-securityTest"/>
+	<procedure name="login" connectAs="endUser" securityTest="AcmeairMobile-adapter-securityTest"/>
+	<procedure name="logout" connectAs="endUser" securityTest="AcmeairMobile-adapter-securityTest"/>
+	<procedure name="onLogout" />
+	<procedure name="queryFlights" connectAs="endUser" securityTest="AcmeairMobile-adapter-securityTest"/>
+	<procedure name="updateProfile" connectAs="endUser" securityTest="AcmeairMobile-adapter-securityTest"/>
+	<procedure name="viewProfile" connectAs="endUser" securityTest="AcmeairMobile-adapter-securityTest"/>
+	<procedure name="submitAuthentication" />
+	
+</wl:adapter>

@@ -1,0 +1,200 @@
+<!-- ***************************************************************************
+* Copyright (c) 2013 IBM Corp.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+**************************************************************************** -->
+<!DOCTYPE HTML>
+<html>
+    	<head>
+    		<meta charset="UTF-8">
+    		<title>CustomerApp</title>
+    		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0">
+    		<link rel="shortcut icon" href="images/favicon.png">
+    		<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+            <link rel="stylesheet" href="http://code.jquery.com/mobile/1.3.1/jquery.mobile-1.3.1.min.css" />
+    		<link rel="stylesheet" href="css/CustomerApp.css">
+    		<script>window.$ = window.jQuery = WLJQ;</script>
+		    <script src="http://code.jquery.com/mobile/1.3.1/jquery.mobile-1.3.1.min.js"></script>    		
+    	</head>
+    	<body id="content">
+    		<div data-role="page" id="main">
+    		     <div data-theme="b" data-role="header">
+        			<h1>ACME Air Mobile</h1>
+  				</div>
+    			<div data-role="content" style="padding: 15px" data-theme="b">    				
+    				<p>Flights, Baggage, and Loyalty all with a Smile</p>
+					<ul data-role="listview" data-inset="true">
+            			<li>
+                			<a href="#flights" data-transition="slide">Search for Flights</a>
+            			</li>
+            			<li>
+                			<a href="#MyFlights" data-transition="slide" onClick="loadBookingData()">My Flights</a>
+            			</li>
+            			<li>
+                			<a href="#profile" data-transition="slide" onClick="showCustomerProfile()">Profile</a>
+            			</li>
+            			<li>
+                			<a href="#login" data-transition="slide">Login</a>
+           				 </li>
+       				 </ul>
+    			</div>
+    		</div>
+    		
+ 			<div data-role="page" id="flights">
+				<div data-role="header" data-theme="b">
+					<h1>Find a Flight</h1>
+				</div>
+				<div data-role="content" id="flightsContent"  style="padding: 15px" data-theme="b">
+					<p>Find a Flight</p>
+		 
+		 
+					<label for="flip">One Way Flight </label>
+					<select name="flip" id="oneWayCheck" data-role="slider">
+				        <option value="off">No </option>
+			    		<option value="on">Yes</option>
+					</select> 
+			 			 
+					<label for="fromAirport">Leave From:</label>
+					<input type="search" name="search" id="fromAirport" value="" />
+				
+					<label for="toAirport">Arrive At:</label>
+					<input type="search" name="search" id="toAirport" value="" />
+             
+	    		    <label for="fromDate">Leave On:</label>
+			        <input type="date" name="date" id="fromDate" value="" />
+			          
+        		    <label for="toDate">Return On:</label>
+			        <input type="date" name="date" id="toDate" value="" />
+			        
+
+			        <a href="#" data-role="button" onClick="queryFlights()" >Search</a>
+			        
+				</div>
+				<div data-role="footer" data-theme="b">
+					<a href="#main" data-transition="slide" data-direction="reverse" > Main Page </a>
+				</div>
+			</div>
+					
+			<div data-role="page" id="SearchResults">
+				<div data-role="header" data-theme="b">
+					<h1>Flight Details</h1>
+				</div>
+				<div data-role="content" id="SearchResultsContent" data-theme="b">					
+		 				 			
+				</div>
+				<div data-role="footer" data-theme="b">
+					<a href="#main" data-transition="slide" data-direction="reverse" > Main Page </a>
+					<a href="#flights" data-transition="slide" data-direction="reverse" > Search for Flights </a>
+				</div>				
+			</div>			
+			
+			
+			<div data-role="page" id="MyFlights">
+				<div data-role="header" data-theme="b">
+					<h1>My Flights</h1>
+				</div>
+				<div data-role="content" id="myFlightsContent">					
+		 			<ul data-role="listview" id="bookingsList" data-inset="true">
+		 			</ul>		 			
+				</div>
+				<div data-role="footer" data-theme="b">
+					<a href="#main" data-transition="slide" data-direction="reverse" > Main Page </a>
+				</div>
+			</div>
+			
+			<div data-role="page" id="MyFlightDetails">
+				<div data-role="header" data-theme="b">
+					<h1>Flight Details</h1>
+				</div>
+				<div data-role="content" id="FlightDetailContent">					
+		 				 			
+				</div>
+			</div>			
+			
+			
+			<div data-role="page" id="login">
+				<div data-role="header" data-theme="b">
+					<h1>Login/Logout</h1>
+				</div>
+				<div data-role="content" id="LoginContent"  style="padding: 15px">							 		  
+			        <label for="username">User Name: </label>
+     				<input type="text" data-clear-btn="true" name="username" id="username" value="uid0@email.com">
+     
+		 			<label for="password">Password: </label>
+     				<input data-clear-btn="true" name="password" id="password" value="password" autocomplete="off" type="password">
+     				<a href="#" data-role="button" onClick="login()" >Login</a>     
+     				<a href="#" data-role="button" onClick="logout()" >Logout</a>
+				</div>
+				<div data-role="footer" data-theme="b">
+					<a href="#main" data-transition="slide" data-direction="reverse" > Main Page </a>
+				</div>
+			</div>
+
+ 			<div data-role="page" id="profile">
+				<div data-role="header" data-theme="b">
+					<h1>Account Profile</h1>
+				</div>
+				<div data-role="content" id="flightsContent"  style="padding: 15px"  data-theme="b">
+					<h2>Account Profile Information:</h2>
+		 	 			 
+					<label for="fromAirport">Account id:</label>
+					<input type="text" name="accountId" id="accountId" value="" readonly="readonly" />
+				
+				    <h2>Contact Information:</h2>
+					<label for="fromAirport">Phone Number:</label>
+					<input type="tel" name="phoneNumber" id="phoneNumber" value="" />
+		
+					<label for="fromAirport">Phone Number Type:</label>
+					<input type="text" name="phoneNumberType" id="phoneNumberType" value="" />
+		
+					<label for="fromAirport">Street Address:</label>
+					<input type="text" name="streetAddress" id="streetAddress" value="" />
+
+					<label for="fromAirport">Street Address 2:</label>
+					<input type="text" name="streetAddress" id="streetAddress2" value="" />
+						        
+					<label for="fromAirport">City:</label>
+					<input type="text" name="city" id="city" value="" />
+
+					<label for="fromAirport">State (Province):</label>
+					<input type="text" name="state" id="state" value="" />
+
+					<label for="fromAirport">Country:</label>
+					<input type="text" name="Country" id="Country" value="" />
+					
+					<label for="fromAirport">Postal Code:</label>
+					<input type="text" name="postalCode" id="postalCode" value="" />	
+								
+					<h2>Customer Loyalty Information:</h2>	
+					<label for="fromAirport">Membership status:</label>
+					<input type="text" name="status" id="status" value="" readonly="readonly"/>									
+
+					<label for="fromAirport">Miles year to date:</label>
+					<input type="text" name="milesYTD" id="milesYTD" value="" readonly="readonly"/>
+					
+					<label for="fromAirport">Total miles:</label>
+					<input type="text" name="milesTotal" id="milesTotal" value="" readonly="readonly"/>									
+
+			        <a href="#" data-role="button" onClick="updateCustomerProfileData()">Update Profile</a>
+			        
+				</div>
+				<div data-role="footer" data-theme="b">
+					<a href="#main" data-transition="slide" data-direction="reverse" > Main Page </a>
+				</div>
+			</div>			
+			
+    		<script src="js/initOptions.js"></script>
+    		<script src="js/CustomerApp.js"></script>
+    		<script src="js/messages.js"></script>
+    	</body>
+</html>
