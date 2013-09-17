@@ -24,7 +24,7 @@
 	<connectivity>
 		<connectionPolicy xsi:type="http:HTTPConnectionPolicyType">
 			<protocol>http</protocol>
-			<domain>9.10.79.139</domain>
+			<domain>127.0.0.1</domain>
 			<port>9080</port>			
 		</connectionPolicy>
 		<loadConstraints maxConcurrentConnectionsPerNode="32" />
