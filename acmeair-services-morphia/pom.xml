@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>acmeair</artifactId>
+		<groupId>com.acmeair</groupId>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
+	<artifactId>acmeair-services-morphia</artifactId>
+	<name>acmeair-services-morphia</name>
+	<url>http://maven.apache.org</url>
+	<dependencies>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>12.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.acmeair</groupId>
+			<artifactId>acmeair-common</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.acmeair</groupId>
+			<artifactId>acmeair-services</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.jmkgreen.morphia</groupId>
+			<artifactId>morphia</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			  <groupId>org.mongodb</groupId> 
+  			  <artifactId>mongo-java-driver</artifactId> 
+			  <version>2.11.1</version>
+		</dependency>
+		
+		<dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+		
+	</dependencies>
+</project>

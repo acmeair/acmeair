@@ -22,7 +22,7 @@ public class CustomerSession implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 
-	private String id;
+	private String _id;
 	private String customerid;
 	private Date lastAccessedTime;
 	private Date timeoutTime;
@@ -31,7 +31,7 @@ public class CustomerSession implements Serializable {
 	}
 
 	public CustomerSession(String id, String customerid, Date lastAccessedTime,	Date timeoutTime) {
-		this.id= id;
+		this._id= id;
 		this.customerid = customerid;
 		this.lastAccessedTime = lastAccessedTime;
 		this.timeoutTime = timeoutTime;
@@ -39,11 +39,11 @@ public class CustomerSession implements Serializable {
 	
 
 	public String getId() {
-		return id;
+		return _id;
 	}
 
 	public void setId(String id) {
-		this.id = id;
+		this._id = id;
 	}
 
 	public String getCustomerid() {
@@ -72,7 +72,7 @@ public class CustomerSession implements Serializable {
 
 	@Override
 	public String toString() {
-		return "CustomerSession [id=" + id + ", customerid=" + customerid
+		return "CustomerSession [id=" + _id + ", customerid=" + customerid
 				+ ", lastAccessedTime=" + lastAccessedTime + ", timeoutTime="
 				+ timeoutTime + "]";
 	}
@@ -91,10 +91,10 @@ public class CustomerSession implements Serializable {
 				return false;
 		} else if (!customerid.equals(other.customerid))
 			return false;
-		if (id == null) {
-			if (other.id != null)
+		if (_id == null) {
+			if (other._id != null)
 				return false;
-		} else if (!id.equals(other.id))
+		} else if (!_id.equals(other._id))
 			return false;
 		if (lastAccessedTime == null) {
 			if (other.lastAccessedTime != null)

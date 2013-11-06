@@ -21,7 +21,7 @@ public class FlightSegment implements Serializable{
 
 	private static final long serialVersionUID = 1L;
 
-	private String id;
+	private String _id;
 	private String originPort;
 	private String destPort;
 	private int miles;
@@ -30,18 +30,18 @@ public class FlightSegment implements Serializable{
 	}
 	
 	public FlightSegment(String flightName, String origPort, String destPort, int miles) {
-		this.id = flightName;
+		this._id = flightName;
 		this.originPort = origPort;
 		this.destPort = destPort;
 		this.miles = miles;
 	}
 	
 	public String getFlightName() {
-		return id;
+		return _id;
 	}
 
 	public void setFlightName(String flightName) {
-		this.id = flightName;
+		this._id = flightName;
 	}
 
 	public String getOriginPort() {
@@ -71,7 +71,7 @@ public class FlightSegment implements Serializable{
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		sb.append("FlightSegment ").append(id).append(" originating from:\"").append(originPort).append("\" arriving at:\"").append(destPort).append("\"");
+		sb.append("FlightSegment ").append(_id).append(" originating from:\"").append(originPort).append("\" arriving at:\"").append(destPort).append("\"");
 		return sb.toString();
 	}
 
@@ -89,10 +89,10 @@ public class FlightSegment implements Serializable{
 				return false;
 		} else if (!destPort.equals(other.destPort))
 			return false;
-		if (id == null) {
-			if (other.id != null)
+		if (_id == null) {
+			if (other._id != null)
 				return false;
-		} else if (!id.equals(other.id))
+		} else if (!_id.equals(other._id))
 			return false;
 		if (miles != other.miles)
 			return false;

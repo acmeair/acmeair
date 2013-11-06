@@ -21,23 +21,23 @@ public class AirportCodeMapping implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
 
-	private String id;
+	private String _id;
 	private String airportName;
 	
 	public AirportCodeMapping() {
 	}
 	
 	public AirportCodeMapping(String airportCode, String airportName) {
-		this.id = airportCode;
+		this._id = airportCode;
 		this.airportName = airportName;
 	}
 	
 	public String getAirportCode() {
-		return id;
+		return _id;
 	}
 	
 	public void setAirportCode(String airportCode) {
-		this.id = airportCode;
+		this._id = airportCode;
 	}
 	
 	public String getAirportName() {

@@ -20,12 +20,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import javax.naming.NamingException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
+import com.acmeair.config.loader.MongoDirectAppConfig;
+import com.acmeair.config.loader.WXSDirectAppConfig;
+
 public class Loader {
+	public static String REPOSITORY_LOOKUP_KEY = "com.acmeair.repository.type";
+
 	private static Logger logger = LoggerFactory.getLogger(Loader.class);
 
 	public static void main(String args[]) throws Exception {
@@ -54,8 +61,57 @@ public class Loader {
         String numCustomers = props.getProperty("loader.numCustomers","100");
     	System.setProperty("loader.numCustomers", numCustomers);
 
-    	// TODO:  Later add back in other implementations
-		ctx = new AnnotationConfigApplicationContext(WXSDirectAppConfig.class);
+		String type = null;
+		String lookup = REPOSITORY_LOOKUP_KEY.replace('.', '/');
+		javax.naming.Context context = null;
+		javax.naming.Context envContext;
+		try {
+			context = new javax.naming.InitialContext();
+			envContext = (javax.naming.Context) context.lookup("java:comp/env");
+			if (envContext != null)
+				type = (String) envContext.lookup(lookup);
+		} catch (NamingException e) {
+			// e.printStackTrace();
+		}
+		
+		if (type != null) {
+			logger.info("Found repository in web.xml:" + type);
+		}
+		else if (context != null) {
+			try {
+				type = (String) context.lookup(lookup);
+				if (type != null)
+					logger.info("Found repository in server.xml:" + type);
+			} catch (NamingException e) {
+				// e.printStackTrace();
+			}
+		}
+
+		if (type == null) {
+			type = System.getProperty(REPOSITORY_LOOKUP_KEY);
+			if (type != null)
+				logger.info("Found repository in jvm property:" + type);
+			else {
+				type = System.getenv(REPOSITORY_LOOKUP_KEY);
+				if (type != null)
+					logger.info("Found repository in environment property:" + type);
+			}
+		}
+
+		if (type ==null) // Default to wxsdirect
+		{
+			type = "wxsdirect";
+			logger.info("Using default repository :" + type);
+		}
+		if (type.equals("wxsdirect"))
+			ctx = new AnnotationConfigApplicationContext(WXSDirectAppConfig.class);
+		else if (type.equals("mongodirect"))
+			ctx = new AnnotationConfigApplicationContext(MongoDirectAppConfig.class);
+		else
+		{
+			logger.info("Did not find a matching config. Using default repository wxsdirect instead");
+			ctx = new AnnotationConfigApplicationContext(WXSDirectAppConfig.class);
+		}
 		
 		FlightLoader flightLoader = ctx.getBean(FlightLoader.class);
 		CustomerLoader customerLoader = ctx.getBean(CustomerLoader.class);

@@ -24,7 +24,7 @@ public class Customer implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
 
-	private String id;
+	private String _id;
 	private String password;
 	private MemberShipStatus status;
 	private int total_miles;
@@ -38,7 +38,7 @@ public class Customer implements Serializable{
 	}
 	
 	public Customer(String username, String password, MemberShipStatus status, int total_miles, int miles_ytd, CustomerAddress address, String phoneNumber, PhoneType phoneNumberType) {
-		this.id = username;
+		this._id = username;
 		this.password = password;
 		this.status = status;
 		this.total_miles = total_miles;
@@ -49,11 +49,11 @@ public class Customer implements Serializable{
 	}
 
 	public String getUsername() {
-		return id;
+		return _id;
 	}
 	
 	public void setUsername(String username) {
-		this.id = username;
+		this._id = username;
 	}
 	
 	public String getPassword() {
@@ -114,7 +114,7 @@ public class Customer implements Serializable{
 
 	@Override
 	public String toString() {
-		return "Customer [id=" + id + ", password=" + password + ", status="
+		return "Customer [id=" + _id + ", password=" + password + ", status="
 				+ status + ", total_miles=" + total_miles + ", miles_ytd="
 				+ miles_ytd + ", address=" + address + ", phoneNumber="
 				+ phoneNumber + ", phoneNumberType=" + phoneNumberType + "]";
@@ -134,10 +134,10 @@ public class Customer implements Serializable{
 				return false;
 		} else if (!address.equals(other.address))
 			return false;
-		if (id == null) {
-			if (other.id != null)
+		if (_id == null) {
+			if (other._id != null)
 				return false;
-		} else if (!id.equals(other.id))
+		} else if (!_id.equals(other._id))
 			return false;
 		if (miles_ytd != other.miles_ytd)
 			return false;

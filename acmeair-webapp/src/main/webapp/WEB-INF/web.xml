@@ -25,10 +25,10 @@
 	<!-- Configuration locations must consist of one or more comma- or space-delimited 
 		fully-qualified @Configuration classes. Fully-qualified packages may also 
 		be specified for component-scanning -->
-	<context-param>
+	<!-- context-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>com.acmeair.web.config.WXSDirectAppConfig</param-value>
-	</context-param>
+	</context-param-->
 
 	<filter>
     	<filter-name>CookieFilter</filter-name>

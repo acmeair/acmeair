@@ -6,6 +6,7 @@
     <project>acmeair-common</project>
     <project>acmeair-services</project>
     <project>acmeair-services-wxs</project>
+    <project>acmeair-services-morphia</project>
   </projects>
   <buildSpec>
     <buildCommand>
