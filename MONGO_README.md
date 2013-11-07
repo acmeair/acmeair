@@ -9,7 +9,7 @@ Default Mongodb location is localhost:27017/acmeair. You can revise the content 
 
 Acmeair by default will connect to WebSphere eXtreme Scale. To enable Mongodb, you need to add the following content to Liberty's server.xml:
 
-### add jndi feature under <FeatureManager>
+### add jndi feature under FeatureManager
 
         <feature>jndi-1.0</feature>
 
