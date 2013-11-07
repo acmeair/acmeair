@@ -12,10 +12,10 @@
    <context:property-placeholder location="classpath:/acmeair-mongo.properties"/>
        	   
 	<bean id="mongoOptions" class="com.mongodb.MongoOptions">
-		<property name="fsync" value="false" />
-		<property name="w" value="0" />
-		<property name="connectionsPerHost" value="100" />
-		<property name="threadsAllowedToBlockForConnectionMultiplier" value="10" />
+		<property name="fsync" value="${mongo.fsync}" />
+		<property name="w" value="${mongo.w}" />
+		<property name="connectionsPerHost" value="${mongo.connectionsPerHost}" />
+		<property name="threadsAllowedToBlockForConnectionMultiplier" value="${mongo.threadsAllowedToBlockForConnectionMultiplier}" />
 		<!-- property name="socketKeepAlive" value="true" /-->
 		<!--property name="maxWaitTime" value="2000" /-->
 	</bean>
@@ -32,9 +32,13 @@
 
 	<bean id="morphia" class="com.github.jmkgreen.morphia.Morphia"/> 
 
-	<bean id="datastore" factory-bean="morphia" factory-method="createDatastore"> 
+	<bean id="localDatastore" factory-bean="morphia" factory-method="createDatastore"> 
 		<constructor-arg ref="mongo"/> 
 		<constructor-arg value="${mongo.database}"/> 
+	</bean> 
+    
+	<bean id="datastore"  class="com.acmeair.morphia.DatastoreFactory"  factory-method="getDatastore">
+		<constructor-arg type="com.github.jmkgreen.morphia.Datastore" ref="localDatastore"/> 
 	</bean> 
        	   
 </beans>
