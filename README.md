@@ -2,9 +2,10 @@
 
 This application shows an implementation of a fictitious airline called "Acme Air".  The application was built with the some key business requirements: the ability to scale to billions of web API calls per day, the need to develop and deploy the application in public clouds (as opposed to dedicated pre-allocated infrastructure), and the need to support multiple channels for user interaction (with mobile enablement first and browser/Web 2.0 second).
 
-There are two implementations of the application each with an application tier and a data tier.  They are:
+There are three implementations of the application each with an application tier and a data tier.  They are:
 - **NodeJS to Mongodb**
 - **Java / WebSphere Liberty Profile to WebSphere eXtreme Scale**
+- **Java / WebSphere Liberty Profile to Mongodb**
 
 ## Repository Contents
 
@@ -14,6 +15,7 @@ Source:
 - **acmeair-loader**:  A tool to load the Java implementation data store
 - **acmeair-services**:  The Java data services interface definitions
 - **acmeair-service-wxs**:  A WebSphere eXtreme Scale data service implementation
+- **acmeair-service-morphia**:  A mongodb data service implementation
 - **acmeair-webapp**:  The Web 2.0 application and associated Java REST services
 - **acmeair-webapp-nodejs**: A implementation of the Acme Air application in NodeJS with a MongoDB data store backend
 - **acmeair-driver**: The workload driver script and supporting classes and resources
@@ -21,6 +23,7 @@ Source:
 ## How to get started
 
 * See the [wiki](https://github.com/acmeair/acmeair/wiki)
+* Websphere Liberty to Mongodb Instructions (https://github.com/acmeair/acmeair/blob/mongodb/MONGO_README.md)
 
 
 ## Ask Questions
