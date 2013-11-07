@@ -2,15 +2,20 @@
 
 ## Connection to Mongodb
 
-Default Mongodb location is localhost:27017/acmeair. You can revise the content [here](https://github.com/acmeair/acmeair/blob/mongodb/acmeair-services-morphia/src/main/resources/acmeair-mongo.properties) before build the application.
+Default Mongodb location is localhost:27017/acmeair. You can revise the content [here](https://github.com/acmeair/acmeair/blob/mongodb/acmeair-services-morphia/src/main/resources/acmeair-mongo.properties) before building the application.
 
 
 ## Enable Mongodb for application runtime
 
 Acmeair by default will connect to WebSphere eXtreme Scale. To enable Mongodb, you need to add the following content to Liberty's server.xml:
 
-    <jndiEntry jndiName="com/acmeair/repository/type" value="mongodirect"/>
+### add jndi feature under <FeatureManager>
 
+        <feature>jndi-1.0</feature>
+
+### add jndi entry for enabling mongodb
+
+    <jndiEntry jndiName="com/acmeair/repository/type" value="mongodirect"/>
 
 
 ## Enable Mongodb for loader
