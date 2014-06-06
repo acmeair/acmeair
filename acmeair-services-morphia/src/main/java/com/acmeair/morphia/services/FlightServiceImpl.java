@@ -5,34 +5,62 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 
-import javax.annotation.Resource;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import com.acmeair.entities.AirportCodeMapping;
 import com.acmeair.entities.Flight;
 import com.acmeair.entities.FlightPK;
 import com.acmeair.entities.FlightSegment;
+import com.acmeair.morphia.MorphiaConstants;
+import com.acmeair.service.DataService;
 import com.acmeair.service.FlightService;
-import com.acmeair.service.KeyGenerator;
 import com.github.jmkgreen.morphia.Datastore;
+import com.github.jmkgreen.morphia.Morphia;
 import com.github.jmkgreen.morphia.query.Query;
+import com.mongodb.DB;
 
-@Service("flightService")
-public class FlightServiceImpl implements FlightService {
+//@MorphiaQualifier
+@DataService(name=MorphiaConstants.KEY,description=MorphiaConstants.KEY_DESCRIPTION)
+public class FlightServiceImpl implements FlightService, MorphiaConstants {
 
-	@Autowired
+	private final static Logger logger = Logger.getLogger(FlightService.class.getName()); 
+	
+	//@Resource(name = JNDI_NAME)
+	protected DB db;
+
+	
 	Datastore datastore;
 	
-	@Resource
-	KeyGenerator keyGenerator;
+	@Inject
+	DefaultKeyGeneratorImpl keyGenerator;
 	
 	//TODO:need to find a way to invalidate these maps
 	private static ConcurrentHashMap<String, FlightSegment> originAndDestPortToSegmentCache = new ConcurrentHashMap<String,FlightSegment>();
 	private static ConcurrentHashMap<String, List<Flight>> flightSegmentAndDataToFlightCache = new ConcurrentHashMap<String,List<Flight>>();
 	private static ConcurrentHashMap<FlightPK, Flight> flightPKtoFlightCache = new ConcurrentHashMap<FlightPK, Flight>();
+	
+	
+	@PostConstruct
+	public void initialization() {		
+		Morphia morphia = new Morphia();
+		if(db == null){			
+	        try {	        
+	        	db = (DB) new InitialContext().lookup(JNDI_NAME);
+			} catch (NamingException e) {
+				logger.severe("Caught NamingException : " + e.getMessage() );
+			}	        
+		}
+		if(db == null){
+			logger.severe("Unable to retreive reference to database, please check the server logs.");
+		} else {			
+			datastore = morphia.createDatastore(db.getMongo(), db.getName());
+		}
+	}
 	
 	@Override
 	public Flight getFlightByFlightKey(FlightPK key) {

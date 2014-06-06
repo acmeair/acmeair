@@ -39,6 +39,19 @@ function updateLoggedInUserWelcome() {
 	}
 }
 
+function loaddb() {
+	dojo.xhrGet({
+		content : {
+		},
+		url: 'rest/api/loaddb',
+		load: function(response, ioArgs) {
+		},
+		error: function(response, ioArgs) {
+			alert('error loaddb, response: ' + response);
+		}
+	});
+}
+
 function login() {
 	hideLoginDialog();
 	showLoginWaitDialog();

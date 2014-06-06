@@ -19,33 +19,82 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.logging.Logger;
 
-import javax.naming.NamingException;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Response;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-
-import com.acmeair.config.loader.MongoDirectAppConfig;
-import com.acmeair.config.loader.WXSDirectAppConfig;
-
+@Path("/loaddb")
 public class Loader {
 	public static String REPOSITORY_LOOKUP_KEY = "com.acmeair.repository.type";
 
-	private static Logger logger = LoggerFactory.getLogger(Loader.class);
+	private static Logger logger = Logger.getLogger(Loader.class.getName());
 
-	public static void main(String args[]) throws Exception {
+	
+	@GET
+	@Produces("text/plain")
+	public Response loaddb() {
 		Loader loader = new Loader();
-		loader.execute(args);
+		loader.execute();
+		return Response.ok("loaded db").build();	
 	}
 	
-	private void execute(String args[]) {
-		ApplicationContext ctx = null;
+	public static void main(String args[]) throws Exception {
+		Loader loader = new Loader();
+		loader.execute();
+	}
+	
+	
+	private void execute() {
+		FlightLoader flightLoader = new FlightLoader();
+		CustomerLoader customerLoader = new CustomerLoader();
+		Properties props = getProperties();
+		
+        String numCustomers = props.getProperty("loader.numCustomers","100");
+    	System.setProperty("loader.numCustomers", numCustomers);
+    	
+		try {
+			long start = System.currentTimeMillis();
+			logger.info("Start loading flights");
+			flightLoader.loadFlights();
+			logger.info("Start loading " +  numCustomers + " customers");
+			customerLoader.loadCustomers(Long.parseLong(numCustomers));
+			long stop = System.currentTimeMillis();
+			logger.info("Finished loading in " + (stop - start)/1000.0 + " seconds");
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}		
+	}
+	
+	
+	private Properties getProperties(){
         /*
          * Get Properties from loader.properties file. 
          * If the file does not exist, use default values
          */
+		Properties props = new Properties();
+		String propFileName = "/loader.properties";
+		try{			
+			InputStream propFileStream = Loader.class.getResourceAsStream(propFileName);
+			props.load(propFileStream);
+		//	props.load(new FileInputStream(propFileName));
+		}catch(FileNotFoundException e){
+			logger.info("Property file " + propFileName + " not found.");
+		}catch(IOException e){
+			logger.info("IOException - Property file " + propFileName + " not found.");
+		}
+    	return props;
+	}
+	/*
+	private void execute(String args[]) {
+		ApplicationContext ctx = null;
+         //
+         // Get Properties from loader.properties file. 
+         // If the file does not exist, use default values
+         //
 		Properties props = new Properties();
 		String propFileName = "/loader.properties";
 		try{			
@@ -129,4 +178,5 @@ public class Loader {
 			e.printStackTrace();
 		}
 	}
+	*/
 }

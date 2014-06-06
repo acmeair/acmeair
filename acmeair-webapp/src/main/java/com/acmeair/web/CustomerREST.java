@@ -19,18 +19,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 
-import org.springframework.stereotype.Component;
-
 import com.acmeair.entities.*;
 import com.acmeair.service.*;
 
 import javax.ws.rs.core.Context;
 
 @Path("/customer")
-@Component
 public class CustomerREST {
 	
-	private CustomerService customerService = ServiceLocator.getService(CustomerService.class);
+	private CustomerService customerService = ServiceLocator.instance().getService(CustomerService.class);
 	
 	@Context 
 	private HttpServletRequest request;

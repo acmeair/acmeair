@@ -24,26 +24,22 @@
   <artifactId>acmeair-services-wxs</artifactId>
   <name>acmeair-services-wxs</name>
   <url>http://maven.apache.org</url>
-  <dependencies>
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>12.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.acmeair</groupId>
-			<artifactId>acmeair-common</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.acmeair</groupId>
-			<artifactId>acmeair-services</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+    <dependencies>
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <version>${spring.version}</version>
+            <groupId>com.acmeair</groupId>
+            <artifactId>acmeair-common</artifactId>
+            <version>${project.version}</version>
         </dependency>
-	</dependencies>
+        <dependency>
+            <groupId>com.acmeair</groupId>
+            <artifactId>acmeair-services</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+            <version>6.0</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 </project>

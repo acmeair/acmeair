@@ -17,10 +17,12 @@ package com.acmeair.entities;
 
 import java.io.Serializable;
 
+
 public class Customer implements Serializable{
 
 	public enum MemberShipStatus { NONE, SILVER, GOLD, PLATINUM, EXEC_PLATINUM, GRAPHITE };
 	public enum PhoneType { UNKNOWN, HOME, BUSINESS, MOBILE };
+	
 	
 	private static final long serialVersionUID = 1L;
 

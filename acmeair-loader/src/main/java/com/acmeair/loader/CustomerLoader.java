@@ -19,16 +19,14 @@ import com.acmeair.entities.Customer;
 import com.acmeair.entities.CustomerAddress;
 import com.acmeair.entities.Customer.PhoneType;
 import com.acmeair.service.CustomerService;
+import com.acmeair.service.ServiceLocator;
 
-import org.springframework.stereotype.Component;
-import javax.annotation.Resource;
 
-@Component
 public class CustomerLoader {
 
-	@Resource
-	private CustomerService customerService;
+	private CustomerService customerService = ServiceLocator.instance().getService(CustomerService.class);
 
+	
 	public void loadCustomers(long numCustomers) {
 		CustomerAddress address = new CustomerAddress("123 Main St.", null, "Anytown", "NC", "USA", "27617");
 		for (long ii = 0; ii < numCustomers; ii++) {

@@ -27,12 +27,13 @@ import javax.ws.rs.Produces;
 
 import com.acmeair.entities.Flight;
 import com.acmeair.service.FlightService;
+import com.acmeair.service.ServiceLocator;
 import com.acmeair.web.TripLegInfo;
 
 @Path("/flights")
 public class FlightsREST {
 	
-	private FlightService flightService = ServiceLocator.getService(FlightService.class);
+	private FlightService flightService = ServiceLocator.instance().getService(FlightService.class);
 	
 	// TODO:  Consider a pure GET implementation of this service, but maybe not much value due to infrequent similar searches
 	@POST

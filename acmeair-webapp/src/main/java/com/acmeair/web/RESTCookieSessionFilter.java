@@ -17,6 +17,8 @@ package com.acmeair.web;
 
 import java.io.IOException;
 
+import javax.enterprise.inject.spi.BeanManager;
+import javax.inject.Inject;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -29,50 +31,45 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.acmeair.entities.CustomerSession;
 import com.acmeair.service.CustomerService;
-import com.acmeair.wxs.utils.TransactionService;
+import com.acmeair.service.ServiceLocator;
+import com.acmeair.service.TransactionService;
 
 public class RESTCookieSessionFilter implements Filter {
 	
 	static final String LOGIN_USER = "acmeair.login_user";
 	private static final String LOGIN_PATH = "/rest/api/login";
 	private static final String LOGOUT_PATH = "/rest/api/login/logout";
+	private static final String LOADDB_PATH = "/rest/api/loaddb";
 	
-	private CustomerService customerService = ServiceLocator.getService(CustomerService.class);
-	private TransactionService transactionService = null; 
-	private boolean initializedTXService = false;
+	private CustomerService customerService = ServiceLocator.instance().getService(CustomerService.class);
+	private TransactionService transactionService = ServiceLocator.instance().getService(TransactionService.class);; 
+
+	@Inject
+	BeanManager beanManager;
 	
 	@Override
 	public void destroy() {
 	}
 
-	private TransactionService getTxService()
-	{
-		if (!this.initializedTXService)
-		{
-			this.initializedTXService = true;
-			transactionService = ServiceLocator.getService(TransactionService.class);
-		}
-		
-		return transactionService;
-	}
+	
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse resp,	FilterChain chain) throws IOException, ServletException {
 		HttpServletRequest request = (HttpServletRequest)req;
 		HttpServletResponse response = (HttpServletResponse)resp;
 		
 		String path = request.getContextPath() + request.getServletPath() + request.getPathInfo();
-		// The following code is to ensure that OG is always set on the thread
-		try{
-			TransactionService txService = getTxService();
-			if (txService!=null)
-				txService.prepareForTransaction();
+		// The following code is to ensure that OG is always set on the thread	
+		try{			
+			if (transactionService!=null)
+				transactionService.prepareForTransaction();
 		}catch( Exception e)
 		{
 			e.printStackTrace();
 		}
-		// could do .startsWith for now, but plan to move LOGOUT to its own REST interface eventually
-		if (path.endsWith(LOGIN_PATH) || path.endsWith(LOGOUT_PATH)) {
-			// if logging in, let the request flow
+	
+		
+		if (path.endsWith(LOGIN_PATH) || path.endsWith(LOGOUT_PATH) || path.endsWith(LOADDB_PATH)) {
+			// if logging in, logging out, or loading the database, let the request flow
 			chain.doFilter(req, resp);
 			return;
 		}

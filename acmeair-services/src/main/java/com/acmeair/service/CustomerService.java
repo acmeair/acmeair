@@ -22,6 +22,7 @@ import com.acmeair.entities.Customer.PhoneType;
 import com.acmeair.entities.CustomerSession;
 
 public interface CustomerService {
+	static final int DAYS_TO_ALLOW_SESSION = 1;
 	
 	public Customer createCustomer(
 			String username, String password, MemberShipStatus status, int total_miles,

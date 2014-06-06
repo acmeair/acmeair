@@ -31,5 +31,6 @@
       <artifactId>objectgrid</artifactId>
       <version>${objectgrid.version}</version>
     </dependency>
+
   </dependencies>
 </project>

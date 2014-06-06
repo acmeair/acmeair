@@ -18,20 +18,17 @@ package com.acmeair.web;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 
-import org.springframework.stereotype.Component;
-
 import com.acmeair.entities.CustomerSession;
 import com.acmeair.service.*;
 
 
-
 @Path("/login")
-@Component
 public class LoginREST {
 	
 	public static String SESSIONID_COOKIE_NAME = "sessionid";
-
-	private CustomerService customerService = ServiceLocator.getService(CustomerService.class);
+	
+	private CustomerService customerService = ServiceLocator.instance().getService(CustomerService.class);
+	
 	
 	@POST
 	@Consumes({"application/x-www-form-urlencoded"})

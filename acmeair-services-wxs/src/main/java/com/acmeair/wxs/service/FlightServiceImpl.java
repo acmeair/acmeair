@@ -17,60 +17,78 @@ package com.acmeair.wxs.service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.List;
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 
-import javax.annotation.Resource;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import com.acmeair.entities.AirportCodeMapping;
 import com.acmeair.entities.Flight;
 import com.acmeair.entities.FlightPK;
 import com.acmeair.entities.FlightSegment;
+import com.acmeair.service.BookingService;
+import com.acmeair.service.DataService;
 import com.acmeair.service.FlightService;
-import com.acmeair.service.KeyGenerator;
-import com.acmeair.wxs.utils.MapPutAllAgent;
-import com.acmeair.wxs.utils.WXSSessionManager;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
+import com.acmeair.wxs.WXSConstants;
+import com.ibm.websphere.objectgrid.ObjectGrid;
 import com.ibm.websphere.objectgrid.ObjectMap;
 import com.ibm.websphere.objectgrid.Session;
-import com.ibm.websphere.objectgrid.datagrid.AgentManager;
-import com.ibm.websphere.objectgrid.query.ObjectQuery;
 
-@Service("flightService")
-public class FlightServiceImpl implements FlightService {
+@DataService(name=WXSConstants.KEY,description=WXSConstants.KEY_DESCRIPTION)
+public class FlightServiceImpl implements FlightService, WXSConstants {
 
 	private static final String FLIGHT_MAP_NAME="Flight";
 	private static final String FLIGHT_SEGMENT_MAP_NAME="FlightSegment";
 	private static final String AIRPORT_CODE_MAPPING_MAP_NAME="AirportCodeMapping";
 	
-	@Autowired
-	private WXSSessionManager sessionManager;
+	private final static Logger logger = Logger.getLogger(BookingService.class.getName()); 
 	
-	@Resource
-	KeyGenerator keyGenerator;
+	private ObjectGrid og;
+	
+	@Inject
+	DefaultKeyGeneratorImpl keyGenerator;
 	
 	//TODO: consider adding time based invalidation to these maps
 	private static ConcurrentHashMap<String, FlightSegment> originAndDestPortToSegmentCache = new ConcurrentHashMap<String,FlightSegment>();
 	private static ConcurrentHashMap<String, List<Flight>> flightSegmentAndDataToFlightCache = new ConcurrentHashMap<String,List<Flight>>();
 	private static ConcurrentHashMap<FlightPK, Flight> flightPKtoFlightCache = new ConcurrentHashMap<FlightPK, Flight>();
 
+	
+	@PostConstruct
+	private void initialization()  {		
+		if(og == null) {			
+			try {
+				InitialContext ic = new InitialContext();			
+				og = (ObjectGrid) ic.lookup(JNDI_NAME);
+			} catch (NamingException e) {
+				logger.severe("Error looking up the ObjectGrid reference" + e.getMessage());
+			}
+		}
+	}
+	
 	@Override
 	public Flight getFlightByFlightKey(FlightPK key) {
 		try {
 			Flight flight;
 			flight = flightPKtoFlightCache.get(key);
 			if (flight == null) {
-				Session session = sessionManager.getObjectGridSession();
+				//Session session = sessionManager.getObjectGridSession();
+				Session session = og.getSession();
 				ObjectMap flightMap = session.getMap(FLIGHT_MAP_NAME);
-				flight = (Flight) flightMap.get(key);
-				if (key != null && flight != null) {
-					flightPKtoFlightCache.putIfAbsent(key, flight);
+				HashSet<Flight> flightsBySegment = (HashSet<Flight>)flightMap.get(key.getFlightSegmentId());
+				for (Flight f : flightsBySegment) {
+					if (f.getPkey().getId().equals(key.getId())) {
+						flightPKtoFlightCache.putIfAbsent(key, f);
+						flight = f;
+						break;
+					}
 				}
 			}
 			return flight;
@@ -88,23 +106,23 @@ public class FlightServiceImpl implements FlightService {
 			boolean startedTran = false;
 
 			if (segment == null) {
-				session = sessionManager.getObjectGridSession();
+				//session = sessionManager.getObjectGridSession();
+				session = og.getSession();
 				if (!session.isTransactionActive()) {
 					startedTran = true;
 					session.begin();
 				}
-				ObjectQuery query = session.createObjectQuery("select obj from FlightSegment obj where obj.destPort=?1 and obj.originPort=?2");
-				query.setParameter(2, fromAirport);
-				query.setParameter(1, toAirport);
-
-				int partitionId = sessionManager.getBackingMap(FLIGHT_SEGMENT_MAP_NAME).getPartitionManager().getPartition(fromAirport);
-				query.setPartition(partitionId);
-
-				@SuppressWarnings("unchecked")
-				Iterator<Object> itr = query.getResultIterator();
-				if (itr.hasNext())
-					segment = (FlightSegment) itr.next();
-
+				ObjectMap flightSegmentMap = session.getMap(FLIGHT_SEGMENT_MAP_NAME);
+				
+				HashSet<FlightSegment> segmentsByOrigPort = (HashSet<FlightSegment>)flightSegmentMap.get(fromAirport);
+				if (segmentsByOrigPort!=null)
+				{
+				for (FlightSegment fs : segmentsByOrigPort) {
+					if (fs.getDestPort().equals(toAirport)) {
+						segment = fs;
+					}
+				}
+				}
 				if (segment == null) {
 					segment = new FlightSegment(); // put a sentinel value of a non-populated flightsegment
 				}
@@ -123,27 +141,21 @@ public class FlightServiceImpl implements FlightService {
 			if (flights == null) {
 				flights = new ArrayList<Flight>();
 				if (session == null) {
-					session = sessionManager.getObjectGridSession();
+					//session = sessionManager.getObjectGridSession();
+					session = og.getSession();
 					if (!session.isTransactionActive()) {
 						startedTran = true;
 						session.begin();
 					}
-				}
-				Flight flight;
-				// Has to make the partition field last otherwise getting exception
-				ObjectQuery query = session.createObjectQuery("select obj from Flight obj where obj.scheduledDepartureTime=?1 and obj.flightSegmentId=?2");
-				query.setParameter(1, deptDate);
-				query.setParameter(2, segId);
-
-				int partitionId = sessionManager.getBackingMap(FLIGHT_MAP_NAME).getPartitionManager().getPartition(segId);
-				query.setPartition(partitionId);
-				@SuppressWarnings("unchecked")
-				Iterator<Object> itr = query.getResultIterator();
+				}				
 				
-				while (itr.hasNext()) {
-					flight = (Flight) itr.next();
-					flight.setFlightSegment(segment);
-					flights.add(flight);
+				ObjectMap flightMap = session.getMap(FLIGHT_MAP_NAME);
+				HashSet<Flight> flightsBySegment = (HashSet<Flight>)flightMap.get(segment.getFlightName());
+				for (Flight f : flightsBySegment) {
+					if (areDatesSameWithNoTime(f.getScheduledDepartureTime(), deptDate)) {
+						f.setFlightSegment(segment);
+						flights.add(f);
+					}
 				}
 				
 				flightSegmentAndDataToFlightCache.putIfAbsent(flightSegmentIdAndScheduledDepartureTimeQueryString, flights);
@@ -158,58 +170,79 @@ public class FlightServiceImpl implements FlightService {
 		}
 	}
 	
+	public static boolean areDatesSameWithNoTime(Date d1, Date d2) {
+		return getDateWithNoTime(d1).equals(getDateWithNoTime(d2));
+	}
+	
+	public static Date getDateWithNoTime(Date date) {
+		Calendar c = Calendar.getInstance();
+		c.setTime(date);
+		c.set(Calendar.HOUR_OF_DAY, 0);
+		c.set(Calendar.MINUTE, 0);
+		c.set(Calendar.SECOND, 0);
+		c.set(Calendar.MILLISECOND, 0);
+		return c.getTime();
+	}
+	
 	@Override
 	public List<Flight> getFlightByAirports(String fromAirport, String toAirport) {
-		
-		try{
-			
-			Session session = sessionManager.getObjectGridSession();
-			
+		try {
+			Session session = null;
+			String originPortAndDestPortQueryString = fromAirport + toAirport;
+			FlightSegment segment = originAndDestPortToSegmentCache.get(originPortAndDestPortQueryString);
 			boolean startedTran = false;
-			if (!session.isTransactionActive()) 
-			{
-				startedTran = true;
-				session.begin();
+
+			if (segment == null) {				
+				//session = sessionManager.getObjectGridSession();
+				session = og.getSession();
+				if (!session.isTransactionActive()) {
+					startedTran = true;
+					session.begin();
+				}
+				ObjectMap flightSegmentMap = session.getMap(FLIGHT_SEGMENT_MAP_NAME);
+				
+				HashSet<FlightSegment> segmentsByOrigPort = (HashSet<FlightSegment>)flightSegmentMap.get(fromAirport);
+				for (FlightSegment fs : segmentsByOrigPort) {
+					if (fs.getDestPort().equals(toAirport)) {
+						segment = fs;
+					}
+				}
+				
+				if (segment == null) {
+					segment = new FlightSegment(); // put a sentinel value of a non-populated flightsegment
+				}
+				originAndDestPortToSegmentCache.putIfAbsent(originPortAndDestPortQueryString, segment);
 			}
-			ObjectQuery query = session.createObjectQuery("select obj from FlightSegment obj where obj.destPort=?1 and obj.originPort=?2");
-			query.setParameter(2, fromAirport);
-			query.setParameter(1, toAirport);	
+
+			// cache flights that not available (checks against sentinel value above indirectly)
+			if (segment.getFlightName() == null) {
+				return new ArrayList<Flight>();
+			}
+
+			String segId = segment.getFlightName();
 			
-			int partitionId = sessionManager.getBackingMap(FLIGHT_SEGMENT_MAP_NAME).getPartitionManager().getPartition(fromAirport);
-			query.setPartition(partitionId);
-			
-			@SuppressWarnings("unchecked")
-			Iterator<Object> itr = query.getResultIterator(); 
-			FlightSegment segment =null;
-			if (itr.hasNext())
-				segment = (FlightSegment) itr.next();
-			
-			Flight flight;
-			List<Flight> flights = new ArrayList<Flight>();
-			if (segment != null)
-			{
-				String segId = segment.getFlightName();
-				// Has to make the partition field last otherwise getting exception
-				query = session.createObjectQuery("select obj from Flight obj where obj.flightSegmentId=?1");
-				query.setParameter(1, segId);	
-				
-				partitionId = sessionManager.getBackingMap(FLIGHT_MAP_NAME).getPartitionManager().getPartition(segId);
-				query.setPartition(partitionId);
-				
-				@SuppressWarnings("unchecked")
-				Iterator<Object> itr2 = query.getResultIterator(); 			
-				while (itr2.hasNext()) {
-					flight = (Flight) itr2.next();
-					flight.setFlightSegment(segment);
-					flights.add(flight);
+			ArrayList <Flight> flights = new ArrayList<Flight>();
+			if (session == null) {
+				//session = sessionManager.getObjectGridSession();
+				session = og.getSession();
+				if (!session.isTransactionActive()) {
+					startedTran = true;
+					session.begin();
 				}
 			}
+	
+				
+			ObjectMap flightMap = session.getMap(FLIGHT_MAP_NAME);
+			HashSet<Flight> flightsBySegment = (HashSet<Flight>)flightMap.get(segment.getFlightName());
+			for (Flight f : flightsBySegment) {
+				f.setFlightSegment(segment);
+				flights.add(f);
+			}
+				
 			if (startedTran)
 				session.commit();
-			
 			return flights;
-		}catch (Exception e)
-		{
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -219,7 +252,8 @@ public class FlightServiceImpl implements FlightService {
 	@Override
 	public void storeAirportMapping(AirportCodeMapping mapping) {
 		try{
-			Session session = sessionManager.getObjectGridSession();
+			//Session session = sessionManager.getObjectGridSession();
+			Session session = og.getSession();
 			ObjectMap airportCodeMappingMap = session.getMap(AIRPORT_CODE_MAPPING_MAP_NAME);
 			airportCodeMappingMap.insert(mapping.getAirportCode(), mapping);
 		}catch (Exception e)
@@ -243,9 +277,19 @@ public class FlightServiceImpl implements FlightService {
 				firstClassBaseCost, economyClassBaseCost,
 				numFirstClassSeats, numEconomyClassSeats,
 				airplaneTypeId);
-			Session session = sessionManager.getObjectGridSession();
+			//Session session = sessionManager.getObjectGridSession();
+			Session session = og.getSession();
 			ObjectMap flightMap = session.getMap(FLIGHT_MAP_NAME);
-			flightMap.insert(flight.getPkey(), flight);
+			//flightMap.insert(flight.getPkey(), flight);
+			//return flight;
+			HashSet<Flight> flightsBySegment = (HashSet<Flight>)flightMap.get(flightSegmentId);
+			if (flightsBySegment == null) {
+				flightsBySegment = new HashSet<Flight>();
+			}
+			if (!flightsBySegment.contains(flight)) {
+				flightsBySegment.add(flight);
+				flightMap.upsert(flightSegmentId, flightsBySegment);
+			}
 			return flight;
 		}catch (Exception e)
 		{
@@ -256,22 +300,20 @@ public class FlightServiceImpl implements FlightService {
 	@Override
 	public void storeFlightSegment(FlightSegment flightSeg) {
 		try {
-			Session session = sessionManager.getObjectGridSession();
+			//Session session = sessionManager.getObjectGridSession();
+			Session session = og.getSession();
 			ObjectMap flightSegmentMap = session.getMap(FLIGHT_SEGMENT_MAP_NAME);
 			// As the partition is on a field, the insert will not work so we use agent instead
 			// flightSegmentMap.insert(flightSeg.getFlightName(), flightSeg);
-			AgentManager agMgr =  flightSegmentMap.getAgentManager();
-			MapPutAllAgent putAllAgent = new MapPutAllAgent(); // Not using the true object type so that serializer can have better performance
-			HashMap<Object, HashMap<Object,Object>> objectsToSave = new HashMap<Object, HashMap<Object, Object>>();
-			Object partitionKey = flightSeg.getOriginPort();
-
-			HashMap<Object, Object> keysAndObjectsToSave = new HashMap<Object, Object>();
-			keysAndObjectsToSave.put(flightSeg.getFlightName(), flightSeg);
-			
-			objectsToSave.put(partitionKey, keysAndObjectsToSave);
-
-			putAllAgent.setObjectsToSave(objectsToSave);
-			agMgr.callMapAgent(putAllAgent, objectsToSave.keySet());
+			// TODO: Consider moving this to a ArrayList - List ??
+			HashSet<FlightSegment> segmentsByOrigPort = (HashSet<FlightSegment>)flightSegmentMap.get(flightSeg.getOriginPort());
+			if (segmentsByOrigPort == null) {
+				segmentsByOrigPort = new HashSet<FlightSegment>();
+			}
+			if (!segmentsByOrigPort.contains(flightSeg)) {
+				segmentsByOrigPort.add(flightSeg);
+				flightSegmentMap.upsert(flightSeg.getOriginPort(), segmentsByOrigPort);
+			}
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);

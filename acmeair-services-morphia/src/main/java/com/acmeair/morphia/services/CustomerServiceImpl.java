@@ -2,37 +2,65 @@ package com.acmeair.morphia.services;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.logging.Logger;
 
-import javax.annotation.Resource;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import com.acmeair.entities.Customer;
 import com.acmeair.entities.Customer.MemberShipStatus;
 import com.acmeair.entities.Customer.PhoneType;
 import com.acmeair.entities.CustomerAddress;
 import com.acmeair.entities.CustomerSession;
-import com.acmeair.service.KeyGenerator;
+import com.acmeair.morphia.MorphiaConstants;
+import com.acmeair.service.DataService;
 import com.acmeair.service.CustomerService;
 import com.github.jmkgreen.morphia.Datastore;
+import com.github.jmkgreen.morphia.Morphia;
 import com.github.jmkgreen.morphia.query.Query;
+import com.mongodb.DB;
 
-@Service("customerService")
-public class CustomerServiceImpl implements CustomerService {
-	private static final int DAYS_TO_ALLOW_SESSION = 1;
+//@MorphiaQualifier
+@DataService(name=MorphiaConstants.KEY,description=MorphiaConstants.KEY_DESCRIPTION)
+public class CustomerServiceImpl implements CustomerService, MorphiaConstants {	
 	
-	@Autowired
-	Datastore datastore;
+	private final static Logger logger = Logger.getLogger(CustomerService.class.getName()); 
 	
-	@Resource
-	KeyGenerator keyGenerator;
+	//@Resource(name = JNDI_NAME)
+	protected DB db;
+		
+	protected Datastore datastore;
+		
+	@Inject
+	DefaultKeyGeneratorImpl keyGenerator;
+	
+	
+	@PostConstruct
+	public void initialization() {		
+		Morphia morphia = new Morphia();
+		if(db == null){			
+	        try {	        	
+	        	db = (DB) new InitialContext().lookup(JNDI_NAME);
+			} catch (NamingException e) {
+				logger.severe("Caught NamingException : " + e.getMessage() );
+			}	        
+		}
+		if(db == null){
+			logger.severe("Unable to retreive reference to database, please check the server logs.");
+		} else {			
+			datastore = morphia.createDatastore(db.getMongo(), db.getName());
+		}
+	}
 	
 	@Override
 	public Customer createCustomer(String username, String password,
 			MemberShipStatus status, int total_miles, int miles_ytd,
 			String phoneNumber, PhoneType phoneNumberType,
 			CustomerAddress address) {
+	
+
 		Customer customer = new Customer(username, password, status, total_miles, miles_ytd, address, phoneNumber, phoneNumberType);
 		try{
 			datastore.save(customer);
@@ -54,8 +82,9 @@ public class CustomerServiceImpl implements CustomerService {
 
 	private Customer getCustomer(String username) {
 		try{
+			
 			Query<Customer> q = datastore.find(Customer.class).field("_id").equal(username);
-			Customer customer = q.get();
+			Customer customer = q.get();					
 			return customer;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -69,7 +98,7 @@ public class CustomerServiceImpl implements CustomerService {
 			Customer customer = q.get();
 			if (customer != null) {
 				customer.setPassword(null);
-			}
+			}			
 			return customer;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -79,10 +108,10 @@ public class CustomerServiceImpl implements CustomerService {
 	@Override
 	public boolean validateCustomer(String username, String password) {
 		boolean validatedCustomer = false;
-		Customer customerToValidate = getCustomer(username);
+		Customer customerToValidate = getCustomer(username);		
 		if (customerToValidate != null) {
 			validatedCustomer = password.equals(customerToValidate.getPassword());
-		}
+		}		
 		return validatedCustomer;
 	}
 

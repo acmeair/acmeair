@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
-package com.acmeair.wxs.utils;
+package com.acmeair.service;
 
 public interface TransactionService {
 	

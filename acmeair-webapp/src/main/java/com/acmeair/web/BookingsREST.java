@@ -25,11 +25,12 @@ import com.acmeair.entities.Booking;
 import com.acmeair.entities.BookingPK;
 import com.acmeair.entities.FlightPK;
 import com.acmeair.service.BookingService;
+import com.acmeair.service.ServiceLocator;
 
 @Path("/bookings")
 public class BookingsREST {
 	
-	private BookingService bs = ServiceLocator.getService(BookingService.class);
+	private BookingService bs = ServiceLocator.instance().getService(BookingService.class);
 	
 	@POST
 	@Consumes({"application/x-www-form-urlencoded"})

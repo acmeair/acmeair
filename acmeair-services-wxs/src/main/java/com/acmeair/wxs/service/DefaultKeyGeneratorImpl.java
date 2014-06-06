@@ -15,11 +15,9 @@
 *******************************************************************************/
 package com.acmeair.wxs.service;
 
-import org.springframework.stereotype.Service;
+
 import com.acmeair.service.KeyGenerator;
 
-
-@Service("keyGenerator")
 public class DefaultKeyGeneratorImpl implements KeyGenerator {
 
 	@Override

@@ -28,7 +28,8 @@
 
   <script>
     dojo.require("dojo.parser");
-    
+	dojo.require("dojox.grid.DataGrid");
+	dojo.require("dojo.data.ItemFileWriteStore");    
     dojo.require("dijit.form.Button");
     dojo.require("dijit.Dialog");
     dojo.require("dijit.form.TextBox");
@@ -41,46 +42,73 @@
     
     function pageLoaded() {
     	updateLoggedInUserWelcome();
+    	//createAndStartGrid();
     }
+    
+    
+    function createAndStartGrid() {
+    	var grid, store, dataStore;
+    	
+    	dojo.xhrGet({
+			url: "rest/api/config/info",
+			handleAs: "json",
+			load: function(response, ioArgs) {
+				var theData = { items : response };
+				
+		
+				
+				var tableData = '';
+			 
+					tableData += '<table border="1">';
+					tableData += '<tr>';
+					tableData += '   <th>JNDI key</th>';
+					tableData += '   <th>Description</th>';		
+					tableData += '</tr>';
+				
+					tableData += '<tr>';
+					tableData += '   <td>'+theData.items[0].name+'</td>';
+					tableData += '   <td>'+theData.items[0].description+'</td>';		
+					tableData += '</tr>';
+				
+					tableData += '<tr>';
+					tableData += '   <td>'+theData.items[1].name+'</td>';
+					tableData += '   <td>'+theData.items[1].description+'</td>';		
+					tableData += '</tr>';				
+					tableData += '</table>';
+				
+    			document.getElementById('targetLoc').innerHTML=tableData;
+				return false;
+				//alert("Response is " + JSON.stringify(response));	
+				//alert("data 1 is " + theData.items[0].name);
+				//alert("data 2 is " + theData.items[1].name);
+				
+				/*
+				var newStore = new dojo.data.ItemFileWriteStore({
+					data : theData
+				});
+				var myNewItem = {name: theData.items[0].name, description: theData.items[0].description};
+				newStore.newItem(myNewItem);
+				var configGrid = dijit.byId("gridConfig");
+				configGrid.setStore(newStore);
+				*/
+				
+			},
+			error: function(response, ioArgs) {
+				alert(response);
+			}
+    	});
+    }
+    
+    
+	function formatFlightNumnber(data) {
+		return data.name[0];
+	}
   </script>
 </head>
 
 <body class="claro">
 
-<span id="variousDialogs" style="display:none">
-<div dojoType="dijit.Dialog" id="loginWaitDialog" title="Please Wait">
-		<table width="258">
-			<tr><td>Logging in ...</td></tr>
-		</table>
-</div>
 
-<div dojoType="dijit.Dialog" id="loginDialog" title="Login">
-		<table width="258">
-			<tr>
-				<td><label>Login</label></td>
-				<td><input type="text" trim="true" dojoType="dijit.form.TextBox" value="uid0@email.com" name="login" id="userId"/></td>
-			</tr>
-			<tr>
-				<td><label>Password</label></td>
-				<td><input type="password" trim="true" dojoType="dijit.form.TextBox" value="password" name="password" id="password"/></td>
-			</tr>
-			<tr>
-				<td colspan="2">&nbsp;</td>
-			</tr>
-			<tr>
-				<td colspan="2" align="center">
-					<table width="100%" border="0" cellspacing="0" cellpadding="0">
-						<tr>
-							<td  align="center" valign="top" width="40%"><button dojoType="dijit.form.Button" id="LoginButton" onClick="login()">Ok</button></td>
-							<td align="left" valign="top" width="3%">&nbsp;</td>
-							<td align="left" valign="top" width="57%"><button dojoType="dijit.form.Button" onclick="hideLoginDialog()" id="Cancel">Cancel</button></td>
-						</tr>
-					</table>
-				</td>
-			</tr>
-		</table>
-</div>
-</span>
     
 <div id="main">
 	<br/>
@@ -108,9 +136,13 @@
 		</div>
 		
 		<div class="content">
-			<img src="images/acmeAirplane.png" alt="home" /><br/>
-			<h1 style="margin: 15px 0 0 0;">Welcome to Acme Air</h1>
-			<p>This is a sample application for performance testing of light weight app servers, partionable data storage, Web 2.0 and mobile on the cloud.</p>
+			<h1 style="margin: 15px 0 0 0;">Acme Air Configuration information</h1>
+			<p>Data Services available</p>
+			
+			<script type="text/javascript">
+				createAndStartGrid();
+				</script> 
+			<div id="targetLoc"></div>
 		</div>
 	</div>
 	<footer>

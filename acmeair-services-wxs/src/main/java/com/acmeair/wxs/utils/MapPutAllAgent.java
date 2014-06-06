@@ -19,9 +19,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.util.logging.Logger;
 
 import com.ibm.websphere.objectgrid.ObjectGridException;
 import com.ibm.websphere.objectgrid.ObjectMap;
@@ -29,14 +27,11 @@ import com.ibm.websphere.objectgrid.Session;
 import com.ibm.websphere.objectgrid.datagrid.MapGridAgent;
 import com.ibm.websphere.objectgrid.plugins.io.dataobject.SerializedKey;
 
-public class MapPutAllAgent implements MapGridAgent {
+public class MapPutAllAgent implements MapGridAgent  {
 	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
-	private static final Log log = LogFactory.getLog(MapPutAllAgent.class);
+	private static final Logger logger = Logger.getLogger(MapPutAllAgent.class.getName());
 	
 	private HashMap<Object, HashMap<Object,Object>>objectsToSave = null  ;
 
@@ -48,7 +43,7 @@ public class MapPutAllAgent implements MapGridAgent {
 		this.objectsToSave = objectsToSave;
 	}
 
-	@Override
+	//@Override
 	public Object process(Session arg0, ObjectMap arg1, Object arg2) {
 		// The key is the partition key, can be either the PK or when partition field is defined the partition field value
 		try{
@@ -62,7 +57,7 @@ public class MapPutAllAgent implements MapGridAgent {
 			HashMap<Object, Object> objectsForThePartition =  this.objectsToSave.get(key);
 			
 			if (objectsForThePartition==null)
-				log.info("ERROR!!! Can not get the objects for partiton key:"+arg2);
+				logger.info("ERROR!!! Can not get the objects for partiton key:"+arg2);
 			else
 			{
 				Entry<Object, Object> entry;
@@ -73,18 +68,18 @@ public class MapPutAllAgent implements MapGridAgent {
 					key = entry.getKey();
 					value = entry.getValue();
 					
-					log.debug("Save using agent:"+key+",value:"+value);
+					logger.finer("Save using agent:"+key+",value:"+value);
 					arg1.upsert(key, value);
 				}
 			}
 		}catch (ObjectGridException e)
 		{
-			log.info("Getting exception:"+e);
+			logger.info("Getting exception:"+e);
 		}
 		return arg2;	
 	}
 
-	@Override
+	//@Override
 	public Map<Object, Object> processAllEntries(Session arg0, ObjectMap arg1) {
 		return null; 
 	}
