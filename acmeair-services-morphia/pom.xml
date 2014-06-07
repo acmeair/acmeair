@@ -26,7 +26,13 @@
 			<groupId>com.github.jmkgreen.morphia</groupId>
 			<artifactId>morphia</artifactId>
 			<version>1.0</version>
-                        <scope>provided</scope>
+                        <!-- scope>provided</scope -->
+                        <exclusions>
+                           <exclusion>
+                              <groupId>org.mongodb</groupId>
+                              <artifactId>mongo-java-driver</artifactId>
+                           </exclusion>
+                        </exclusions>
 		</dependency>
 		<dependency>
 			  <groupId>org.mongodb</groupId> 
