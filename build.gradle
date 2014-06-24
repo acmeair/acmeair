@@ -1,0 +1,94 @@
+
+subprojects {
+    apply plugin: 'java'
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+
+    dependencies {
+        compile 'javax:javaee-web-api:6.0'
+    }
+}
+
+project(':acmeair-common') {
+    dependencies {
+        compile 'com.ibm.websphere.objectgrid:objectgrid:8.6.0.2'
+    }
+}
+
+project(':acmeair-services') {
+    dependencies {
+        compile project(':acmeair-common')
+        compile 'com.googlecode.json-simple:json-simple:1.1.1'
+
+    }
+}
+
+project(':acmeair-services-wxs') {
+    dependencies {
+        compile project(':acmeair-common')
+        compile project(':acmeair-services')
+        compile 'com.ibm.websphere.objectgrid:objectgrid:8.6.0.2'
+    }
+}
+
+
+
+project(':acmeair-services-morphia') {
+    dependencies {
+        compile project(':acmeair-common')
+        compile project(':acmeair-services')
+        compile 'org.mongodb:mongo-java-driver:2.12.2'
+        compile 'com.github.jmkgreen.morphia:morphia:1.0'
+    }
+}
+
+
+project(':acmeair-loader') {
+    dependencies {
+        compile project(':acmeair-common')
+        compile project(':acmeair-services')
+    }
+}
+
+
+project(':acmeair-webapp') {
+    apply plugin: 'war'
+
+    dependencies {
+        compile project(':acmeair-common')
+        compile project(':acmeair-services')
+        compile project(':acmeair-loader')
+
+        def includeService = "ALL"
+        if (project.hasProperty('service') ) {
+           println "property service exists and has a value of $service "
+           includeService = service
+        } else {
+           println "property service was not set. Using the default value of $includeService"
+           println "   To pick a specific service set the service property using the -P parameter, for example gradlew -Pservice=wxs build " 
+        }
+
+        if ("$includeService".equalsIgnoreCase("morphia") || "$includeService".equalsIgnoreCase("mongodb")  || "$includeService".equalsIgnoreCase("ALL")) {
+           println "Including mongoDB morphia service "
+           compile (project(':acmeair-services-morphia')) {
+              transitive = false
+           }
+ 
+           compile ('com.github.jmkgreen.morphia:morphia:1.0')  {
+              transitive = false
+           }
+        }
+
+        if ("$includeService".equalsIgnoreCase("wxs") || "$includeService".equalsIgnoreCase("ALL")) {
+           println "Including WXS service "
+
+           compile project(':acmeair-services-wxs')
+        }
+
+        providedRuntime 'javax:javaee-web-api:6.0'
+        providedRuntime 'com.ibm.websphere.objectgrid:objectgrid:8.6.0.2'
+    }
+}
+

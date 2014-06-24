@@ -1,5 +1,7 @@
-*/target/**
-*/.settings/*
+target/
+build/
+.settings/
 .metadata
 .classpath
 .project
+.gradle
