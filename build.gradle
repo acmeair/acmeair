@@ -1,3 +1,6 @@
+task wrapper(type: Wrapper) {
+        gradleVersion = '1.12'
+}
 
 subprojects {
     apply plugin: 'java'
