@@ -24,22 +24,26 @@ import com.acmeair.entities.CustomerSession;
 public interface CustomerService {
 	static final int DAYS_TO_ALLOW_SESSION = 1;
 	
-	public Customer createCustomer(
+	Customer createCustomer(
 			String username, String password, MemberShipStatus status, int total_miles,
 			int miles_ytd, String phoneNumber, PhoneType phoneNumberType, CustomerAddress address);
 	
-	public Customer updateCustomer(Customer customer);
+	Customer updateCustomer(Customer customer);
 	
-	public Customer getCustomerByUsername(String username);
+	Customer getCustomerByUsername(String username);
 	
-	public boolean validateCustomer(String username, String password);
+	boolean validateCustomer(String username, String password);
 	
-	public Customer getCustomerByUsernameAndPassword(String username, String password);
+	Customer getCustomerByUsernameAndPassword(String username, String password);
 	
-	public CustomerSession validateSession(String sessionid);
+	CustomerSession validateSession(String sessionid);
 	
-	public CustomerSession createSession(String customerId);
+	CustomerSession createSession(String customerId);
 
-	public void invalidateSession(String sessionid);
+	void invalidateSession(String sessionid);
+	
+	Long count();
+	
+	Long countSessions();
 	
 }

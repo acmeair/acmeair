@@ -35,10 +35,9 @@ public class Loader {
 	
 	@GET
 	@Produces("text/plain")
-	public Response loaddb() {
-		Loader loader = new Loader();
-		loader.execute();
-		return Response.ok("loaded db").build();	
+	public Response loaddb() {		
+		String message = execute();
+		return Response.ok(message).build();	
 	}
 	
 	public static void main(String args[]) throws Exception {
@@ -47,14 +46,14 @@ public class Loader {
 	}
 	
 	
-	private void execute() {
+	private String execute() {
 		FlightLoader flightLoader = new FlightLoader();
 		CustomerLoader customerLoader = new CustomerLoader();
 		Properties props = getProperties();
 		
         String numCustomers = props.getProperty("loader.numCustomers","100");
     	System.setProperty("loader.numCustomers", numCustomers);
-    	
+    	double length = 0;
 		try {
 			long start = System.currentTimeMillis();
 			logger.info("Start loading flights");
@@ -63,10 +62,13 @@ public class Loader {
 			customerLoader.loadCustomers(Long.parseLong(numCustomers));
 			long stop = System.currentTimeMillis();
 			logger.info("Finished loading in " + (stop - start)/1000.0 + " seconds");
+			length = (stop - start)/1000.0;
+			
 		}
 		catch (Exception e) {
 			e.printStackTrace();
 		}		
+		return "Loaded flights and "  +  numCustomers + " customers in " + length + " seconds";
 	}
 	
 	

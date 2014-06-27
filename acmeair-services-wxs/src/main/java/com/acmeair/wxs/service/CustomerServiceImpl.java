@@ -22,8 +22,6 @@ import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.enterprise.inject.Default;
 import javax.inject.Inject;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 
 import com.acmeair.entities.Customer;
 import com.acmeair.entities.Customer.MemberShipStatus;
@@ -34,7 +32,9 @@ import com.acmeair.service.BookingService;
 import com.acmeair.service.CustomerService;
 import com.acmeair.service.DataService;
 import com.acmeair.wxs.WXSConstants;
+import com.acmeair.wxs.utils.WXSSessionManager;
 import com.ibm.websphere.objectgrid.ObjectGrid;
+import com.ibm.websphere.objectgrid.ObjectGridException;
 import com.ibm.websphere.objectgrid.ObjectMap;
 import com.ibm.websphere.objectgrid.Session;
 
@@ -55,15 +55,22 @@ public class CustomerServiceImpl implements CustomerService, WXSConstants{
 
 	
 	@PostConstruct
-	private void initialization()  {		
-		if(og == null) {
-			try {
-				InitialContext ic = new InitialContext();			
-				og = (ObjectGrid) ic.lookup(JNDI_NAME);
-			} catch (NamingException e) {
-				logger.severe("Error looking up the ObjectGrid reference" + e.getMessage());
-			}
+	private void initialization()  {
+		try {
+			og = WXSSessionManager.getSessionManager().getObjectGrid();
+		} catch (ObjectGridException e) {
+			logger.severe("Unable to retreive the ObjectGrid reference " + e.getMessage());
 		}
+	}
+	
+	@Override
+	public Long count () {
+		return -1L;
+	}
+	
+	@Override
+	public Long countSessions () {
+		return -1L;
 	}
 	
 	@Override

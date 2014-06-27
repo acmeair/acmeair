@@ -6,8 +6,6 @@ import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 
 import com.acmeair.entities.Booking;
 import com.acmeair.entities.BookingPK;
@@ -15,6 +13,7 @@ import com.acmeair.entities.Customer;
 import com.acmeair.entities.Flight;
 import com.acmeair.entities.FlightPK;
 import com.acmeair.morphia.MorphiaConstants;
+import com.acmeair.morphia.services.util.MongoConnectionManager;
 import com.acmeair.service.BookingService;
 import com.acmeair.service.CustomerService;
 import com.acmeair.service.DataService;
@@ -30,8 +29,6 @@ public class BookingServiceImpl implements BookingService, MorphiaConstants {
 
 	private final static Logger logger = Logger.getLogger(BookingService.class.getName()); 
 
-	//@Resource(name = JNDI_NAME)
-	protected DB db;
 		
 	Datastore datastore;
 	
@@ -43,20 +40,8 @@ public class BookingServiceImpl implements BookingService, MorphiaConstants {
 
 
 	@PostConstruct
-	public void initialization() {		
-		Morphia morphia = new Morphia();
-		if(db == null){			
-	        try {
-				db = (DB) new InitialContext().lookup(JNDI_NAME);
-			} catch (NamingException e) {
-				logger.severe("Caught NamingException : " + e.getMessage() );
-			}	        
-		}
-		if(db == null){
-			logger.severe("Unable to retreive reference to database, please check the server logs.");
-		} else {			
-			datastore = morphia.createDatastore(db.getMongo(), db.getName());
-		}
+	public void initialization() {	
+		datastore = MongoConnectionManager.getConnectionManager().getDatastore();		
 	}	
 	
 	
@@ -107,4 +92,10 @@ public class BookingServiceImpl implements BookingService, MorphiaConstants {
 			throw new RuntimeException(e);
 		}
 	}
+	
+	
+	@Override
+	public Long count() {
+		return datastore.find(Booking.class).countAll();
+	}	
 }

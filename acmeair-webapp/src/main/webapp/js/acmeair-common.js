@@ -29,6 +29,16 @@ function hideLoginWaitDialog() {
 	dijit.byId('loginWaitDialog').hide();
 }
 
+function showWaitDialog() {
+	dijit.byId('waitDialog').show();
+}
+
+function hideWaitDialog() {
+	dijit.byId('waitDialog').hide();
+}
+
+
+
 function updateLoggedInUserWelcome() {
 	var loggedinuser = dojo.cookie("loggedinuser");
 	if (loggedinuser == null) {
@@ -40,16 +50,21 @@ function updateLoggedInUserWelcome() {
 }
 
 function loaddb() {
+	showWaitDialog();
 	dojo.xhrGet({
 		content : {
 		},
 		url: 'rest/api/loaddb',
 		load: function(response, ioArgs) {
+			hideWaitDialog();
+			alert('Database Loaded, response: ' + response);
 		},
 		error: function(response, ioArgs) {
+			hideWaitDialog();
 			alert('error loaddb, response: ' + response);
 		}
 	});
+	
 }
 
 function login() {

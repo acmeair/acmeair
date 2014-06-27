@@ -23,20 +23,24 @@ import com.acmeair.entities.*;
 
 public interface FlightService {
 
-	public abstract Flight getFlightByFlightKey(FlightPK key);
+	Flight getFlightByFlightKey(FlightPK key);
 	
-	public abstract List<Flight> getFlightByAirportsAndDepartureDate(String fromAirport, String toAirport, Date deptDate); 
+	List<Flight> getFlightByAirportsAndDepartureDate(String fromAirport, String toAirport, Date deptDate); 
 
-	public abstract List<Flight> getFlightByAirports(String fromAirport, String toAirport);  
+	List<Flight> getFlightByAirports(String fromAirport, String toAirport);  
 	
-	public abstract void storeAirportMapping(AirportCodeMapping mapping);
+	void storeAirportMapping(AirportCodeMapping mapping);
 
-	public abstract Flight createNewFlight(String flightSegmentId,
+	Flight createNewFlight(String flightSegmentId,
 			Date scheduledDepartureTime, Date scheduledArrivalTime,
 			BigDecimal firstClassBaseCost, BigDecimal economyClassBaseCost,
 			int numFirstClassSeats, int numEconomyClassSeats,
 			String airplaneTypeId);
 
-	public abstract void storeFlightSegment(FlightSegment flightSeg);
+	void storeFlightSegment(FlightSegment flightSeg);
+	
+	Long countFlightSegments();
+	
+	Long countFlights();
 
 }

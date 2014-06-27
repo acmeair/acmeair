@@ -15,6 +15,7 @@ import com.acmeair.entities.Customer.PhoneType;
 import com.acmeair.entities.CustomerAddress;
 import com.acmeair.entities.CustomerSession;
 import com.acmeair.morphia.MorphiaConstants;
+import com.acmeair.morphia.services.util.MongoConnectionManager;
 import com.acmeair.service.DataService;
 import com.acmeair.service.CustomerService;
 import com.github.jmkgreen.morphia.Datastore;
@@ -22,15 +23,11 @@ import com.github.jmkgreen.morphia.Morphia;
 import com.github.jmkgreen.morphia.query.Query;
 import com.mongodb.DB;
 
-//@MorphiaQualifier
 @DataService(name=MorphiaConstants.KEY,description=MorphiaConstants.KEY_DESCRIPTION)
 public class CustomerServiceImpl implements CustomerService, MorphiaConstants {	
 	
 	private final static Logger logger = Logger.getLogger(CustomerService.class.getName()); 
 	
-	//@Resource(name = JNDI_NAME)
-	protected DB db;
-		
 	protected Datastore datastore;
 		
 	@Inject
@@ -38,20 +35,18 @@ public class CustomerServiceImpl implements CustomerService, MorphiaConstants {
 	
 	
 	@PostConstruct
-	public void initialization() {		
-		Morphia morphia = new Morphia();
-		if(db == null){			
-	        try {	        	
-	        	db = (DB) new InitialContext().lookup(JNDI_NAME);
-			} catch (NamingException e) {
-				logger.severe("Caught NamingException : " + e.getMessage() );
-			}	        
-		}
-		if(db == null){
-			logger.severe("Unable to retreive reference to database, please check the server logs.");
-		} else {			
-			datastore = morphia.createDatastore(db.getMongo(), db.getName());
-		}
+	public void initialization() {	
+		datastore = MongoConnectionManager.getConnectionManager().getDatastore();
+	}
+	
+	@Override
+	public Long count() {
+		return datastore.find(Customer.class).countAll();
+	}
+	
+	@Override
+	public Long countSessions() {
+		return datastore.find(CustomerSession.class).countAll();
 	}
 	
 	@Override

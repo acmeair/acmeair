@@ -89,4 +89,36 @@ public class CustomerREST {
 		
 		return Response.ok(customerFromDB).build();
 	}
+	
+	@GET
+	@Path("/count")
+	@Produces("application/json")
+	public Response countCustomer() {
+		try {
+			Long customerCount = customerService.count();
+			
+			return Response.ok(customerCount).build();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	
+	@GET
+	@Path("/countSessions")
+	@Produces("application/json")
+	public Response countCustomerSessions() {
+		try {
+			Long customerCount = customerService.countSessions();
+			
+			return Response.ok(customerCount).build();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
 }

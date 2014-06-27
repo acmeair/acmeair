@@ -109,5 +109,19 @@ public class BookingsREST {
 			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
-	}	
+	}
+	
+	@GET
+	@Path("/count")
+	@Produces("application/json")
+	public Response countFlights() {
+		try {
+			Long count = bs.count();			
+			return Response.ok(count).build();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 }

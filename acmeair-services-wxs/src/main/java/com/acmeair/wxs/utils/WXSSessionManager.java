@@ -20,8 +20,9 @@ import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
-import javax.annotation.PostConstruct;
+import javax.naming.InitialContext;
 import javax.naming.NamingException;
+
 
 import com.acmeair.service.DataService;
 import com.acmeair.service.TransactionService;
@@ -69,10 +70,41 @@ public class WXSSessionManager implements TransactionService, WXSConstants{
 		private SpringLocalTxManager txManager;
 
 		private AtomicReference<ObjectGrid> sharedGrid = new AtomicReference<ObjectGrid>();
+		private static AtomicReference<WXSSessionManager> connectionManager = new AtomicReference<WXSSessionManager>();
 		
 		
+		public static WXSSessionManager getSessionManager() {
+			if (connectionManager.get() == null) {
+				synchronized (connectionManager) {
+					if (connectionManager.get() == null) {
+						connectionManager.set(new WXSSessionManager());
+					}
+				}
+			}
+			return connectionManager.get();
+		}	
 		
-		@PostConstruct
+		
+		private WXSSessionManager(){
+			ObjectGrid og = null;
+			
+			try {
+				InitialContext ic = new InitialContext();			
+				og = (ObjectGrid) ic.lookup(JNDI_NAME);
+				
+			} catch (NamingException e) {
+				logger.severe("Error looking up the ObjectGrid reference " + e.getMessage());
+			}
+			if(og != null) {
+				sharedGrid.set(og);
+			} else {
+				logger.fine("Creating the WXS Client connection. Looking up host and port information" );
+				initialization();				
+			}
+			
+		}
+		
+		
 		private void initialization()  {		
 			
 			gridName = lookup(GRID_NAME_LOOKUP_KEY);
@@ -316,7 +348,7 @@ public class WXSSessionManager implements TransactionService, WXSConstants{
 		}
 		
 		// Helper function
-		private ObjectGrid getObjectGrid() throws ObjectGridException {
+		public ObjectGrid getObjectGrid() throws ObjectGridException {
 			ObjectGrid grid = connectClient(this.gridConnectString, this.gridName, this.integrateWithWASTransactions, this.disableNearCacheNames);
 			return grid;
 		}

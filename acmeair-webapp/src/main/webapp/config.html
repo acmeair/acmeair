@@ -46,7 +46,7 @@
     }
     
     
-    function createAndStartGrid() {
+    function getDataServiceInformation() {
     	var grid, store, dataStore;
     	
     	dojo.xhrGet({
@@ -54,9 +54,6 @@
 			handleAs: "json",
 			load: function(response, ioArgs) {
 				var theData = { items : response };
-				
-		
-				
 				var tableData = '';
 			 
 					tableData += '<table border="1">';
@@ -64,34 +61,17 @@
 					tableData += '   <th>JNDI key</th>';
 					tableData += '   <th>Description</th>';		
 					tableData += '</tr>';
-				
-					tableData += '<tr>';
-					tableData += '   <td>'+theData.items[0].name+'</td>';
-					tableData += '   <td>'+theData.items[0].description+'</td>';		
-					tableData += '</tr>';
-				
-					tableData += '<tr>';
-					tableData += '   <td>'+theData.items[1].name+'</td>';
-					tableData += '   <td>'+theData.items[1].description+'</td>';		
-					tableData += '</tr>';				
+					var itemLength = theData.items.length;
+				    for (var i = 0; i < itemLength; i++){
+						tableData += '<tr>';
+						tableData += '   <td>'+theData.items[i].name+'</td>';
+						tableData += '   <td>'+theData.items[i].description+'</td>';		
+						tableData += '</tr>';
+				    }
 					tableData += '</table>';
 				
     			document.getElementById('targetLoc').innerHTML=tableData;
-				return false;
-				//alert("Response is " + JSON.stringify(response));	
-				//alert("data 1 is " + theData.items[0].name);
-				//alert("data 2 is " + theData.items[1].name);
-				
-				/*
-				var newStore = new dojo.data.ItemFileWriteStore({
-					data : theData
-				});
-				var myNewItem = {name: theData.items[0].name, description: theData.items[0].description};
-				newStore.newItem(myNewItem);
-				var configGrid = dijit.byId("gridConfig");
-				configGrid.setStore(newStore);
-				*/
-				
+				return false;				
 			},
 			error: function(response, ioArgs) {
 				alert(response);
@@ -99,6 +79,71 @@
     	});
     }
     
+    
+    function getDBSizes() {
+    	var grid, store, dataStore;
+    	var airportCodeMapping, booking, customer, customerSession, flight, flightSegment;
+
+    	dojo.xhrGet({
+			url: "rest/api/customer/count",
+			handleAs: "json",
+			load: function(response, ioArgs) {	
+		    	//alert("Response: " + response);
+		    	document.getElementById('custData').innerHTML=response;
+			},
+			error: function(response, ioArgs) {
+				alert(response);
+			}
+    	});
+    		
+    	dojo.xhrGet({
+			url: "rest/api/customer/countSessions",
+			handleAs: "json",
+			load: function(response, ioArgs) {	
+		    	//alert("Response: " + response);
+		    	document.getElementById('sessionData').innerHTML=response;
+			},
+			error: function(response, ioArgs) {
+				alert(response);
+			}
+    	});
+    	
+       	dojo.xhrGet({
+			url: "rest/api/flights/countFlights",
+			handleAs: "json",
+			load: function(response, ioArgs) {			    	
+		    	document.getElementById('flightData').innerHTML=response;
+			},
+			error: function(response, ioArgs) {
+				alert(response);
+			}
+    	});
+	 
+       	dojo.xhrGet({
+			url: "rest/api/flights/countFlightSegments",
+			handleAs: "json",
+			load: function(response, ioArgs) {			    
+		    	document.getElementById('flightSegmentData').innerHTML=response;
+			},
+			error: function(response, ioArgs) {
+				alert(response);
+			}
+    	});      
+       	
+       	
+    	dojo.xhrGet({
+			url: "rest/api/bookings/count",
+			handleAs: "json",
+			load: function(response, ioArgs) {	
+		    	//alert("Response: " + response);
+		    	document.getElementById('bookingData').innerHTML=response;
+			},
+			error: function(response, ioArgs) {
+				alert(response);
+			}
+    	});	
+		return false;
+    } 
     
 	function formatFlightNumnber(data) {
 		return data.name[0];
@@ -137,12 +182,31 @@
 		
 		<div class="content">
 			<h1 style="margin: 15px 0 0 0;">Acme Air Configuration information</h1>
-			<p>Data Services available</p>
+			
+			
+			<h2>Available Data Services </h2>
 			
 			<script type="text/javascript">
-				createAndStartGrid();
-				</script> 
+				getDataServiceInformation();
+			</script> 
 			<div id="targetLoc"></div>
+			
+			<br/>
+			<script type="text/javascript">
+				getDBSizes();
+			</script> 
+			
+		  <h2> Database Information </h2>	
+          <table border="1">
+		     <tr> <th>Entity</th> <th>Count</th></tr>
+		     <tr> <td>Bookings</td> <td><div id="bookingData"></div></td></tr>
+	         <tr> <td>Customers</td> <td><div id="custData"></div></td></tr>
+	         <tr> <td>Sessions</td> <td><div id="sessionData"></div></td></tr>
+	         <tr> <td>Flights</td> <td><div id="flightData"></div></td></tr>
+	         <tr> <td>Flight Segments</td> <td><div id="flightSegmentData"></div></td></tr>
+          </table>
+			
+						
 		</div>
 	</div>
 	<footer>

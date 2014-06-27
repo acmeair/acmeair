@@ -23,11 +23,13 @@ import com.acmeair.entities.FlightPK;
 
 public interface BookingService {
 
-	public abstract BookingPK bookFlight(String customerId, FlightPK flightId);
+	BookingPK bookFlight(String customerId, FlightPK flightId);
 
-	public abstract Booking getBooking(String user, String id);
+	Booking getBooking(String user, String id);
 
-	public abstract List<Booking> getBookingsByUser(String user);
+	List<Booking> getBookingsByUser(String user);
 	
-	public abstract void cancelBooking(String user, String id);
+	void cancelBooking(String user, String id);
+	
+	Long count();
 }
