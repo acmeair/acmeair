@@ -2,10 +2,13 @@
 
 This application shows an implementation of a fictitious airline called "Acme Air".  The application was built with the some key business requirements: the ability to scale to billions of web API calls per day, the need to develop and deploy the application in public clouds (as opposed to dedicated pre-allocated infrastructure), and the need to support multiple channels for user interaction (with mobile enablement first and browser/Web 2.0 second).
 
-There are three implementations of the application each with an application tier and a data tier.  They are:
-- **NodeJS to Mongodb**
-- **Java / WebSphere Liberty Profile to WebSphere eXtreme Scale**
-- **Java / WebSphere Liberty Profile to Mongodb**
+There are two implementations of the application tier. Each application implementation, supports multiple data tiers.  They are:
+- **Node.js**
+  - MongoDB
+  - Cloudant
+- **Java**
+  - WebSphere Liberty Profile to WebSphere eXtreme Scale
+  - WebSphere Liberty Profile to Mongodb
 
 ## Repository Contents
 
@@ -17,14 +20,13 @@ Source:
 - **acmeair-service-wxs**:  A WebSphere eXtreme Scale data service implementation
 - **acmeair-service-morphia**:  A mongodb data service implementation
 - **acmeair-webapp**:  The Web 2.0 application and associated Java REST services
-- **acmeair-webapp-nodejs**: A implementation of the Acme Air application in NodeJS with a MongoDB data store backend
 - **acmeair-driver**: The workload driver script and supporting classes and resources
 
 ## How to get started
 
 * See the [wiki](https://github.com/acmeair/acmeair/wiki)
-* Websphere Liberty to Mongodb Instructions (https://github.com/acmeair/acmeair/blob/mongodb/MONGO_README.md)
-
+* Websphere Liberty Profile to [MongoDB Instructions](https://github.com/acmeair/acmeair/blob/master/MONGO_README.md)
+* Acme Air for Node.js [Instructions](https://github.com/acmeair/acmeair-nodejs/blob/master/README.md)
 
 ## Ask Questions
 
