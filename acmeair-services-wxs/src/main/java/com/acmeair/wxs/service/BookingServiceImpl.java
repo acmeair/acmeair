@@ -18,6 +18,7 @@ package com.acmeair.wxs.service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -40,13 +41,19 @@ import com.ibm.websphere.objectgrid.ObjectGrid;
 import com.ibm.websphere.objectgrid.ObjectGridException;
 import com.ibm.websphere.objectgrid.ObjectMap;
 import com.ibm.websphere.objectgrid.Session;
+import com.ibm.websphere.objectgrid.UndefinedMapException;
+import com.ibm.websphere.objectgrid.plugins.TransactionCallbackException;
+import com.ibm.websphere.objectgrid.plugins.index.MapIndex;
+import com.ibm.websphere.objectgrid.plugins.index.MapIndexPlugin;
+import com.ibm.websphere.objectgrid.query.ObjectQuery;
 
 @DataService(name=WXSConstants.KEY,description=WXSConstants.KEY_DESCRIPTION)
 public class BookingServiceImpl implements BookingService, WXSConstants  {
 	
 	private final static Logger logger = Logger.getLogger(BookingService.class.getName()); 
 	
-	private static final String BOOKING_MAP_NAME="Booking";
+	private static String BOOKING_MAP_NAME="Booking";
+	private static String BASE_BOOKING_MAP_NAME="Booking";
 
 	private ObjectGrid og;
 	
@@ -61,6 +68,7 @@ public class BookingServiceImpl implements BookingService, WXSConstants  {
 	private void initialization()  {
 		try {
 			og = WXSSessionManager.getSessionManager().getObjectGrid();
+			BOOKING_MAP_NAME = BASE_BOOKING_MAP_NAME + WXSSessionManager.getSessionManager().getMapSuffix();
 		} catch (ObjectGridException e) {
 			logger.severe("Unable to retreive the ObjectGrid reference " + e.getMessage());
 		}
@@ -190,6 +198,33 @@ public class BookingServiceImpl implements BookingService, WXSConstants  {
 	
 	@Override
 	public Long count () {
+		try {
+			Session session = og.getSession();
+			ObjectMap objectMap = session.getMap(BOOKING_MAP_NAME);			
+			MapIndex mapIndex = (MapIndex)objectMap.getIndex("com.ibm.ws.objectgrid.builtin.map.KeyIndex");			
+			Iterator<?> keyIterator = mapIndex.findAll();
+			Long result = 0L;
+			while(keyIterator.hasNext()) {
+				keyIterator.next(); 
+				result++;
+			}
+			/*
+			int partitions = og.getMap(BOOKING_MAP_NAME).getPartitionManager().getNumOfPartitions();
+			Long result = 0L;
+			ObjectQuery query = og.getSession().createObjectQuery("SELECT COUNT ( o ) FROM " + BOOKING_MAP_NAME + " o ");
+			for(int i = 0; i<partitions;i++){
+				query.setPartition(i);
+				result += (Long) query.getSingleResult();
+			}
+			*/			
+			return result;
+		} catch (UndefinedMapException e) {
+			e.printStackTrace();
+		} catch (TransactionCallbackException e) {
+			e.printStackTrace();
+		} catch (ObjectGridException e) {
+			e.printStackTrace();
+		}	
 		return -1L;
 	}
 }

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
@@ -40,13 +41,22 @@ import com.ibm.websphere.objectgrid.ObjectGrid;
 import com.ibm.websphere.objectgrid.ObjectGridException;
 import com.ibm.websphere.objectgrid.ObjectMap;
 import com.ibm.websphere.objectgrid.Session;
+import com.ibm.websphere.objectgrid.UndefinedMapException;
+import com.ibm.websphere.objectgrid.plugins.TransactionCallbackException;
+import com.ibm.websphere.objectgrid.plugins.index.MapIndex;
+import com.ibm.websphere.objectgrid.plugins.index.MapIndexPlugin;
+import com.ibm.websphere.objectgrid.query.ObjectQuery;
 
 @DataService(name=WXSConstants.KEY,description=WXSConstants.KEY_DESCRIPTION)
 public class FlightServiceImpl implements FlightService, WXSConstants {
 
-	private static final String FLIGHT_MAP_NAME="Flight";
-	private static final String FLIGHT_SEGMENT_MAP_NAME="FlightSegment";
-	private static final String AIRPORT_CODE_MAPPING_MAP_NAME="AirportCodeMapping";
+	private static String FLIGHT_MAP_NAME="Flight";
+	private static String FLIGHT_SEGMENT_MAP_NAME="FlightSegment";
+	private static String AIRPORT_CODE_MAPPING_MAP_NAME="AirportCodeMapping";
+	
+	private static String BASE_FLIGHT_MAP_NAME="Flight";
+	private static String BASE_FLIGHT_SEGMENT_MAP_NAME="FlightSegment";
+	private static String BASE_AIRPORT_CODE_MAPPING_MAP_NAME="AirportCodeMapping";
 	
 	private final static Logger logger = Logger.getLogger(BookingService.class.getName()); 
 	
@@ -65,6 +75,9 @@ public class FlightServiceImpl implements FlightService, WXSConstants {
 	private void initialization()  {	
 		try {
 			og = WXSSessionManager.getSessionManager().getObjectGrid();
+			FLIGHT_MAP_NAME = BASE_FLIGHT_MAP_NAME + WXSSessionManager.getSessionManager().getMapSuffix();
+			FLIGHT_SEGMENT_MAP_NAME = BASE_FLIGHT_SEGMENT_MAP_NAME + WXSSessionManager.getSessionManager().getMapSuffix();
+			AIRPORT_CODE_MAPPING_MAP_NAME = BASE_AIRPORT_CODE_MAPPING_MAP_NAME + WXSSessionManager.getSessionManager().getMapSuffix();
 		} catch (ObjectGridException e) {
 			logger.severe("Unable to retreive the ObjectGrid reference " + e.getMessage());
 		}
@@ -72,12 +85,66 @@ public class FlightServiceImpl implements FlightService, WXSConstants {
 	
 	@Override
 	public Long countFlights() {
+		try {
+			Session session = og.getSession();
+			ObjectMap objectMap = session.getMap(FLIGHT_MAP_NAME);			
+			MapIndex mapIndex = (MapIndex)objectMap.getIndex(MapIndexPlugin.SYSTEM_KEY_INDEX_NAME);			
+			Iterator<?> keyIterator = mapIndex.findAll();
+			Long result = 0L;
+			while(keyIterator.hasNext()) {
+				keyIterator.next(); 
+				result++;
+			}
+			/*
+			int partitions = og.getMap(FLIGHT_MAP_NAME).getPartitionManager().getNumOfPartitions();
+			Long result = 0L;
+			ObjectQuery query = og.getSession().createObjectQuery("SELECT COUNT ( o ) FROM " + FLIGHT_MAP_NAME + " o ");
+			for(int i = 0; i<partitions;i++){
+				query.setPartition(i);
+				result += (Long) query.getSingleResult();
+			}
+			*/
+			return result;
+		} catch (UndefinedMapException e) {
+			e.printStackTrace();
+		} catch (TransactionCallbackException e) {
+			e.printStackTrace();
+		} catch (ObjectGridException e) {
+			e.printStackTrace();
+		}
 		return -1L;
 	}
 	
 	@Override
 	public Long countFlightSegments() {
-		// og.getSession().getMap(FLIGHT_SEGMENT_MAP_NAME)
+		try {
+			Session session = og.getSession();
+			ObjectMap objectMap = session.getMap(FLIGHT_SEGMENT_MAP_NAME);			
+			MapIndex mapIndex = (MapIndex)objectMap.getIndex(MapIndexPlugin.SYSTEM_KEY_INDEX_NAME);			
+			Iterator<?> keyIterator = mapIndex.findAll();
+			Long result = 0L;
+			while(keyIterator.hasNext()) {
+				keyIterator.next(); 
+				result++;
+			}
+			/*
+			int partitions = og.getMap(FLIGHT_SEGMENT_MAP_NAME).getPartitionManager().getNumOfPartitions();
+			Long result = 0L;
+			ObjectQuery query = og.getSession().createObjectQuery("SELECT COUNT ( o ) FROM " + FLIGHT_SEGMENT_MAP_NAME + " o ");
+			for(int i = 0; i<partitions;i++){
+				query.setPartition(i);
+				result += (Long) query.getSingleResult();
+			}
+			*/			
+			return result;
+
+		} catch (UndefinedMapException e) {
+			e.printStackTrace();
+		} catch (TransactionCallbackException e) {
+			e.printStackTrace();
+		} catch (ObjectGridException e) {
+			e.printStackTrace();
+		}
 		return -1L;
 	}
 	
@@ -263,7 +330,7 @@ public class FlightServiceImpl implements FlightService, WXSConstants {
 			//Session session = sessionManager.getObjectGridSession();
 			Session session = og.getSession();
 			ObjectMap airportCodeMappingMap = session.getMap(AIRPORT_CODE_MAPPING_MAP_NAME);
-			airportCodeMappingMap.insert(mapping.getAirportCode(), mapping);
+			airportCodeMappingMap.upsert(mapping.getAirportCode(), mapping);
 		}catch (Exception e)
 		{
 			throw new RuntimeException(e);
@@ -311,8 +378,6 @@ public class FlightServiceImpl implements FlightService, WXSConstants {
 			//Session session = sessionManager.getObjectGridSession();
 			Session session = og.getSession();
 			ObjectMap flightSegmentMap = session.getMap(FLIGHT_SEGMENT_MAP_NAME);
-			// As the partition is on a field, the insert will not work so we use agent instead
-			// flightSegmentMap.insert(flightSeg.getFlightName(), flightSeg);
 			// TODO: Consider moving this to a ArrayList - List ??
 			HashSet<FlightSegment> segmentsByOrigPort = (HashSet<FlightSegment>)flightSegmentMap.get(flightSeg.getOriginPort());
 			if (segmentsByOrigPort == null) {
@@ -322,8 +387,8 @@ public class FlightServiceImpl implements FlightService, WXSConstants {
 				segmentsByOrigPort.add(flightSeg);
 				flightSegmentMap.upsert(flightSeg.getOriginPort(), segmentsByOrigPort);
 			}
-		}
-		catch (Exception e) {
+		
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}

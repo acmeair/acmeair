@@ -2,10 +2,10 @@ package com.acmeair.morphia;
 
 import java.math.BigInteger;
 
-import com.github.jmkgreen.morphia.converters.SimpleValueConverter;
-import com.github.jmkgreen.morphia.converters.TypeConverter;
-import com.github.jmkgreen.morphia.mapping.MappedField;
-import com.github.jmkgreen.morphia.mapping.MappingException;
+import org.mongodb.morphia.converters.SimpleValueConverter;
+import org.mongodb.morphia.converters.TypeConverter;
+import org.mongodb.morphia.mapping.MappedField;
+import org.mongodb.morphia.mapping.MappingException;
 
 public class BigIntegerConverter extends TypeConverter implements SimpleValueConverter{
 

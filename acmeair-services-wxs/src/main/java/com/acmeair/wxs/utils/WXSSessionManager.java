@@ -15,7 +15,7 @@
 *******************************************************************************/
 package com.acmeair.wxs.utils;
 
-import java.util.ArrayList;
+
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
@@ -23,6 +23,9 @@ import java.util.logging.Logger;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 
 import com.acmeair.service.DataService;
 import com.acmeair.service.TransactionService;
@@ -54,7 +57,7 @@ public class WXSSessionManager implements TransactionService, WXSConstants{
 		private static final String GRID_NAME_LOOKUP_KEY = "com.acmeair.service.wxs.gridName";
 		private static final String GRID_DISABLE_NEAR_CACHE_NAME_LOOKUP_KEY = "com.acmeair.service.wxs.disableNearCacheName";
 		private static final String GRID_PARTITION_FIELD_NAME_LOOKUP_KEY = "com.acmeair.service.wxs.partitionFieldName";
-		private static final Logger logger = Logger.getLogger(TransactionService.class.getName());
+		private static final Logger logger = Logger.getLogger(WXSSessionManager.class.getName());
 		private static final String SPLIT_COMMA = "\\s*,\\s*";
 		private static final String SPLIT_COLON = "\\s*:\\s*";		
 	
@@ -68,7 +71,7 @@ public class WXSSessionManager implements TransactionService, WXSConstants{
 		private String partitionFieldNameString;
 		private HashMap<String, String> partitionFieldNames = null; // For now to make it simple to only support one partition field
 		private SpringLocalTxManager txManager;
-
+        private String mapSuffix = "";
 		private AtomicReference<ObjectGrid> sharedGrid = new AtomicReference<ObjectGrid>();
 		private static AtomicReference<WXSSessionManager> connectionManager = new AtomicReference<WXSSessionManager>();
 		
@@ -93,12 +96,11 @@ public class WXSSessionManager implements TransactionService, WXSConstants{
 				og = (ObjectGrid) ic.lookup(JNDI_NAME);
 				
 			} catch (NamingException e) {
-				logger.severe("Error looking up the ObjectGrid reference " + e.getMessage());
+				logger.warning("Unable to look up the ObjectGrid reference " + e.getMessage());
 			}
 			if(og != null) {
 				sharedGrid.set(og);
-			} else {
-				logger.fine("Creating the WXS Client connection. Looking up host and port information" );
+			} else {				
 				initialization();				
 			}
 			
@@ -107,26 +109,61 @@ public class WXSSessionManager implements TransactionService, WXSConstants{
 		
 		private void initialization()  {		
 			
-			gridName = lookup(GRID_NAME_LOOKUP_KEY);
-			if(gridName == null){
-				gridName = "AcmeGrid";
+			
+			String vcapJSONString = System.getenv("VCAP_SERVICES");
+			if (vcapJSONString != null) {
+				logger.info("Reading VCAP_SERVICES");
+				Object jsonObject = JSONValue.parse(vcapJSONString);
+				logger.info("jsonObject = " + ((JSONObject)jsonObject).toJSONString());
+				JSONObject json = (JSONObject)jsonObject;
+				String key;
+				for (Object k: json.keySet())
+				{
+					key = (String ) k;
+					if (key.startsWith("ElasticCaching")||key.startsWith("DataCache"))
+					{
+						JSONArray elasticCachingServiceArray = (JSONArray)json.get(key);
+						JSONObject elasticCachingService = (JSONObject)elasticCachingServiceArray.get(0); 
+						JSONObject credentials = (JSONObject)elasticCachingService.get("credentials");
+						String username = (String)credentials.get("username");
+						setGridUsername(username);
+						String password = (String)credentials.get("password");
+						setGridPassword(password);
+						String gridName = (String)credentials.get("gridName");
+						String catalogEndPoint = (String)credentials.get("catalogEndPoint");
+						logger.info("username = " + username + "; password = " + password + "; gridName =  " + gridName + "; catalogEndpoint = " + catalogEndPoint);
+						setGridConnectString(catalogEndPoint);
+						setGridName(gridName);
+						break;
+					}
+				}
+				setMapSuffix(".NONE.O");
+			} else {
+				logger.info("Creating the WXS Client connection. Looking up host and port information" );
+				gridName = lookup(GRID_NAME_LOOKUP_KEY);
+				if(gridName == null){
+					gridName = "AcmeGrid";
+				}
+
+				gridConnectString = lookup(GRID_CONNECT_LOOKUP_KEY);
+				if(gridConnectString == null){							
+					gridConnectString = "127.0.0.1:2809";
+					logger.info("Using default grid connection setting of " + gridConnectString);
+				}
+
+				setDisableNearCacheNameString(lookup(GRID_DISABLE_NEAR_CACHE_NAME_LOOKUP_KEY));
+				setPartitionFieldNameString(lookup(GRID_PARTITION_FIELD_NAME_LOOKUP_KEY));
+
 			}
 			
-			gridConnectString = lookup(GRID_CONNECT_LOOKUP_KEY);
-			if(gridConnectString == null){							
-				gridConnectString = "127.0.0.1:2809";
-				logger.info("Using default grid connection setting of " + gridConnectString);
-			}
 			
-			disableNearCacheNameString = lookup(GRID_DISABLE_NEAR_CACHE_NAME_LOOKUP_KEY);
-			if(disableNearCacheNameString == null){
-				disableNearCacheNameString = "Flight,FlightSegment,AirportCodeMapping,CustomerSession,Booking,Customer";
+			if(getDisableNearCacheNameString() == null){
+				setDisableNearCacheNameString("Flight,FlightSegment,AirportCodeMapping,CustomerSession,Booking,Customer");
 				logger.info("Using default disableNearCacheNameString value of " + disableNearCacheNameString);
 			}
 			
-			partitionFieldNameString = lookup(GRID_PARTITION_FIELD_NAME_LOOKUP_KEY);
-			if(partitionFieldNameString == null){
-				partitionFieldNameString = "Flight:pk.flightSegmentId,FlightSegment:originPort,Booking:pk.customerId";
+			if(getPartitionFieldNameString() == null){
+				setPartitionFieldNameString("Flight:pk.flightSegmentId,FlightSegment:originPort,Booking:pk.customerId");
 				logger.info("Using default partitionFieldNameString value of " + partitionFieldNameString);
 			}
 			
@@ -138,6 +175,8 @@ public class WXSSessionManager implements TransactionService, WXSConstants{
 				txManager=null;
 				logger.info("Session will be created from ObjectGrid directly w/o tx support.");
 			}
+			
+			
 			try {
 				prepareForTransaction();
 			} catch (ObjectGridException e) {
@@ -204,17 +243,13 @@ public class WXSSessionManager implements TransactionService, WXSConstants{
 							}
 							if (disableNearCacheNames!=null) {
 								String mapNames[] = disableNearCacheNames;
-								for (String mName : mapNames) {
+								for (String mName : mapNames) {									
 									BackingMapConfiguration bmc = ObjectGridConfigFactory.createBackingMapConfiguration(mName);
 									bmc.setNearCacheEnabled(false);
 									ogConfig.addBackingMapConfiguration(bmc);
 								}
-							}						
-							ArrayList<ObjectGridConfiguration> ogConfigs = new ArrayList<ObjectGridConfiguration>();
-							ogConfigs.add(ogConfig);
-							HashMap<String, ArrayList<ObjectGridConfiguration>> map = new HashMap<String,ArrayList<ObjectGridConfiguration>>();
-							map.put(CatalogServerProperties.DEFAULT_DOMAIN, ogConfigs);
-							
+							}					
+													
 							ClientClusterContext ccc = null;
 							if (gridUsername != null) {
 								ClientSecurityConfiguration clientSC = ClientSecurityConfigurationFactory.getClientSecurityConfiguration();
@@ -240,6 +275,13 @@ public class WXSSessionManager implements TransactionService, WXSConstants{
 			} catch (Exception e) {
 				throw new ObjectGridRuntimeException("Unable to connect to catalog server at endpoints:" + cep,	e);
 			}
+		}
+		public String getMapSuffix(){
+			return mapSuffix;
+		}
+		
+		public void setMapSuffix(String suffix){
+			this.mapSuffix = suffix;
 		}
 		
 		public String getGridConnectString() {
@@ -324,20 +366,6 @@ public class WXSSessionManager implements TransactionService, WXSConstants{
 			this.txManager = txManager;
 		}
 		
-		/*
-		@Override
-		public void afterPropertiesSet() throws ObjectGridException {
-			if (!integrateWithWASTransactions && txManager!=null) // Using Spring TX if WAS TX is not enabled
-			{
-				logger.info("Session will be created from SpringLocalTxManager w/ tx support.");
-			}else
-			{
-				txManager=null;
-				logger.info("Session will be created from ObjectGrid directly w/o tx support.");
-			}
-			prepareForTransaction(); 
-		}
-		*/
 		
 		// This method needs to be called by the client from its thread before triggering a service with @Transactional annotation
 		public void prepareForTransaction() throws ObjectGridException

@@ -17,6 +17,7 @@ package com.acmeair.wxs.service;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
@@ -37,13 +38,21 @@ import com.ibm.websphere.objectgrid.ObjectGrid;
 import com.ibm.websphere.objectgrid.ObjectGridException;
 import com.ibm.websphere.objectgrid.ObjectMap;
 import com.ibm.websphere.objectgrid.Session;
+import com.ibm.websphere.objectgrid.UndefinedMapException;
+import com.ibm.websphere.objectgrid.plugins.TransactionCallbackException;
+import com.ibm.websphere.objectgrid.plugins.index.MapIndex;
+import com.ibm.websphere.objectgrid.plugins.index.MapIndexPlugin;
+import com.ibm.websphere.objectgrid.query.ObjectQuery;
 
 @Default
 @DataService(name=WXSConstants.KEY,description=WXSConstants.KEY_DESCRIPTION)
 public class CustomerServiceImpl implements CustomerService, WXSConstants{
 	
-	private static final String CUSTOMER_MAP_NAME="Customer";
-	private static final String CUSTOMER_SESSION_MAP_NAME="CustomerSession";
+	private static String BASE_CUSTOMER_MAP_NAME="Customer";
+	private static String BASE_CUSTOMER_SESSION_MAP_NAME="CustomerSession";
+	private static String CUSTOMER_MAP_NAME="Customer";
+	private static String CUSTOMER_SESSION_MAP_NAME="CustomerSession";
+	
 	
 	private static final int DAYS_TO_ALLOW_SESSION = 1;
 	private final static Logger logger = Logger.getLogger(BookingService.class.getName()); 
@@ -58,6 +67,8 @@ public class CustomerServiceImpl implements CustomerService, WXSConstants{
 	private void initialization()  {
 		try {
 			og = WXSSessionManager.getSessionManager().getObjectGrid();
+			CUSTOMER_MAP_NAME = BASE_CUSTOMER_MAP_NAME + WXSSessionManager.getSessionManager().getMapSuffix();
+			CUSTOMER_SESSION_MAP_NAME = BASE_CUSTOMER_SESSION_MAP_NAME + WXSSessionManager.getSessionManager().getMapSuffix();
 		} catch (ObjectGridException e) {
 			logger.severe("Unable to retreive the ObjectGrid reference " + e.getMessage());
 		}
@@ -65,11 +76,64 @@ public class CustomerServiceImpl implements CustomerService, WXSConstants{
 	
 	@Override
 	public Long count () {
+		try {
+			Session session = og.getSession();
+			ObjectMap objectMap = session.getMap(CUSTOMER_MAP_NAME);			
+			MapIndex mapIndex = (MapIndex)objectMap.getIndex(MapIndexPlugin.SYSTEM_KEY_INDEX_NAME);			
+			Iterator<?> keyIterator = mapIndex.findAll();
+			Long result = 0L;
+			while(keyIterator.hasNext()) {
+				keyIterator.next(); 
+				result++;
+			}
+			/*
+			int partitions = og.getMap(CUSTOMER_MAP_NAME).getPartitionManager().getNumOfPartitions();			
+			ObjectQuery query = og.getSession().createObjectQuery("SELECT COUNT ( o ) FROM " + CUSTOMER_MAP_NAME + " o ");
+			for(int i = 0; i<partitions;i++){
+				query.setPartition(i);
+				result += (Long) query.getSingleResult();
+			}
+			*/			
+			return result;
+		} catch (UndefinedMapException e) {
+			e.printStackTrace();
+		} catch (TransactionCallbackException e) {
+			e.printStackTrace();
+		} catch (ObjectGridException e) {
+			e.printStackTrace();
+		}		
 		return -1L;
 	}
 	
 	@Override
 	public Long countSessions () {
+		try {
+			Session session = og.getSession();
+			ObjectMap objectMap = session.getMap(CUSTOMER_MAP_NAME);			
+			MapIndex mapIndex = (MapIndex)objectMap.getIndex(MapIndexPlugin.SYSTEM_KEY_INDEX_NAME);			
+			Iterator<?> keyIterator = mapIndex.findAll();
+			Long result = 0L;
+			while(keyIterator.hasNext()) {
+				keyIterator.next(); 
+				result++;
+			}
+			/*
+			int partitions = og.getMap(CUSTOMER_SESSION_MAP_NAME).getPartitionManager().getNumOfPartitions();
+			Long result = 0L;
+			ObjectQuery query = og.getSession().createObjectQuery("SELECT COUNT ( o ) FROM " + CUSTOMER_SESSION_MAP_NAME + " o ");
+			for(int i = 0; i<partitions;i++){
+				query.setPartition(i);
+				result += (Long) query.getSingleResult();
+			}
+			*/			
+			return result;
+		} catch (UndefinedMapException e) {
+			e.printStackTrace();
+		} catch (TransactionCallbackException e) {
+			e.printStackTrace();
+		} catch (ObjectGridException e) {
+			e.printStackTrace();
+		}	
 		return -1L;
 	}
 	

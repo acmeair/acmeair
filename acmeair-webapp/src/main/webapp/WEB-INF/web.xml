@@ -14,11 +14,18 @@
     <url-pattern>/rest/api/*</url-pattern>
   </filter-mapping>
   <servlet>
-    <servlet-name>javax.ws.rs.core.Application</servlet-name>
+    <servlet-name>com.acmeair.web.AppConfig</servlet-name>     
+  </servlet>
+  <servlet>
+    <servlet-name>com.acmeair.web.AcmeAirApp</servlet-name>
   </servlet>
   <servlet-mapping>
-    <servlet-name>javax.ws.rs.core.Application</servlet-name>
+    <servlet-name>com.acmeair.web.AcmeAirApp</servlet-name>
     <url-pattern>/rest/api/*</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>com.acmeair.web.AppConfig</servlet-name>
+    <url-pattern>/rest/info/*</url-pattern>
   </servlet-mapping>
   <resource-env-ref>
     <resource-env-ref-name>mongo/acmeair</resource-env-ref-name>

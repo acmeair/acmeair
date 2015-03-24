@@ -9,8 +9,8 @@ import org.json.simple.JSONValue;
 import com.acmeair.entities.Booking;
 import com.acmeair.entities.Flight;
 import com.acmeair.entities.FlightSegment;
-import com.github.jmkgreen.morphia.Datastore;
-import com.github.jmkgreen.morphia.Morphia;
+import org.mongodb.morphia.Datastore;
+import org.mongodb.morphia.Morphia;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoClientURI;
@@ -69,7 +69,7 @@ public class DatastoreFactory {
 			
 				MongoClientURI mongoURI = new MongoClientURI(mongourl, builder);
 				MongoClient mongo = new MongoClient(mongoURI);
-				Morphia morphia = new Morphia();
+				Morphia morphia = new Morphia();				
 				result = morphia.createDatastore( mongo ,mongoURI.getDatabase());
 				System.out.println("create mongo datastore with options:"+result.getMongo().getMongoOptions());
 			}catch (Exception e)
@@ -78,8 +78,8 @@ public class DatastoreFactory {
 			}
 		}
     	// The converter is added for handing JDK 7 issue
-		result.getMapper().getConverters().addConverter(new BigDecimalConverter());
-		result.getMapper().getConverters().addConverter(new BigIntegerConverter());
+	//	result.getMapper().getConverters().addConverter(new BigDecimalConverter());		
+    //	result.getMapper().getConverters().addConverter(new BigIntegerConverter());
     	
 		// Enable index
 		result.ensureIndex(Booking.class, "pkey.customerId");

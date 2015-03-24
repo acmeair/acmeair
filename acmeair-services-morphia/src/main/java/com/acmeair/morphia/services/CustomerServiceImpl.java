@@ -6,8 +6,6 @@ import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 
 import com.acmeair.entities.Customer;
 import com.acmeair.entities.Customer.MemberShipStatus;
@@ -18,9 +16,9 @@ import com.acmeair.morphia.MorphiaConstants;
 import com.acmeair.morphia.services.util.MongoConnectionManager;
 import com.acmeair.service.DataService;
 import com.acmeair.service.CustomerService;
-import com.github.jmkgreen.morphia.Datastore;
-import com.github.jmkgreen.morphia.Morphia;
-import com.github.jmkgreen.morphia.query.Query;
+import org.mongodb.morphia.Datastore;
+import org.mongodb.morphia.Morphia;
+import org.mongodb.morphia.query.Query;
 import com.mongodb.DB;
 
 @DataService(name=MorphiaConstants.KEY,description=MorphiaConstants.KEY_DESCRIPTION)

@@ -7,6 +7,8 @@ import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import org.mongodb.morphia.Datastore;
+
 import com.acmeair.entities.Booking;
 import com.acmeair.entities.BookingPK;
 import com.acmeair.entities.Customer;
@@ -19,8 +21,8 @@ import com.acmeair.service.CustomerService;
 import com.acmeair.service.DataService;
 import com.acmeair.service.FlightService;
 import com.acmeair.service.ServiceLocator;
-import com.github.jmkgreen.morphia.*;
-import com.github.jmkgreen.morphia.query.Query;
+import org.mongodb.morphia.*;
+import org.mongodb.morphia.query.Query;
 import com.mongodb.DB;
 
 
@@ -41,7 +43,7 @@ public class BookingServiceImpl implements BookingService, MorphiaConstants {
 
 	@PostConstruct
 	public void initialization() {	
-		datastore = MongoConnectionManager.getConnectionManager().getDatastore();		
+		datastore = MongoConnectionManager.getConnectionManager().getDatastore();	
 	}	
 	
 	

@@ -17,6 +17,10 @@ package com.acmeair.web;
 
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * TripFlightOptions is the main return type when searching for flights.
  * 
@@ -31,6 +35,8 @@ import java.util.List;
  * @author aspyker
  *
  */
+@XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
+@XmlRootElement
 public class TripFlightOptions {
 	private int tripLegs;
 	

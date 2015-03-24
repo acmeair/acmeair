@@ -63,12 +63,20 @@ public class ServiceLocator {
 	@PostConstruct
 	private void initialization()  {		
 		if(beanManager == null){
-			logger.info("Attempting to look up BeanManager through JNDI");
+			logger.info("Attempting to look up BeanManager through JNDI at java:comp/BeanManager");
 			try {
 				beanManager = (BeanManager) new InitialContext().lookup("java:comp/BeanManager");
 			} catch (NamingException e) {
-				logger.severe("Couldn't get BeanManager through JNDI");
-
+				logger.severe("BeanManager not found at java:comp/BeanManager");
+			}
+		}
+		
+		if(beanManager == null){
+			logger.info("Attempting to look up BeanManager through JNDI at java:comp/env/BeanManager");
+			try {
+				beanManager = (BeanManager) new InitialContext().lookup("java:comp/env/BeanManager");
+			} catch (NamingException e) {
+				logger.severe("BeanManager not found at java:comp/env/BeanManager ");
 			}
 		}
 	}
@@ -117,14 +125,22 @@ public class ServiceLocator {
 		}
 
 		if(beanManager == null) {
-			logger.info("Attempting to look up BeanManager through JNDI");
+			logger.info("Attempting to look up BeanManager through JNDI at java:comp/BeanManager");
 			try {
 				beanManager = (BeanManager) new InitialContext().lookup("java:comp/BeanManager");
 			} catch (NamingException e) {
-				logger.severe("Couldn't get BeanManager through JNDI");
-
+				logger.severe("BeanManager not found at java:comp/BeanManager");
 			}
-		}		
+		}	
+		
+		if(beanManager == null){
+			logger.info("Attempting to look up BeanManager through JNDI at java:comp/env/BeanManager");
+			try {
+				beanManager = (BeanManager) new InitialContext().lookup("java:comp/env/BeanManager");
+			} catch (NamingException e) {
+				logger.severe("BeanManager not found at java:comp/env/BeanManager ");
+			}
+		}
 		
 		if (type==null)
 		{

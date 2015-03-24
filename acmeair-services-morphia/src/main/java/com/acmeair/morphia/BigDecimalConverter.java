@@ -2,10 +2,10 @@ package com.acmeair.morphia;
 
 import java.math.BigDecimal;
 
-import com.github.jmkgreen.morphia.converters.SimpleValueConverter;
-import com.github.jmkgreen.morphia.converters.TypeConverter;
-import com.github.jmkgreen.morphia.mapping.MappedField;
-import com.github.jmkgreen.morphia.mapping.MappingException;
+import org.mongodb.morphia.converters.SimpleValueConverter;
+import org.mongodb.morphia.converters.TypeConverter;
+import org.mongodb.morphia.mapping.MappedField;
+import org.mongodb.morphia.mapping.MappingException;
 
 public class BigDecimalConverter extends TypeConverter implements SimpleValueConverter{
 
@@ -21,7 +21,6 @@ public class BigDecimalConverter extends TypeConverter implements SimpleValueCon
     @Override
     public Object decode(Class targetClass, Object fromDBObject, MappedField optionalExtraInfo) throws MappingException {
         if (fromDBObject == null) return null;
-
         return new BigDecimal(fromDBObject.toString());
     }
 }

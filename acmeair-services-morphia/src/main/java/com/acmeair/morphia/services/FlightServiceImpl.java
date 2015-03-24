@@ -18,8 +18,8 @@ import com.acmeair.morphia.MorphiaConstants;
 import com.acmeair.morphia.services.util.MongoConnectionManager;
 import com.acmeair.service.DataService;
 import com.acmeair.service.FlightService;
-import com.github.jmkgreen.morphia.Datastore;
-import com.github.jmkgreen.morphia.query.Query;
+import org.mongodb.morphia.Datastore;
+import org.mongodb.morphia.query.Query;
 
 @DataService(name=MorphiaConstants.KEY,description=MorphiaConstants.KEY_DESCRIPTION)
 public class FlightServiceImpl implements FlightService, MorphiaConstants {

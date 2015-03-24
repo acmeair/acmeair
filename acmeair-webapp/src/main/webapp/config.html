@@ -45,12 +45,13 @@
     	//createAndStartGrid();
     }
     
+    var basePath =  "rest/info/";
     
     function getDataServiceInformation() {
     	var grid, store, dataStore;
     	
     	dojo.xhrGet({
-			url: "rest/api/config/info",
+			url: basePath.concat("config/dataServices"),
 			handleAs: "json",
 			load: function(response, ioArgs) {
 				var theData = { items : response };
@@ -80,12 +81,63 @@
     }
     
     
+    function getRuntimeInformation() {
+    	var grid, store, dataStore;
+    	
+    	dojo.xhrGet({
+			url: basePath.concat("config/runtime"),
+			handleAs: "json",
+			load: function(response, ioArgs) {
+				var theData = { items : response };
+				var tableData = '';
+			 
+					tableData += '<table border="1">';
+					tableData += '<tr>';
+					tableData += '   <th>Name</th>';
+					tableData += '   <th>Description</th>';		
+					tableData += '</tr>';
+					var itemLength = theData.items.length;
+				    for (var i = 0; i < itemLength; i++){
+						tableData += '<tr>';
+						tableData += '   <td>'+theData.items[i].name+'</td>';
+						tableData += '   <td>'+theData.items[i].description+'</td>';		
+						tableData += '</tr>';
+				    }
+					tableData += '</table>';
+				
+    			document.getElementById('runtimeLoc').innerHTML=tableData;
+				return false;				
+			},
+			error: function(response, ioArgs) {
+				alert(response);
+			}
+    	});
+    }    
+    
+    
+    
+    function getActiveDataServiceInfo() {
+    	var grid, store, dataStore;
+    	
+    	dojo.xhrGet({
+			url: basePath.concat("config/activeDataService"),
+			handleAs: "text",
+			load: function(response, ioArgs) {	
+		    	document.getElementById('activeServiceLoc').innerHTML="The active Data Service is '".concat(response).concat("''");		    	
+			},
+			error: function(response, ioArgs) {
+				alert(response);
+			}
+    	});
+    }    
+    
+    
     function getDBSizes() {
     	var grid, store, dataStore;
     	var airportCodeMapping, booking, customer, customerSession, flight, flightSegment;
 
     	dojo.xhrGet({
-			url: "rest/api/customer/count",
+			url: basePath.concat("customer/count"),
 			handleAs: "json",
 			load: function(response, ioArgs) {	
 		    	//alert("Response: " + response);
@@ -97,10 +149,9 @@
     	});
     		
     	dojo.xhrGet({
-			url: "rest/api/customer/countSessions",
+			url: basePath.concat("customer/countSessions"),
 			handleAs: "json",
-			load: function(response, ioArgs) {	
-		    	//alert("Response: " + response);
+			load: function(response, ioArgs) {			    	
 		    	document.getElementById('sessionData').innerHTML=response;
 			},
 			error: function(response, ioArgs) {
@@ -109,7 +160,7 @@
     	});
     	
        	dojo.xhrGet({
-			url: "rest/api/flights/countFlights",
+			url: basePath.concat("flights/countFlights"),
 			handleAs: "json",
 			load: function(response, ioArgs) {			    	
 		    	document.getElementById('flightData').innerHTML=response;
@@ -120,7 +171,7 @@
     	});
 	 
        	dojo.xhrGet({
-			url: "rest/api/flights/countFlightSegments",
+			url: basePath.concat("flights/countFlightSegments"),
 			handleAs: "json",
 			load: function(response, ioArgs) {			    
 		    	document.getElementById('flightSegmentData').innerHTML=response;
@@ -132,10 +183,9 @@
        	
        	
     	dojo.xhrGet({
-			url: "rest/api/bookings/count",
+			url: basePath.concat("bookings/count"),
 			handleAs: "json",
 			load: function(response, ioArgs) {	
-		    	//alert("Response: " + response);
 		    	document.getElementById('bookingData').innerHTML=response;
 			},
 			error: function(response, ioArgs) {
@@ -153,7 +203,48 @@
 
 <body class="claro">
 
+<span id="variousDialogs" style="display:none">
+<div dojoType="dijit.Dialog" id="loginWaitDialog" title="Please Wait">
+		<table width="258">
+			<tr><td>Logging in ...</td></tr>
+		</table>
+</div>
 
+<div dojoType="dijit.Dialog" id="loginDialog" title="Login">
+		<table width="258">
+			<tr>
+				<td><label>Login</label></td>
+				<td><input type="text" trim="true" dojoType="dijit.form.TextBox" value="uid0@email.com" name="login" id="userId"/></td>
+			</tr>
+			<tr>
+				<td><label>Password</label></td>
+				<td><input type="password" trim="true" dojoType="dijit.form.TextBox" value="password" name="password" id="password"/></td>
+			</tr>
+			<tr>
+				<td colspan="2">&nbsp;</td>
+			</tr>
+			<tr>
+				<td colspan="2" align="center">
+					<table width="100%" border="0" cellspacing="0" cellpadding="0">
+						<tr>
+							<td  align="center" valign="top" width="40%"><button dojoType="dijit.form.Button" id="LoginButton" onClick="login()">Ok</button></td>
+							<td align="left" valign="top" width="3%">&nbsp;</td>
+							<td align="left" valign="top" width="57%"><button dojoType="dijit.form.Button" onclick="hideLoginDialog()" id="Cancel">Cancel</button></td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+</div>
+
+
+<div dojoType="dijit.Dialog" id="waitDialog" title="Please Wait">
+		<table width="258">
+			<tr><td>Please Wait...</td></tr>
+		</table>
+		
+</div>
+</span>
     
 <div id="main">
 	<br/>
@@ -183,14 +274,21 @@
 		<div class="content">
 			<h1 style="margin: 15px 0 0 0;">Acme Air Configuration information</h1>
 			
+			<h2>Application Runtime</h2>
+			
+			<script type="text/javascript">
+				getRuntimeInformation();
+			</script>
+			<div id="runtimeLoc"></div>	
 			
 			<h2>Available Data Services </h2>
 			
 			<script type="text/javascript">
 				getDataServiceInformation();
+				getActiveDataServiceInfo();
 			</script> 
-			<div id="targetLoc"></div>
-			
+			<div id="targetLoc"></div><br/>
+			<div id="activeServiceLoc"></div>
 			<br/>
 			<script type="text/javascript">
 				getDBSizes();
