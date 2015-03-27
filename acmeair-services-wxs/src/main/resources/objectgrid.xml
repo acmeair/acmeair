@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!-- ***************************************************************************
 * Copyright (c) 2013 IBM Corp.
 *
@@ -13,7 +14,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 **************************************************************************** -->
-<?xml version="1.0" encoding="UTF-8"?>
+
 <objectGridConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xsi:schemaLocation="http://ibm.com/ws/objectgrid/config ../objectGrid.xsd"
  xmlns="http://ibm.com/ws/objectgrid/config">
@@ -29,12 +30,12 @@
             
 	        <querySchema>
 				<mapSchemas>
-					<mapSchema mapName="AirportCodeMapping" valueClass="com.acmeair.entities.AirportCodeMapping" primaryKeyField="airportCode" accessType="PROPERTY"/>
-					<mapSchema mapName="Booking" valueClass="com.acmeair.entities.Booking" primaryKeyField="pkey" accessType="PROPERTY"/>
-					<mapSchema mapName="Customer" valueClass="com.acmeair.entities.Customer" primaryKeyField="username" accessType="PROPERTY"/> 
-					<mapSchema mapName="CustomerSession" valueClass="com.acmeair.entities.CustomerSession" primaryKeyField="id" accessType="PROPERTY"/>
-					<mapSchema mapName="Flight" valueClass="com.acmeair.entities.Flight" primaryKeyField="pkey" accessType="PROPERTY"/>
-					<mapSchema mapName="FlightSegment" valueClass="com.acmeair.entities.FlightSegment" primaryKeyField="flightName" accessType="PROPERTY"/>
+					<mapSchema mapName="AirportCodeMapping" valueClass="com.acmeair.wxs.entities.AirportCodeMappingImpl" primaryKeyField="airportCode" accessType="PROPERTY"/>
+					<mapSchema mapName="Booking" valueClass="com.acmeair.wxs.entities.BookingImpl" primaryKeyField="pkey" accessType="PROPERTY"/>
+					<mapSchema mapName="Customer" valueClass="com.acmeair.wxs.entities.CustomerImpl" primaryKeyField="username" accessType="PROPERTY"/> 
+					<mapSchema mapName="CustomerSession" valueClass="com.acmeair.wxs.entities.CustomerSessionImpl" primaryKeyField="id" accessType="PROPERTY"/>
+					<mapSchema mapName="Flight" valueClass="com.acmeair.wxs.entities.FlightImpl" primaryKeyField="pkey" accessType="PROPERTY"/>
+					<mapSchema mapName="FlightSegment" valueClass="com.acmeair.wxs.entities.FlightSegmentImpl" primaryKeyField="flightName" accessType="PROPERTY"/>
 				</mapSchemas>
 			</querySchema>	
         </objectGrid>

@@ -133,7 +133,7 @@ public class FlightsREST {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			return null;
+			return Response.ok(-1).build();
 		}
 	}
 	
@@ -147,9 +147,22 @@ public class FlightsREST {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			return null;
+			return Response.ok(-1).build();
 		}
 	}
 	
+	@GET
+	@Path("/countAirports")
+	@Produces("application/json")
+	public Response countAirports() {
+		try {			
+			Long count = flightService.countAirports();	
+			return Response.ok(count).build();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return Response.ok(-1).build();
+		}
+	}
 	
 }

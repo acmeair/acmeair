@@ -28,6 +28,9 @@ public interface CustomerService {
 			String username, String password, MemberShipStatus status, int total_miles,
 			int miles_ytd, String phoneNumber, PhoneType phoneNumberType, CustomerAddress address);
 	
+	CustomerAddress createAddress (String streetAddress1, String streetAddress2,
+			String city, String stateProvince, String country, String postalCode);
+	
 	Customer updateCustomer(Customer customer);
 	
 	Customer getCustomerByUsername(String username);

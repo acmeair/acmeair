@@ -13,72 +13,19 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
-package com.acmeair.entities;
+package com.acmeair.wxs.entities;
 
-
-
+import java.util.*;
+import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Date;
+
+import com.acmeair.entities.Flight;
+import com.acmeair.entities.FlightPK;
+import com.acmeair.entities.FlightSegment;
 
 
-public interface Flight{
+public class FlightImpl implements Flight, Serializable{
 
-	
-	public FlightPK getPkey();
-
-	public void setPkey(FlightPK pkey);
-
-	// The method is needed for index calculation
-	public String getFlightSegmentId();
-	
-	public Date getScheduledDepartureTime();
-
-
-	public void setScheduledDepartureTime(Date scheduledDepartureTime);
-
-
-	public Date getScheduledArrivalTime();
-
-
-	public void setScheduledArrivalTime(Date scheduledArrivalTime);
-
-
-	public BigDecimal getFirstClassBaseCost();
-
-
-	public void setFirstClassBaseCost(BigDecimal firstClassBaseCost);
-
-
-	public BigDecimal getEconomyClassBaseCost();
-
-
-	public void setEconomyClassBaseCost(BigDecimal economyClassBaseCost);
-
-
-	public int getNumFirstClassSeats();
-
-
-	public void setNumFirstClassSeats(int numFirstClassSeats);
-
-
-	public int getNumEconomyClassSeats();
-
-
-	public void setNumEconomyClassSeats(int numEconomyClassSeats);
-
-
-	public String getAirplaneTypeId();
-
-
-	public void setAirplaneTypeId(String airplaneTypeId);
-
-
-	public FlightSegment getFlightSegment();
-
-	public void setFlightSegment(FlightSegment flightSegment);
-
-	
-	/*
 	private static final long serialVersionUID = 1L;
 	
 	@SuppressWarnings("unused")
@@ -95,15 +42,15 @@ public interface Flight{
 	
 	private FlightSegment flightSegment;
 	
-	public Flight() {
+	public FlightImpl() {
 	}
 	
-	public Flight(String id, String flightSegmentId,
+	public FlightImpl(String id, String flightSegmentId,
 			Date scheduledDepartureTime, Date scheduledArrivalTime,
 			BigDecimal firstClassBaseCost, BigDecimal economyClassBaseCost,
 			int numFirstClassSeats, int numEconomyClassSeats,
 			String airplaneTypeId) {
-		this.pkey = new FlightPK(flightSegmentId,id);
+		this.pkey = new FlightPKImpl(flightSegmentId,id);
 		this._id = this.pkey;
 		this.scheduledDepartureTime = scheduledDepartureTime;
 		this.scheduledArrivalTime = scheduledArrivalTime;
@@ -227,7 +174,7 @@ public interface Flight{
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Flight other = (Flight) obj;
+		FlightImpl other = (FlightImpl) obj;
 		if (airplaneTypeId == null) {
 			if (other.airplaneTypeId != null)
 				return false;
@@ -269,6 +216,6 @@ public interface Flight{
 			return false;
 		return true;
 	}
-	*/
+	
 	
 }

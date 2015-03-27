@@ -44,10 +44,10 @@ public class BookingsREST {
 			@FormParam("retFlightSegId") String retFlightSegId,
 			@FormParam("oneWayFlight") boolean oneWay) {
 		try {
-			BookingPK bookingIdTo = bs.bookFlight(userid,new FlightPK(toFlightSegId,toFlightId));
+			BookingPK bookingIdTo = bs.bookFlight(userid, toFlightSegId, toFlightId);
 			BookingPK bookingIdReturn = null;
 			if (!oneWay) {
-				bookingIdReturn = bs.bookFlight(userid, new FlightPK(retFlightSegId,retFlightId));
+				bookingIdReturn = bs.bookFlight(userid, retFlightSegId, retFlightId);
 			}
 			// YL. BookingInfo will only contains the booking generated keys as customer info is always available from the session
 			BookingInfo bi;
@@ -114,14 +114,14 @@ public class BookingsREST {
 	@GET
 	@Path("/count")
 	@Produces("application/json")
-	public Response countFlights() {
+	public Response countBookings() {
 		try {
 			Long count = bs.count();			
 			return Response.ok(count).build();
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			return null;
+			return Response.ok(-1).build();
 		}
 	}
 }

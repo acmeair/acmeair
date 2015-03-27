@@ -31,6 +31,8 @@ public interface FlightService {
 	
 	void storeAirportMapping(AirportCodeMapping mapping);
 
+	AirportCodeMapping createAirportCodeMapping(String airportCode, String airportName);
+	
 	Flight createNewFlight(String flightSegmentId,
 			Date scheduledDepartureTime, Date scheduledArrivalTime,
 			BigDecimal firstClassBaseCost, BigDecimal economyClassBaseCost,
@@ -39,8 +41,12 @@ public interface FlightService {
 
 	void storeFlightSegment(FlightSegment flightSeg);
 	
+	void storeFlightSegment(String flightName, String origPort, String destPort, int miles);
+	
 	Long countFlightSegments();
 	
 	Long countFlights();
-
+	
+	Long countAirports();
+	
 }

@@ -36,6 +36,9 @@ import com.acmeair.service.BookingService;
 import com.acmeair.service.DataService;
 import com.acmeair.service.FlightService;
 import com.acmeair.wxs.WXSConstants;
+import com.acmeair.wxs.entities.AirportCodeMappingImpl;
+import com.acmeair.wxs.entities.FlightImpl;
+import com.acmeair.wxs.entities.FlightSegmentImpl;
 import com.acmeair.wxs.utils.WXSSessionManager;
 import com.ibm.websphere.objectgrid.ObjectGrid;
 import com.ibm.websphere.objectgrid.ObjectGridException;
@@ -104,6 +107,29 @@ public class FlightServiceImpl implements FlightService, WXSConstants {
 				result += (Long) query.getSingleResult();
 			}
 			*/
+			return result;
+		} catch (UndefinedMapException e) {
+			e.printStackTrace();
+		} catch (TransactionCallbackException e) {
+			e.printStackTrace();
+		} catch (ObjectGridException e) {
+			e.printStackTrace();
+		}
+		return -1L;
+	}
+	
+	@Override
+	public Long countAirports() {
+		try {
+			Session session = og.getSession();
+			ObjectMap objectMap = session.getMap(AIRPORT_CODE_MAPPING_MAP_NAME);			
+			MapIndex mapIndex = (MapIndex)objectMap.getIndex(MapIndexPlugin.SYSTEM_KEY_INDEX_NAME);			
+			Iterator<?> keyIterator = mapIndex.findAll();
+			Long result = 0L;
+			while(keyIterator.hasNext()) {
+				keyIterator.next(); 
+				result++;
+			}
 			return result;
 		} catch (UndefinedMapException e) {
 			e.printStackTrace();
@@ -199,7 +225,7 @@ public class FlightServiceImpl implements FlightService, WXSConstants {
 				}
 				}
 				if (segment == null) {
-					segment = new FlightSegment(); // put a sentinel value of a non-populated flightsegment
+					segment = new FlightSegmentImpl(); // put a sentinel value of a non-populated flightsegment
 				}
 				originAndDestPortToSegmentCache.putIfAbsent(originPortAndDestPortQueryString, segment);
 			}
@@ -284,7 +310,7 @@ public class FlightServiceImpl implements FlightService, WXSConstants {
 				}
 				
 				if (segment == null) {
-					segment = new FlightSegment(); // put a sentinel value of a non-populated flightsegment
+					segment = new FlightSegmentImpl(); // put a sentinel value of a non-populated flightsegment
 				}
 				originAndDestPortToSegmentCache.putIfAbsent(originPortAndDestPortQueryString, segment);
 			}
@@ -339,6 +365,12 @@ public class FlightServiceImpl implements FlightService, WXSConstants {
 		
 	}
 
+	@Override 
+	public AirportCodeMapping createAirportCodeMapping(String airportCode, String airportName){
+		AirportCodeMapping acm = new AirportCodeMappingImpl(airportCode, airportName);
+		return acm;
+	}
+	
 	@Override
 	public Flight createNewFlight(String flightSegmentId,
 			Date scheduledDepartureTime, Date scheduledArrivalTime,
@@ -347,7 +379,7 @@ public class FlightServiceImpl implements FlightService, WXSConstants {
 			String airplaneTypeId) {
 		try{
 			String id = keyGenerator.generate().toString();
-			Flight flight = new Flight(id, flightSegmentId,
+			Flight flight = new FlightImpl(id, flightSegmentId,
 				scheduledDepartureTime, scheduledArrivalTime,
 				firstClassBaseCost, economyClassBaseCost,
 				numFirstClassSeats, numEconomyClassSeats,
@@ -391,6 +423,12 @@ public class FlightServiceImpl implements FlightService, WXSConstants {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+	
+	@Override 
+	public void storeFlightSegment(String flightName, String origPort, String destPort, int miles) {
+		FlightSegment flightSeg = new FlightSegmentImpl(flightName, origPort, destPort, miles);
+		storeFlightSegment(flightSeg);
 	}
 
 }

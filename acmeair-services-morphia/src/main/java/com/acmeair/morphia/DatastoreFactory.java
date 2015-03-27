@@ -71,7 +71,7 @@ public class DatastoreFactory {
 				MongoClient mongo = new MongoClient(mongoURI);
 				Morphia morphia = new Morphia();				
 				result = morphia.createDatastore( mongo ,mongoURI.getDatabase());
-				System.out.println("create mongo datastore with options:"+result.getMongo().getMongoOptions());
+				System.out.println("create mongo datastore with options:"+result.getMongo().getMongoClientOptions());
 			}catch (Exception e)
 			{
 				e.printStackTrace();

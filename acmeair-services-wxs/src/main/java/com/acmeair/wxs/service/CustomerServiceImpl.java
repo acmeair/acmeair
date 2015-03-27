@@ -33,6 +33,9 @@ import com.acmeair.service.BookingService;
 import com.acmeair.service.CustomerService;
 import com.acmeair.service.DataService;
 import com.acmeair.wxs.WXSConstants;
+import com.acmeair.wxs.entities.CustomerAddressImpl;
+import com.acmeair.wxs.entities.CustomerImpl;
+import com.acmeair.wxs.entities.CustomerSessionImpl;
 import com.acmeair.wxs.utils.WXSSessionManager;
 import com.ibm.websphere.objectgrid.ObjectGrid;
 import com.ibm.websphere.objectgrid.ObjectGridException;
@@ -42,7 +45,7 @@ import com.ibm.websphere.objectgrid.UndefinedMapException;
 import com.ibm.websphere.objectgrid.plugins.TransactionCallbackException;
 import com.ibm.websphere.objectgrid.plugins.index.MapIndex;
 import com.ibm.websphere.objectgrid.plugins.index.MapIndexPlugin;
-import com.ibm.websphere.objectgrid.query.ObjectQuery;
+
 
 @Default
 @DataService(name=WXSConstants.KEY,description=WXSConstants.KEY_DESCRIPTION)
@@ -109,7 +112,7 @@ public class CustomerServiceImpl implements CustomerService, WXSConstants{
 	public Long countSessions () {
 		try {
 			Session session = og.getSession();
-			ObjectMap objectMap = session.getMap(CUSTOMER_MAP_NAME);			
+			ObjectMap objectMap = session.getMap(CUSTOMER_SESSION_MAP_NAME);			
 			MapIndex mapIndex = (MapIndex)objectMap.getIndex(MapIndexPlugin.SYSTEM_KEY_INDEX_NAME);			
 			Iterator<?> keyIterator = mapIndex.findAll();
 			Long result = 0L;
@@ -143,7 +146,7 @@ public class CustomerServiceImpl implements CustomerService, WXSConstants{
 			String phoneNumber, PhoneType phoneNumberType,
 			CustomerAddress address) {
 		try{
-			Customer customer = new Customer(username, password, status, total_miles, miles_ytd, address, phoneNumber, phoneNumberType);
+			Customer customer = new CustomerImpl(username, password, status, total_miles, miles_ytd, address, phoneNumber, phoneNumberType);
 			// Session session = sessionManager.getObjectGridSession();
 			Session session = og.getSession();
 			ObjectMap customerMap = session.getMap(CUSTOMER_MAP_NAME);
@@ -155,6 +158,14 @@ public class CustomerServiceImpl implements CustomerService, WXSConstants{
 		}
 	}
 
+	@Override 
+	public CustomerAddress createAddress (String streetAddress1, String streetAddress2,
+			String city, String stateProvince, String country, String postalCode){
+		CustomerAddress address = new CustomerAddressImpl(streetAddress1, streetAddress2,
+				 city, stateProvince,  country,  postalCode);
+		return address;
+	}
+	
 	@Override
 	public Customer updateCustomer(Customer customer) {
 		try{
@@ -247,7 +258,7 @@ public class CustomerServiceImpl implements CustomerService, WXSConstants{
 			c.setTime(now);
 			c.add(Calendar.DAY_OF_YEAR, DAYS_TO_ALLOW_SESSION);
 			Date expiration = c.getTime();
-			CustomerSession cSession = new CustomerSession(sessionId, customerId, now, expiration);
+			CustomerSession cSession = new CustomerSessionImpl(sessionId, customerId, now, expiration);
 			// Session session = sessionManager.getObjectGridSession();
 			Session session = og.getSession();
 			ObjectMap customerSessionMap = session.getMap(CUSTOMER_SESSION_MAP_NAME);

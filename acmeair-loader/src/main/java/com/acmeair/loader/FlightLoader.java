@@ -22,7 +22,6 @@ import java.util.*;
 import java.math.*;
 
 import com.acmeair.entities.AirportCodeMapping;
-import com.acmeair.entities.FlightSegment;
 import com.acmeair.service.FlightService;
 import com.acmeair.service.ServiceLocator;
 
@@ -46,8 +45,8 @@ public class FlightLoader {
 		
 		// read the first line which are airport names
 		while (st.hasMoreTokens()) {
-			AirportCodeMapping acm = new AirportCodeMapping();
-			acm.setAirportName(st.nextToken());
+			AirportCodeMapping acm = flightService.createAirportCodeMapping(null, st.nextToken());
+		//	acm.setAirportName(st.nextToken());
 			airports.add(acm);
 		}
 		// read the second line which contains matching airport codes for the first line
@@ -72,9 +71,7 @@ public class FlightLoader {
 			String airportName = st.nextToken();
 			String airportCode = st.nextToken();
 			if (!alreadyInCollection(airportCode, airports)) {
-				AirportCodeMapping acm = new AirportCodeMapping();
-				acm.setAirportName(airportName);
-				acm.setAirportCode(airportCode);
+				AirportCodeMapping acm = flightService.createAirportCodeMapping(airportCode, airportName);
 				airports.add(acm);
 			}
 			int indexIntoTopLine = 0;
@@ -86,9 +83,8 @@ public class FlightLoader {
 				}
 				int miles = Integer.parseInt(milesString);
 				String toAirport = airports.get(indexIntoTopLine).getAirportCode();
-				String flightId = "AA" + flightNumber;
-				FlightSegment flightSeg = new FlightSegment(flightId, airportCode, toAirport, miles);
-				flightService.storeFlightSegment(flightSeg);
+				String flightId = "AA" + flightNumber;			
+				flightService.storeFlightSegment(flightId, airportCode, toAirport, miles);
 				Date now = new Date();
 				for (int daysFromNow = 0; daysFromNow < MAX_FLIGHTS_PER_SEGMENT; daysFromNow++) {
 					Calendar c = Calendar.getInstance();

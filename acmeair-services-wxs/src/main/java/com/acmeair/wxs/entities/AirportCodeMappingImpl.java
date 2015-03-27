@@ -13,18 +13,41 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
-package com.acmeair.entities;
+package com.acmeair.wxs.entities;
 
+import java.io.Serializable;
 
-public interface AirportCodeMapping{
+import com.acmeair.entities.AirportCodeMapping;
+
+public class AirportCodeMappingImpl implements AirportCodeMapping, Serializable{
 	
+	private static final long serialVersionUID = 1L;
+
+	private String _id;
+	private String airportName;
 	
-	public String getAirportCode();
+	public AirportCodeMappingImpl() {
+	}
 	
-	public void setAirportCode(String airportCode);
+	public AirportCodeMappingImpl(String airportCode, String airportName) {
+		this._id = airportCode;
+		this.airportName = airportName;
+	}
 	
-	public String getAirportName();
+	public String getAirportCode() {
+		return _id;
+	}
 	
-	public void setAirportName(String airportName);
+	public void setAirportCode(String airportCode) {
+		this._id = airportCode;
+	}
+	
+	public String getAirportName() {
+		return airportName;
+	}
+	
+	public void setAirportName(String airportName) {
+		this.airportName = airportName;
+	}
 
 }

@@ -2,7 +2,6 @@ package com.acmeair.morphia.services;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -12,19 +11,22 @@ import com.acmeair.entities.Customer.MemberShipStatus;
 import com.acmeair.entities.Customer.PhoneType;
 import com.acmeair.entities.CustomerAddress;
 import com.acmeair.entities.CustomerSession;
+import com.acmeair.morphia.entities.CustomerAddressImpl;
+import com.acmeair.morphia.entities.CustomerSessionImpl;
 import com.acmeair.morphia.MorphiaConstants;
+import com.acmeair.morphia.entities.CustomerImpl;
 import com.acmeair.morphia.services.util.MongoConnectionManager;
 import com.acmeair.service.DataService;
 import com.acmeair.service.CustomerService;
+
 import org.mongodb.morphia.Datastore;
-import org.mongodb.morphia.Morphia;
 import org.mongodb.morphia.query.Query;
-import com.mongodb.DB;
+
+
 
 @DataService(name=MorphiaConstants.KEY,description=MorphiaConstants.KEY_DESCRIPTION)
 public class CustomerServiceImpl implements CustomerService, MorphiaConstants {	
-	
-	private final static Logger logger = Logger.getLogger(CustomerService.class.getName()); 
+		
 	
 	protected Datastore datastore;
 		
@@ -39,12 +41,12 @@ public class CustomerServiceImpl implements CustomerService, MorphiaConstants {
 	
 	@Override
 	public Long count() {
-		return datastore.find(Customer.class).countAll();
+		return datastore.find(CustomerImpl.class).countAll();
 	}
 	
 	@Override
 	public Long countSessions() {
-		return datastore.find(CustomerSession.class).countAll();
+		return datastore.find(CustomerSessionImpl.class).countAll();
 	}
 	
 	@Override
@@ -54,13 +56,21 @@ public class CustomerServiceImpl implements CustomerService, MorphiaConstants {
 			CustomerAddress address) {
 	
 
-		Customer customer = new Customer(username, password, status, total_miles, miles_ytd, address, phoneNumber, phoneNumberType);
+		Customer customer = new CustomerImpl(username, password, status, total_miles, miles_ytd, address, phoneNumber, phoneNumberType);
 		try{
 			datastore.save(customer);
 			return customer;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+	
+	@Override 
+	public CustomerAddress createAddress (String streetAddress1, String streetAddress2,
+			String city, String stateProvince, String country, String postalCode){
+		CustomerAddress address = new CustomerAddressImpl(streetAddress1, streetAddress2,
+				 city, stateProvince,  country,  postalCode);
+		return address;
 	}
 
 	@Override
@@ -76,7 +86,7 @@ public class CustomerServiceImpl implements CustomerService, MorphiaConstants {
 	private Customer getCustomer(String username) {
 		try{
 			
-			Query<Customer> q = datastore.find(Customer.class).field("_id").equal(username);
+			Query<CustomerImpl> q = datastore.find(CustomerImpl.class).field("_id").equal(username);
 			Customer customer = q.get();					
 			return customer;
 		} catch (Exception e) {
@@ -87,7 +97,7 @@ public class CustomerServiceImpl implements CustomerService, MorphiaConstants {
 	@Override
 	public Customer getCustomerByUsername(String username) {
 		try{
-			Query<Customer> q = datastore.find(Customer.class).field("_id").equal(username);
+			Query<CustomerImpl> q = datastore.find(CustomerImpl.class).field("_id").equal(username);
 			Customer customer = q.get();
 			if (customer != null) {
 				customer.setPassword(null);
@@ -121,7 +131,7 @@ public class CustomerServiceImpl implements CustomerService, MorphiaConstants {
 	@Override
 	public CustomerSession validateSession(String sessionid) {
 		try {
-			Query<CustomerSession> q = datastore.find(CustomerSession.class).field("_id").equal(sessionid);
+			Query<CustomerSessionImpl> q = datastore.find(CustomerSessionImpl.class).field("_id").equal(sessionid);
 			
 			CustomerSession cSession = q.get();
 			if (cSession == null) {
@@ -149,7 +159,7 @@ public class CustomerServiceImpl implements CustomerService, MorphiaConstants {
 			c.setTime(now);
 			c.add(Calendar.DAY_OF_YEAR, DAYS_TO_ALLOW_SESSION);
 			Date expiration = c.getTime();
-			CustomerSession cSession = new CustomerSession(sessionId, customerId, now, expiration);
+			CustomerSession cSession = new CustomerSessionImpl(sessionId, customerId, now, expiration);
 			datastore.save(cSession);
 			return cSession;
 		} catch (Exception e) {
@@ -160,7 +170,7 @@ public class CustomerServiceImpl implements CustomerService, MorphiaConstants {
 	@Override
 	public void invalidateSession(String sessionid) {
 		try {
-			Query<CustomerSession> q = datastore.find(CustomerSession.class).field("_id").equal(sessionid);
+			Query<CustomerSessionImpl> q = datastore.find(CustomerSessionImpl.class).field("_id").equal(sessionid);
 			datastore.delete(q);
 		} catch (Exception e) {
 			throw new RuntimeException(e);

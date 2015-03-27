@@ -1,8 +1,8 @@
 package com.acmeair.morphia.services;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -15,21 +15,24 @@ import com.acmeair.entities.Customer;
 import com.acmeair.entities.Flight;
 import com.acmeair.entities.FlightPK;
 import com.acmeair.morphia.MorphiaConstants;
+import com.acmeair.morphia.entities.BookingImpl;
+import com.acmeair.morphia.entities.BookingPKImpl;
+import com.acmeair.morphia.entities.FlightPKImpl;
 import com.acmeair.morphia.services.util.MongoConnectionManager;
 import com.acmeair.service.BookingService;
 import com.acmeair.service.CustomerService;
 import com.acmeair.service.DataService;
 import com.acmeair.service.FlightService;
 import com.acmeair.service.ServiceLocator;
-import org.mongodb.morphia.*;
+
 import org.mongodb.morphia.query.Query;
-import com.mongodb.DB;
+
 
 
 @DataService(name=MorphiaConstants.KEY,description=MorphiaConstants.KEY_DESCRIPTION)
 public class BookingServiceImpl implements BookingService, MorphiaConstants {
 
-	private final static Logger logger = Logger.getLogger(BookingService.class.getName()); 
+	//private final static Logger logger = Logger.getLogger(BookingService.class.getName()); 
 
 		
 	Datastore datastore;
@@ -53,7 +56,7 @@ public class BookingServiceImpl implements BookingService, MorphiaConstants {
 			Flight f = flightService.getFlightByFlightKey(flightId);
 			Customer c = customerService.getCustomerByUsername(customerId);
 			
-			Booking newBooking = new Booking(keyGenerator.generate().toString(), new Date(), c, f);
+			Booking newBooking = new BookingImpl(keyGenerator.generate().toString(), new Date(), c, f);
 
 			datastore.save(newBooking);
 			return newBooking.getPkey();
@@ -63,9 +66,15 @@ public class BookingServiceImpl implements BookingService, MorphiaConstants {
 	}
 
 	@Override
+	public BookingPK bookFlight(String customerId, String flightSegmentId, String id) {
+		return bookFlight(customerId, new FlightPKImpl(flightSegmentId, id));
+	
+	}
+	
+	@Override
 	public Booking getBooking(String user, String id) {
 		try{
-			Query<Booking> q = datastore.find(Booking.class).field("_id").equal(new BookingPK(user, id));
+			Query<BookingImpl> q = datastore.find(BookingImpl.class).field("_id").equal(new BookingPKImpl(user, id));
 			Booking booking = q.get();
 			
 			return booking;
@@ -77,9 +86,12 @@ public class BookingServiceImpl implements BookingService, MorphiaConstants {
 	@Override
 	public List<Booking> getBookingsByUser(String user) {
 		try{
-			Query<Booking> q = datastore.find(Booking.class).field("pkey.customerId").equal(user);
-			List<Booking> bookings = q.asList();
-			
+			Query<BookingImpl> q = datastore.find(BookingImpl.class).disableValidation().field("_id.customerId").equal(user);
+			List<BookingImpl> bookingImpls = q.asList();
+			List<Booking> bookings = new ArrayList<Booking>();
+			for(Booking b: bookingImpls){
+				bookings.add(b);
+			}
 			return bookings;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -89,7 +101,7 @@ public class BookingServiceImpl implements BookingService, MorphiaConstants {
 	@Override
 	public void cancelBooking(String user, String id) {
 		try{
-			datastore.delete(Booking.class, new BookingPK(user, id) );
+			datastore.delete(BookingImpl.class, new BookingPKImpl(user, id) );
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -98,6 +110,6 @@ public class BookingServiceImpl implements BookingService, MorphiaConstants {
 	
 	@Override
 	public Long count() {
-		return datastore.find(Booking.class).countAll();
+		return datastore.find(BookingImpl.class).countAll();
 	}	
 }

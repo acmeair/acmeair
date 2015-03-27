@@ -15,100 +15,26 @@
 *******************************************************************************/
 package com.acmeair.entities;
 
-import java.io.Serializable;
-import java.util.*;
 
-public class CustomerSession implements Serializable {
+import java.util.Date;
+
+public interface CustomerSession {
+
 	
-	private static final long serialVersionUID = 1L;
+	public String getId();
 
-	private String _id;
-	private String customerid;
-	private Date lastAccessedTime;
-	private Date timeoutTime;
+	public void setId(String id);
+
+	public String getCustomerid();
+
+	public void setCustomerid(String customerid);
+
+	public Date getLastAccessedTime();
 	
-	public CustomerSession() {
-	}
+	public void setLastAccessedTime(Date lastAccessedTime);
 
-	public CustomerSession(String id, String customerid, Date lastAccessedTime,	Date timeoutTime) {
-		this._id= id;
-		this.customerid = customerid;
-		this.lastAccessedTime = lastAccessedTime;
-		this.timeoutTime = timeoutTime;
-	}
-	
+	public Date getTimeoutTime();
 
-	public String getId() {
-		return _id;
-	}
-
-	public void setId(String id) {
-		this._id = id;
-	}
-
-	public String getCustomerid() {
-		return customerid;
-	}
-
-	public void setCustomerid(String customerid) {
-		this.customerid = customerid;
-	}
-
-	public Date getLastAccessedTime() {
-		return lastAccessedTime;
-	}
-
-	public void setLastAccessedTime(Date lastAccessedTime) {
-		this.lastAccessedTime = lastAccessedTime;
-	}
-
-	public Date getTimeoutTime() {
-		return timeoutTime;
-	}
-
-	public void setTimeoutTime(Date timeoutTime) {
-		this.timeoutTime = timeoutTime;
-	}
-
-	@Override
-	public String toString() {
-		return "CustomerSession [id=" + _id + ", customerid=" + customerid
-				+ ", lastAccessedTime=" + lastAccessedTime + ", timeoutTime="
-				+ timeoutTime + "]";
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		CustomerSession other = (CustomerSession) obj;
-		if (customerid == null) {
-			if (other.customerid != null)
-				return false;
-		} else if (!customerid.equals(other.customerid))
-			return false;
-		if (_id == null) {
-			if (other._id != null)
-				return false;
-		} else if (!_id.equals(other._id))
-			return false;
-		if (lastAccessedTime == null) {
-			if (other.lastAccessedTime != null)
-				return false;
-		} else if (!lastAccessedTime.equals(other.lastAccessedTime))
-			return false;
-		if (timeoutTime == null) {
-			if (other.timeoutTime != null)
-				return false;
-		} else if (!timeoutTime.equals(other.timeoutTime))
-			return false;
-		return true;
-	}
-
-
+	public void setTimeoutTime(Date timeoutTime);
 	
 }

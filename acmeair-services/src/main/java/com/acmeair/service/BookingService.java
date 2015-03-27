@@ -24,7 +24,9 @@ import com.acmeair.entities.FlightPK;
 public interface BookingService {
 
 	BookingPK bookFlight(String customerId, FlightPK flightId);
-
+	
+	BookingPK bookFlight(String customerId, String flightSegmentId, String id);
+	
 	Booking getBooking(String user, String id);
 
 	List<Booking> getBookingsByUser(String user);

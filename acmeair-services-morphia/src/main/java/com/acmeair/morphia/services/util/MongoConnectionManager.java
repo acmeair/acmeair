@@ -87,6 +87,7 @@ public class MongoConnectionManager implements MorphiaConstants{
 		return datastore;
 	}
 	
+	@SuppressWarnings("deprecation")
 	public String getDriverVersion(){
 		return datastore.getMongo().getVersion();
 	}

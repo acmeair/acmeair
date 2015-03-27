@@ -36,6 +36,8 @@ import com.acmeair.service.DataService;
 import com.acmeair.service.FlightService;
 import com.acmeair.service.ServiceLocator;
 import com.acmeair.wxs.WXSConstants;
+import com.acmeair.wxs.entities.BookingImpl;
+import com.acmeair.wxs.entities.FlightPKImpl;
 import com.acmeair.wxs.utils.WXSSessionManager;
 import com.ibm.websphere.objectgrid.ObjectGrid;
 import com.ibm.websphere.objectgrid.ObjectGridException;
@@ -81,7 +83,7 @@ public class BookingServiceImpl implements BookingService, WXSConstants  {
 			Flight f = flightService.getFlightByFlightKey(flightId);
 			Customer c = customerService.getCustomerByUsername(customerId);
 			
-			Booking newBooking = new Booking(keyGenerator.generate().toString(), new Date(), c, f);
+			Booking newBooking = new BookingImpl(keyGenerator.generate().toString(), new Date(), c, f);
 			BookingPK key = newBooking.getPkey();
 			
 			//Session session = sessionManager.getObjectGridSession();
@@ -104,6 +106,12 @@ public class BookingServiceImpl implements BookingService, WXSConstants  {
 		}
 	}
 
+	@Override
+	public BookingPK bookFlight(String customerId, String flightSegmentId, String id) {
+		return bookFlight(customerId, new FlightPKImpl(flightSegmentId, id));
+	
+	}
+	
 	@Override
 	public Booking getBooking(String user, String id) {
 		

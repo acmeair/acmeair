@@ -47,8 +47,7 @@ public class CustomerREST {
 				return Response.status(Response.Status.FORBIDDEN).build();
 				
 			}
-			Customer customer = customerService.getCustomerByUsername(customerid);
-			
+			Customer customer = customerService.getCustomerByUsername(customerid);			
 			return Response.ok(customer).build();
 		}
 		catch (Exception e) {
@@ -60,7 +59,7 @@ public class CustomerREST {
 	@POST
 	@Path("/byid/{custid}")
 	@Produces("application/json")
-	public /* Customer */ Response putCustomer(@CookieParam("sessionid") String sessionid, Customer customer) {
+	public /* Customer */ Response putCustomer(@CookieParam("sessionid") String sessionid, CustomerDataTransferObject customer) {
 		if (!validate(customer.getUsername())) {
 			return Response.status(Response.Status.FORBIDDEN).build();
 		}
@@ -82,7 +81,7 @@ public class CustomerREST {
 		addressFromDB.setPostalCode(customer.getAddress().getPostalCode());
 		
 		customerFromDB.setPhoneNumber(customer.getPhoneNumber());
-		customerFromDB.setPhoneNumberType(customer.getPhoneNumberType());
+		customerFromDB.setPhoneNumberType(Customer.PhoneType.valueOf(customer.getPhoneNumberType()));
 		
 		customerService.updateCustomer(customerFromDB);
 		customerFromDB.setPassword(null);
@@ -101,7 +100,7 @@ public class CustomerREST {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			return null;
+			return Response.ok(-1).build();
 		}
 	}
 	
@@ -117,7 +116,7 @@ public class CustomerREST {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			return null;
+			return Response.ok(-1).build();
 		}
 	}
 	
