@@ -17,9 +17,6 @@ subprojects {
 }
 
 project(':acmeair-common') {
-    dependencies {
-        compile 'com.ibm.websphere.objectgrid:objectgrid:8.6.0.2'
-    }
 }
 
 project(':acmeair-services') {
@@ -56,6 +53,13 @@ project(':acmeair-loader') {
         compile project(':acmeair-services')
     }
 }
+
+//project(':acmeair-driver') {
+//    dependencies {
+//        compile 'org.apache.jmeter:ApacheJMeter_core:2.13'
+//        compile 'com.googlecode.json-simple:json-simple:1.1.1'
+//    }
+//}
 
 
 project(':acmeair-webapp') {

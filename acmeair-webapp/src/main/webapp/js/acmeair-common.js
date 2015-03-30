@@ -48,7 +48,7 @@ function updateLoggedInUserWelcome() {
 		dojo.byId("loggedinwelcome").innerHTML = 'Welcome Back ' + loggedinuser;
 	}
 }
-
+/*
 function loaddb() {
 	showWaitDialog();
 	dojo.xhrGet({
@@ -66,7 +66,7 @@ function loaddb() {
 	});
 	
 }
-
+*/
 function login() {
 	hideLoginDialog();
 	showLoginWaitDialog();

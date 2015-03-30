@@ -1,5 +1,5 @@
 <!-- ***************************************************************************
-* Copyright (c) 2013 IBM Corp.
+* Copyright (c) 2015 IBM Corp.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,11 +13,11 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 **************************************************************************** -->
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html>
-
 <head>
   <title>Acme Air</title>
+  <meta charset="UTF-8">
   <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
   <link rel="stylesheet" type="text/css" href="css/style.css">
   <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/dojo/1.7.1/dijit/themes/claro/claro.css">
@@ -28,7 +28,8 @@
 
   <script>
     dojo.require("dojo.parser");
-    
+	dojo.require("dojox.grid.DataGrid");
+	dojo.require("dojo.data.ItemFileWriteStore");    
     dojo.require("dijit.form.Button");
     dojo.require("dijit.Dialog");
     dojo.require("dijit.form.TextBox");
@@ -40,13 +41,73 @@
     dojo.addOnLoad(pageLoaded);
     
     function pageLoaded() {
-    	updateLoggedInUserWelcome();
+    	updateLoggedInUserWelcome();   	
+    	loadLoaderConfigData();
     }
+    
+    var basePath =  "rest/info/";
+        
+    
+    
+    function getActiveDataServiceInfo() {
+    	var grid, store, dataStore;
+    	
+    	dojo.xhrGet({
+			url: basePath.concat("config/activeDataService"),
+			handleAs: "text",
+			load: function(response, ioArgs) {	
+		    	document.getElementById('activeServiceLoc').innerHTML="The loader to the '".concat(response).concat("' data service.");;		    	
+			},
+			error: function(response, ioArgs) {
+				alert(response);
+			}
+    	});
+    }    
+    
+    
+    
+    function loadLoaderConfigData() {
+    	dojo.xhrGet({
+			url: basePath.concat('loader/query'),
+			handleAs: "text",
+			load: function(response, ioArgs) {
+				updateFormData(response);
+			},
+			error: function(response, ioArgs) {
+				alert(response);
+			}
+		});
+    }
+    
+    function updateFormData(loaderdata) {
+		dijit.byId('customerSizeInput').set('value', loaderdata);
+    }
+    
+    function loadDB() {
+    	showWaitDialog();
+    	dojo.xhrGet({
+    		content : {
+    			numCustomers: dijit.byId('customerSizeInput').value
+    		},
+    		url: basePath.concat('loader/load'),
+    		load: function(response, ioArgs) {
+    			hideWaitDialog();
+    			alert('Database Loaded, response: ' + response);
+    		},
+    		error: function(response, ioArgs) {
+    			hideWaitDialog();
+    			alert('error loaddb, response: ' + response);
+    		}
+    	});
+    	
+    }
+    
+	function formatFlightNumnber(data) {
+		return data.name[0];
+	}
   </script>
 </head>
-
 <body class="claro">
-
 <span id="variousDialogs" style="display:none">
 <div dojoType="dijit.Dialog" id="loginWaitDialog" title="Please Wait">
 		<table width="258">
@@ -112,13 +173,22 @@
 			<div id="toolbar5.logout" data-dojo-type="dijit.form.Button" data-dojo-props='showLabel:true' onClick="logout()">Logout</div>
 			<div id="toolbar5.account" data-dojo-type="dijit.form.Button" data-dojo-props='showLabel:true' onClick="window.location='customerprofile.html'">Account</div>
 			<div id="toolbar5.loaddb" data-dojo-type="dijit.form.Button" data-dojo-props='showLabel:true' onClick="window.location='loader.html'">Load the database</div>
-			<div id="toolbar5.info" data-dojo-type="dijit.form.Button" data-dojo-props='showLabel:true' onClick="window.location='config.html'">Runtime Info</div>			
+			<div id="toolbar5.info" data-dojo-type="dijit.form.Button" data-dojo-props='showLabel:true' onClick="window.location='config.html'">Runtime Info</div>
 		</div>
 		
 		<div class="content">
-			<img src="images/acmeAirplane.png" alt="home" /><br/>
-			<h1 style="margin: 15px 0 0 0;">Welcome to Acme Air</h1>
-			<p>This is a sample application for performance testing of light weight app servers, partionable data storage, Web 2.0 and mobile on the cloud.</p>
+			<h1>Acme Air Database Loader</h1>
+			<script type="text/javascript">
+				getActiveDataServiceInfo();
+			</script> 
+			<div id="activeServiceLoc"></div> 
+			<br/>
+									
+			<h2>Loader Configuration </h2>
+			<br/>
+      		Number of Customers to Load: <input type="text" dojoType="dijit.form.TextBox" id="customerSizeInput" data-dojo-props="trim:true" required="true"></input><br/>
+      		<button dojoType="dijit.form.Button" id="loadDatabaseButton" onClick="loadDB()">Load the Database</button>
+      		</br/>						
 		</div>
 	</div>
 	<footer>
