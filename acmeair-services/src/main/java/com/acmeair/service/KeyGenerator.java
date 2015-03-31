@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2013 IBM Corp.
+* Copyright (c) 2013-2015 IBM Corp.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
 *******************************************************************************/
 package com.acmeair.service;
 
-public interface KeyGenerator {
-	public abstract Object generate();
+public class KeyGenerator {
+	
+	public Object generate() {
+		return java.util.UUID.randomUUID().toString();
+	}
 }

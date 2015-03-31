@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2013 IBM Corp.
+* Copyright (c) 2013-2015 IBM Corp.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,37 +16,88 @@
 package com.acmeair.service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
-import com.acmeair.entities.*;
+import com.acmeair.entities.Flight;
+import com.acmeair.entities.FlightSegment;
+import com.acmeair.entities.FlightPK;
+import com.acmeair.entities.AirportCodeMapping;
 
-public interface FlightService {
+public abstract class FlightService {
 
-	Flight getFlightByFlightKey(FlightPK key);
+	//TODO:need to find a way to invalidate these maps
+	protected static ConcurrentHashMap<String, FlightSegment> originAndDestPortToSegmentCache = new ConcurrentHashMap<String,FlightSegment>();
+	protected static ConcurrentHashMap<String, List<Flight>> flightSegmentAndDataToFlightCache = new ConcurrentHashMap<String,List<Flight>>();
+	protected static ConcurrentHashMap<FlightPK, Flight> flightPKtoFlightCache = new ConcurrentHashMap<FlightPK, Flight>();
 	
-	List<Flight> getFlightByAirportsAndDepartureDate(String fromAirport, String toAirport, Date deptDate); 
-
-	List<Flight> getFlightByAirports(String fromAirport, String toAirport);  
 	
-	void storeAirportMapping(AirportCodeMapping mapping);
-
-	AirportCodeMapping createAirportCodeMapping(String airportCode, String airportName);
+	public abstract Flight getFlightByFlightKey(FlightPK key);
 	
-	Flight createNewFlight(String flightSegmentId,
+
+	public List<Flight> getFlightByAirportsAndDepartureDate(String fromAirport,	String toAirport, Date deptDate) {
+		try {
+			String originPortAndDestPortQueryString= fromAirport+toAirport;
+			FlightSegment segment = originAndDestPortToSegmentCache.get(originPortAndDestPortQueryString);
+			
+			if (segment == null) {
+				segment = getFlightSegment(fromAirport, toAirport);
+				originAndDestPortToSegmentCache.putIfAbsent(originPortAndDestPortQueryString, segment);
+			}
+			
+			// cache flights that not available (checks against sentinel value above indirectly)
+			if (segment.getFlightName() == null) {
+				return new ArrayList<Flight>(); 
+			}
+			
+			String segId = segment.getFlightName();
+			String flightSegmentIdAndScheduledDepartureTimeQueryString = segId + deptDate.toString();
+			List<Flight> flights = flightSegmentAndDataToFlightCache.get(flightSegmentIdAndScheduledDepartureTimeQueryString);
+			
+			if (flights == null) {				
+				flights = getFlightBySegment(segment, deptDate);
+				flightSegmentAndDataToFlightCache.putIfAbsent(flightSegmentIdAndScheduledDepartureTimeQueryString, flights);
+			}
+			
+			return flights;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	// NOTE:  This is not cached
+	public List<Flight> getFlightByAirports(String fromAirport, String toAirport) {
+			FlightSegment segment = getFlightSegment(fromAirport, toAirport);
+			if (segment == null) {
+				return new ArrayList<Flight>(); 
+			}	
+			return getFlightBySegment(segment, null);
+	}
+	
+	protected abstract FlightSegment getFlightSegment(String fromAirport, String toAirport);
+	
+	protected abstract List<Flight> getFlightBySegment(FlightSegment segment, Date deptDate);  
+			
+	public abstract void storeAirportMapping(AirportCodeMapping mapping);
+
+	public abstract AirportCodeMapping createAirportCodeMapping(String airportCode, String airportName);
+	
+	public abstract Flight createNewFlight(String flightSegmentId,
 			Date scheduledDepartureTime, Date scheduledArrivalTime,
 			BigDecimal firstClassBaseCost, BigDecimal economyClassBaseCost,
 			int numFirstClassSeats, int numEconomyClassSeats,
 			String airplaneTypeId);
 
-	void storeFlightSegment(FlightSegment flightSeg);
+	public abstract void storeFlightSegment(FlightSegment flightSeg);
 	
-	void storeFlightSegment(String flightName, String origPort, String destPort, int miles);
+	public abstract void storeFlightSegment(String flightName, String origPort, String destPort, int miles);
 	
-	Long countFlightSegments();
+	public abstract Long countFlightSegments();
 	
-	Long countFlights();
+	public abstract Long countFlights();
 	
-	Long countAirports();
+	public abstract Long countAirports();
 	
 }

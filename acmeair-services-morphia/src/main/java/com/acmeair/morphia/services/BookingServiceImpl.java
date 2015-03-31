@@ -23,6 +23,7 @@ import com.acmeair.service.BookingService;
 import com.acmeair.service.CustomerService;
 import com.acmeair.service.DataService;
 import com.acmeair.service.FlightService;
+import com.acmeair.service.KeyGenerator;
 import com.acmeair.service.ServiceLocator;
 
 import org.mongodb.morphia.query.Query;
@@ -38,7 +39,7 @@ public class BookingServiceImpl implements BookingService, MorphiaConstants {
 	Datastore datastore;
 	
 	@Inject 
-	DefaultKeyGeneratorImpl keyGenerator;
+	KeyGenerator keyGenerator;
 	
 	private FlightService flightService = ServiceLocator.instance().getService(FlightService.class);
 	private CustomerService customerService = ServiceLocator.instance().getService(CustomerService.class);

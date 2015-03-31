@@ -1,11 +1,24 @@
+/*******************************************************************************
+* Copyright (c) 2015 IBM Corp.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*******************************************************************************/
 package com.acmeair.morphia.services;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -21,25 +34,22 @@ import com.acmeair.morphia.entities.FlightSegmentImpl;
 import com.acmeair.morphia.services.util.MongoConnectionManager;
 import com.acmeair.service.DataService;
 import com.acmeair.service.FlightService;
+import com.acmeair.service.KeyGenerator;
 
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.query.Query;
 
 @DataService(name=MorphiaConstants.KEY,description=MorphiaConstants.KEY_DESCRIPTION)
-public class FlightServiceImpl implements FlightService, MorphiaConstants {
+public class FlightServiceImpl extends FlightService implements  MorphiaConstants {
 
 	//private final static Logger logger = Logger.getLogger(FlightService.class.getName()); 
 		
 	Datastore datastore;
 	
 	@Inject
-	DefaultKeyGeneratorImpl keyGenerator;
+	KeyGenerator keyGenerator;
 	
-	//TODO:need to find a way to invalidate these maps
-	private static ConcurrentHashMap<String, FlightSegment> originAndDestPortToSegmentCache = new ConcurrentHashMap<String,FlightSegment>();
-	private static ConcurrentHashMap<String, List<Flight>> flightSegmentAndDataToFlightCache = new ConcurrentHashMap<String,List<Flight>>();
-	private static ConcurrentHashMap<FlightPK, Flight> flightPKtoFlightCache = new ConcurrentHashMap<FlightPK, Flight>();
-	
+
 	
 	@PostConstruct
 	public void initialization() {	
@@ -80,77 +90,38 @@ public class FlightServiceImpl implements FlightService, MorphiaConstants {
 	}
 
 	@Override
-	public List<Flight> getFlightByAirportsAndDepartureDate(String fromAirport,	String toAirport, Date deptDate) {
-		try {
-			String originPortAndDestPortQueryString= fromAirport+toAirport;
-			FlightSegment segment = originAndDestPortToSegmentCache.get(originPortAndDestPortQueryString);
-			
-			if (segment == null) {
-				Query<FlightSegmentImpl> q = datastore.find(FlightSegmentImpl.class).field("originPort").equal(fromAirport).field("destPort").equal(toAirport);
-				segment = q.get();
-				if (segment == null) {
-					segment = new FlightSegmentImpl(); // put a sentinel value of a non-populated flightsegment 
-				}
-				originAndDestPortToSegmentCache.putIfAbsent(originPortAndDestPortQueryString, segment);
-			}
-			
-			// cache flights that not available (checks against sentinel value above indirectly)
-			if (segment.getFlightName() == null) {
-				return new ArrayList<Flight>(); 
-			}
-			
-			String segId = segment.getFlightName();
-			String flightSegmentIdAndScheduledDepartureTimeQueryString = segId + deptDate.toString();
-			List<Flight> flights = flightSegmentAndDataToFlightCache.get(flightSegmentIdAndScheduledDepartureTimeQueryString);
-			
-			if (flights == null) {
-				Query<FlightImpl> q2 = datastore.find(FlightImpl.class).disableValidation().field("_id.flightSegmentId").equal(segment.getFlightName()).field("scheduledDepartureTime").equal(deptDate);
-				List<FlightImpl> flightImpls = q2.asList();
-				if (flightImpls != null) {
-					flights =  new ArrayList<Flight>(); 
-					for (Flight flight : flightImpls) {
-						flight.setFlightSegment(segment);
-						flights.add(flight);
-					}
-				}
-				else {
-					flights = new ArrayList<Flight>(); // put an empty list into the cache in the cache in the case where no matching flights
-				}
-				flightSegmentAndDataToFlightCache.putIfAbsent(flightSegmentIdAndScheduledDepartureTimeQueryString, flights);
-			}
-			
-			return flights;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
+	protected  FlightSegment getFlightSegment(String fromAirport, String toAirport){
+		Query<FlightSegmentImpl> q = datastore.find(FlightSegmentImpl.class).field("originPort").equal(fromAirport).field("destPort").equal(toAirport);
+		FlightSegment segment = q.get();
+		if (segment == null) {
+			segment = new FlightSegmentImpl(); // put a sentinel value of a non-populated flightsegment 
 		}
+		return segment;
 	}
-
+	
 	@Override
-	// NOTE:  This is not cached
-	public List<Flight> getFlightByAirports(String fromAirport, String toAirport) {
-		try {
-			Query<FlightSegmentImpl> q = datastore.find(FlightSegmentImpl.class).field("originPort").equal(fromAirport).field("destPort").equal(toAirport);
-			FlightSegment segment = q.get();
-			if (segment == null) {
-				return new ArrayList<Flight>(); 
-			}			
-			Query<FlightImpl> q2 = datastore.find(FlightImpl.class).disableValidation().field("_id.flightSegmentId").equal(segment.getFlightName());
-			List<FlightImpl> flightImpls = q2.asList();
-			if (flightImpls != null) {
-				List<Flight> flights = new ArrayList<Flight>();
-				for (Flight flight : flightImpls) {
-					flight.setFlightSegment(segment);
-					flights.add(flight);
-				}
-				return flights;
-			}
-			else {
-				return new ArrayList<Flight>();
-			}
-		} catch (Exception e) {
-			throw new RuntimeException(e);
+	protected  List<Flight> getFlightBySegment(FlightSegment segment, Date deptDate){
+		Query<FlightImpl> q2;
+		if(deptDate != null) {
+			q2 = datastore.find(FlightImpl.class).disableValidation().field("_id.flightSegmentId").equal(segment.getFlightName()).field("scheduledDepartureTime").equal(deptDate);
+		} else {
+			q2 = datastore.find(FlightImpl.class).disableValidation().field("_id.flightSegmentId").equal(segment.getFlightName());
 		}
+		List<FlightImpl> flightImpls = q2.asList();
+		List<Flight> flights;
+		if (flightImpls != null) {
+			flights =  new ArrayList<Flight>(); 
+			for (Flight flight : flightImpls) {
+				flight.setFlightSegment(segment);
+				flights.add(flight);
+			}
+		}
+		else {
+			flights = new ArrayList<Flight>(); // put an empty list into the cache in the cache in the case where no matching flights
+		}
+		return flights;
 	}
+	
 
 	@Override
 	public void storeAirportMapping(AirportCodeMapping mapping) {

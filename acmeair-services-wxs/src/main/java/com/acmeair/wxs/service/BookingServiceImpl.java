@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2013 IBM Corp.
+* Copyright (c) 2013-2015 IBM Corp.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ import com.acmeair.service.BookingService;
 import com.acmeair.service.CustomerService;
 import com.acmeair.service.DataService;
 import com.acmeair.service.FlightService;
+import com.acmeair.service.KeyGenerator;
 import com.acmeair.service.ServiceLocator;
 import com.acmeair.wxs.WXSConstants;
 import com.acmeair.wxs.entities.BookingImpl;
@@ -46,8 +47,7 @@ import com.ibm.websphere.objectgrid.Session;
 import com.ibm.websphere.objectgrid.UndefinedMapException;
 import com.ibm.websphere.objectgrid.plugins.TransactionCallbackException;
 import com.ibm.websphere.objectgrid.plugins.index.MapIndex;
-import com.ibm.websphere.objectgrid.plugins.index.MapIndexPlugin;
-import com.ibm.websphere.objectgrid.query.ObjectQuery;
+
 
 @DataService(name=WXSConstants.KEY,description=WXSConstants.KEY_DESCRIPTION)
 public class BookingServiceImpl implements BookingService, WXSConstants  {
@@ -60,7 +60,7 @@ public class BookingServiceImpl implements BookingService, WXSConstants  {
 	private ObjectGrid og;
 	
 	@Inject
-	private DefaultKeyGeneratorImpl keyGenerator;
+	private KeyGenerator keyGenerator;
 	
 	private FlightService flightService = ServiceLocator.instance().getService(FlightService.class);
 	private CustomerService customerService = ServiceLocator.instance().getService(CustomerService.class);
@@ -89,7 +89,7 @@ public class BookingServiceImpl implements BookingService, WXSConstants  {
 			//Session session = sessionManager.getObjectGridSession();
 			Session session = og.getSession();
 			ObjectMap bookingMap = session.getMap(BOOKING_MAP_NAME);
-			
+			@SuppressWarnings("unchecked")
 			HashSet<Booking> bookingsByUser = (HashSet<Booking>)bookingMap.get(customerId);
 			if (bookingsByUser == null) {
 				bookingsByUser = new HashSet<Booking>();
@@ -121,6 +121,7 @@ public class BookingServiceImpl implements BookingService, WXSConstants  {
 			ObjectMap bookingMap = session.getMap(BOOKING_MAP_NAME);
 			
 //			return (Booking)bookingMap.get(new BookingPK(user, id));
+			@SuppressWarnings("unchecked")
 			HashSet<Booking> bookingsByUser = (HashSet<Booking>)bookingMap.get(user);
 			if (bookingsByUser == null) {
 				return null;
@@ -145,7 +146,7 @@ public class BookingServiceImpl implements BookingService, WXSConstants  {
 			Session session = og.getSession();
 			//Session session = sessionManager.getObjectGridSession();
 			ObjectMap bookingMap = session.getMap(BOOKING_MAP_NAME);
-			
+			@SuppressWarnings("unchecked")
 			HashSet<Booking> bookingsByUser = (HashSet<Booking>)bookingMap.get(user);
 			if (bookingsByUser == null) {
 				return;
@@ -183,6 +184,7 @@ public class BookingServiceImpl implements BookingService, WXSConstants  {
 			}
 			
 			ObjectMap bookingMap = session.getMap(BOOKING_MAP_NAME);
+			@SuppressWarnings("unchecked")
 			HashSet<Booking> bookingsByUser = (HashSet<Booking>)bookingMap.get(user);
 			if (bookingsByUser == null) {
 				bookingsByUser = new HashSet<Booking>();

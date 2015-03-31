@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2013 IBM Corp.
+* Copyright (c) 2013-2015 IBM Corp.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,38 +15,81 @@
 *******************************************************************************/
 package com.acmeair.service;
 
+import java.util.Date;
+
 import com.acmeair.entities.Customer;
 import com.acmeair.entities.CustomerAddress;
 import com.acmeair.entities.Customer.MemberShipStatus;
 import com.acmeair.entities.Customer.PhoneType;
 import com.acmeair.entities.CustomerSession;
 
-public interface CustomerService {
-	static final int DAYS_TO_ALLOW_SESSION = 1;
+public abstract class CustomerService {
+	protected static final int DAYS_TO_ALLOW_SESSION = 1;
 	
-	Customer createCustomer(
+	public abstract Customer createCustomer(
 			String username, String password, MemberShipStatus status, int total_miles,
 			int miles_ytd, String phoneNumber, PhoneType phoneNumberType, CustomerAddress address);
 	
-	CustomerAddress createAddress (String streetAddress1, String streetAddress2,
+	public abstract CustomerAddress createAddress (String streetAddress1, String streetAddress2,
 			String city, String stateProvince, String country, String postalCode);
 	
-	Customer updateCustomer(Customer customer);
+	public abstract Customer updateCustomer(Customer customer);
+		
 	
-	Customer getCustomerByUsername(String username);
+	protected abstract Customer getCustomer(String username);
 	
-	boolean validateCustomer(String username, String password);
+	public Customer getCustomerByUsername(String username) {
+		Customer c = getCustomer(username);
+		if (c != null) {
+			c.setPassword(null);
+		}
+		return c;
+	}
 	
-	Customer getCustomerByUsernameAndPassword(String username, String password);
+	public boolean validateCustomer(String username, String password) {
+		boolean validatedCustomer = false;
+		Customer customerToValidate = getCustomer(username);
+		if (customerToValidate != null) {
+			validatedCustomer = password.equals(customerToValidate.getPassword());
+		}
+		return validatedCustomer;
+	}
 	
-	CustomerSession validateSession(String sessionid);
-	
-	CustomerSession createSession(String customerId);
+	public Customer getCustomerByUsernameAndPassword(String username,
+			String password) {
+		Customer c = getCustomer(username);
+		if (!c.getPassword().equals(password)) {
+			return null;
+		}
+		// Should we also set the password to null?
+		return c;
+	}
+		
+	public CustomerSession validateSession(String sessionid) {
+		CustomerSession cSession = getSession(sessionid);
+		if (cSession == null) {
+			return null;
+		}
 
-	void invalidateSession(String sessionid);
+		Date now = new Date();
+
+		if (cSession.getTimeoutTime().before(now)) {
+			removeSession(cSession);
+			return null;
+		}
+		return cSession;		
+	}
 	
-	Long count();
+	protected abstract CustomerSession getSession(String sessionid);
 	
-	Long countSessions();
+	protected abstract void removeSession(CustomerSession session);
+	
+	public abstract CustomerSession createSession(String customerId);
+
+	public abstract void invalidateSession(String sessionid);
+	
+	public abstract Long count();
+	
+	public abstract Long countSessions();
 	
 }

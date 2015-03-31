@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2013 IBM Corp.
+* Copyright (c) 2013-2015 IBM Corp.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import com.acmeair.entities.CustomerSession;
 import com.acmeair.service.BookingService;
 import com.acmeair.service.CustomerService;
 import com.acmeair.service.DataService;
+import com.acmeair.service.KeyGenerator;
 import com.acmeair.wxs.WXSConstants;
 import com.acmeair.wxs.entities.CustomerAddressImpl;
 import com.acmeair.wxs.entities.CustomerImpl;
@@ -49,7 +50,7 @@ import com.ibm.websphere.objectgrid.plugins.index.MapIndexPlugin;
 
 @Default
 @DataService(name=WXSConstants.KEY,description=WXSConstants.KEY_DESCRIPTION)
-public class CustomerServiceImpl implements CustomerService, WXSConstants{
+public class CustomerServiceImpl extends CustomerService implements WXSConstants{
 	
 	private static String BASE_CUSTOMER_MAP_NAME="Customer";
 	private static String BASE_CUSTOMER_SESSION_MAP_NAME="CustomerSession";
@@ -63,7 +64,7 @@ public class CustomerServiceImpl implements CustomerService, WXSConstants{
 	private ObjectGrid og;
 	
 	@Inject
-	DefaultKeyGeneratorImpl keyGenerator;
+	KeyGenerator keyGenerator;
 
 	
 	@PostConstruct
@@ -180,7 +181,8 @@ public class CustomerServiceImpl implements CustomerService, WXSConstants{
 		}
 	}
 
-	private Customer getCustomer(String username) {
+	@Override
+	protected Customer getCustomer(String username) {
 		try{
 			//Session session = sessionManager.getObjectGridSession();
 			Session session = og.getSession();
@@ -194,61 +196,31 @@ public class CustomerServiceImpl implements CustomerService, WXSConstants{
 		}
 	}
 	
-	@Override
-	public Customer getCustomerByUsername(String username) {
-		Customer c = getCustomer(username);
-		if (c != null) {
-			c.setPassword(null);
-		}
-		return c;
-	}
 
 	@Override
-	public boolean validateCustomer(String username, String password) {
-		boolean validatedCustomer = false;
-		Customer customerToValidate = getCustomer(username);
-		if (customerToValidate != null) {
-			validatedCustomer = password.equals(customerToValidate.getPassword());
-		}
-		return validatedCustomer;
-	}
-
-	@Override
-	public Customer getCustomerByUsernameAndPassword(String username,
-			String password) {
-		Customer c = getCustomer(username);
-		if (!c.getPassword().equals(password)) {
-			return null;
-		}
-		// Should we also set the password to null?
-		return c;
-	}
-
-	@Override
-	public CustomerSession validateSession(String sessionid) {
-		try{
-			//Session session = sessionManager.getObjectGridSession();
+	protected CustomerSession getSession(String sessionid){
+		try {
 			Session session = og.getSession();
 			ObjectMap customerSessionMap = session.getMap(CUSTOMER_SESSION_MAP_NAME);
-			
-			CustomerSession cSession = (CustomerSession)customerSessionMap.get(sessionid);
-			if (cSession == null) {
-				return null;
-			}
-			
-			Date now = new Date();
-			
-			if (cSession.getTimeoutTime().before(now)) {
-				customerSessionMap.remove(sessionid);
-				return null;
-			}
-			return cSession;
-		}catch (Exception e)
-		{
+
+			return (CustomerSession)customerSessionMap.get(sessionid);
+		}catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
+	
+	@Override
+	protected void removeSession(CustomerSession session){
+		try {
+			Session ogSession = og.getSession();
+			ObjectMap customerSessionMap = ogSession.getMap(CUSTOMER_SESSION_MAP_NAME);
 
+			customerSessionMap.remove(session.getId());
+		}catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
 	@Override
 	public CustomerSession createSession(String customerId) {
 		try{

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2013 IBM Corp.
+* Copyright (c) 2013-2015 IBM Corp.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
@@ -35,6 +34,7 @@ import com.acmeair.entities.FlightSegment;
 import com.acmeair.service.BookingService;
 import com.acmeair.service.DataService;
 import com.acmeair.service.FlightService;
+import com.acmeair.service.KeyGenerator;
 import com.acmeair.wxs.WXSConstants;
 import com.acmeair.wxs.entities.AirportCodeMappingImpl;
 import com.acmeair.wxs.entities.FlightImpl;
@@ -48,10 +48,9 @@ import com.ibm.websphere.objectgrid.UndefinedMapException;
 import com.ibm.websphere.objectgrid.plugins.TransactionCallbackException;
 import com.ibm.websphere.objectgrid.plugins.index.MapIndex;
 import com.ibm.websphere.objectgrid.plugins.index.MapIndexPlugin;
-import com.ibm.websphere.objectgrid.query.ObjectQuery;
 
 @DataService(name=WXSConstants.KEY,description=WXSConstants.KEY_DESCRIPTION)
-public class FlightServiceImpl implements FlightService, WXSConstants {
+public class FlightServiceImpl extends FlightService implements  WXSConstants {
 
 	private static String FLIGHT_MAP_NAME="Flight";
 	private static String FLIGHT_SEGMENT_MAP_NAME="FlightSegment";
@@ -66,13 +65,8 @@ public class FlightServiceImpl implements FlightService, WXSConstants {
 	private ObjectGrid og;
 	
 	@Inject
-	DefaultKeyGeneratorImpl keyGenerator;
+	KeyGenerator keyGenerator;
 	
-	//TODO: consider adding time based invalidation to these maps
-	private static ConcurrentHashMap<String, FlightSegment> originAndDestPortToSegmentCache = new ConcurrentHashMap<String,FlightSegment>();
-	private static ConcurrentHashMap<String, List<Flight>> flightSegmentAndDataToFlightCache = new ConcurrentHashMap<String,List<Flight>>();
-	private static ConcurrentHashMap<FlightPK, Flight> flightPKtoFlightCache = new ConcurrentHashMap<FlightPK, Flight>();
-
 	
 	@PostConstruct
 	private void initialization()  {	
@@ -183,6 +177,7 @@ public class FlightServiceImpl implements FlightService, WXSConstants {
 				//Session session = sessionManager.getObjectGridSession();
 				Session session = og.getSession();
 				ObjectMap flightMap = session.getMap(FLIGHT_MAP_NAME);
+				@SuppressWarnings("unchecked")
 				HashSet<Flight> flightsBySegment = (HashSet<Flight>)flightMap.get(key.getFlightSegmentId());
 				for (Flight f : flightsBySegment) {
 					if (f.getPkey().getId().equals(key.getId())) {
@@ -199,83 +194,86 @@ public class FlightServiceImpl implements FlightService, WXSConstants {
 	}
 
 	@Override
-	public List<Flight> getFlightByAirportsAndDepartureDate(String fromAirport, String toAirport, Date deptDate) {
+	protected  FlightSegment getFlightSegment(String fromAirport, String toAirport) {
 		try {
-			Session session = null;
-			String originPortAndDestPortQueryString = fromAirport + toAirport;
-			FlightSegment segment = originAndDestPortToSegmentCache.get(originPortAndDestPortQueryString);
-			boolean startedTran = false;
-
-			if (segment == null) {
-				//session = sessionManager.getObjectGridSession();
-				session = og.getSession();
-				if (!session.isTransactionActive()) {
-					startedTran = true;
-					session.begin();
-				}
-				ObjectMap flightSegmentMap = session.getMap(FLIGHT_SEGMENT_MAP_NAME);
-				
-				HashSet<FlightSegment> segmentsByOrigPort = (HashSet<FlightSegment>)flightSegmentMap.get(fromAirport);
-				if (segmentsByOrigPort!=null)
-				{
-				for (FlightSegment fs : segmentsByOrigPort) {
-					if (fs.getDestPort().equals(toAirport)) {
-						segment = fs;
-					}
-				}
-				}
-				if (segment == null) {
-					segment = new FlightSegmentImpl(); // put a sentinel value of a non-populated flightsegment
-				}
-				originAndDestPortToSegmentCache.putIfAbsent(originPortAndDestPortQueryString, segment);
+		Session session = null;
+		boolean startedTran = false;
+		//session = sessionManager.getObjectGridSession();
+		session = og.getSession();
+		FlightSegment segment = null;
+		if (!session.isTransactionActive()) {
+			startedTran = true;
+			session.begin();
+		}
+		ObjectMap flightSegmentMap = session.getMap(FLIGHT_SEGMENT_MAP_NAME);
+		@SuppressWarnings("unchecked")
+		HashSet<FlightSegment> segmentsByOrigPort = (HashSet<FlightSegment>)flightSegmentMap.get(fromAirport);
+		if (segmentsByOrigPort!=null)
+		{
+		for (FlightSegment fs : segmentsByOrigPort) {
+			if (fs.getDestPort().equals(toAirport)) {
+				segment = fs;
 			}
-
-			// cache flights that not available (checks against sentinel value above indirectly)
-			if (segment.getFlightName() == null) {
-				return new ArrayList<Flight>();
-			}
-
-			String segId = segment.getFlightName();
-			String flightSegmentIdAndScheduledDepartureTimeQueryString = segId + deptDate.toString();
-			List<Flight> flights = flightSegmentAndDataToFlightCache.get(flightSegmentIdAndScheduledDepartureTimeQueryString);
-			
-			if (flights == null) {
-				flights = new ArrayList<Flight>();
-				if (session == null) {
-					//session = sessionManager.getObjectGridSession();
-					session = og.getSession();
-					if (!session.isTransactionActive()) {
-						startedTran = true;
-						session.begin();
-					}
-				}				
-				
-				ObjectMap flightMap = session.getMap(FLIGHT_MAP_NAME);
-				HashSet<Flight> flightsBySegment = (HashSet<Flight>)flightMap.get(segment.getFlightName());
-				for (Flight f : flightsBySegment) {
-					if (areDatesSameWithNoTime(f.getScheduledDepartureTime(), deptDate)) {
-						f.setFlightSegment(segment);
-						flights.add(f);
-					}
-				}
-				
-				flightSegmentAndDataToFlightCache.putIfAbsent(flightSegmentIdAndScheduledDepartureTimeQueryString, flights);
-				
-				if (startedTran)
-					session.commit();
-			}
-			return flights;
-			
+		}
+		}
+		if (segment == null) {
+			segment = new FlightSegmentImpl(); // put a sentinel value of a non-populated flightsegment
+		}
+		if (startedTran)
+			session.commit();
+		
+		return segment;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 	
-	public static boolean areDatesSameWithNoTime(Date d1, Date d2) {
+	@Override
+	protected  List<Flight> getFlightBySegment(FlightSegment segment, Date deptDate){
+		try {
+		List<Flight> flights = new ArrayList<Flight>();
+		Session session = null;
+		boolean startedTran = false;
+		if (session == null) {
+			//session = sessionManager.getObjectGridSession();
+			session = og.getSession();
+			if (!session.isTransactionActive()) {
+				startedTran = true;
+				session.begin();
+			}
+		}				
+		
+		ObjectMap flightMap = session.getMap(FLIGHT_MAP_NAME);
+		@SuppressWarnings("unchecked")
+		HashSet<Flight> flightsBySegment = (HashSet<Flight>)flightMap.get(segment.getFlightName());
+		if(deptDate != null){
+			for (Flight f : flightsBySegment) {
+				if (areDatesSameWithNoTime(f.getScheduledDepartureTime(), deptDate)) {
+					f.setFlightSegment(segment);
+					flights.add(f);
+				}
+			}
+		} else {
+			for (Flight f : flightsBySegment) {
+				f.setFlightSegment(segment);
+				flights.add(f);
+			}
+		}
+		if (startedTran)
+			session.commit();
+		
+		return flights;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	
+	private static boolean areDatesSameWithNoTime(Date d1, Date d2) {
 		return getDateWithNoTime(d1).equals(getDateWithNoTime(d2));
 	}
 	
-	public static Date getDateWithNoTime(Date date) {
+	private static Date getDateWithNoTime(Date date) {
 		Calendar c = Calendar.getInstance();
 		c.setTime(date);
 		c.set(Calendar.HOUR_OF_DAY, 0);
@@ -284,70 +282,6 @@ public class FlightServiceImpl implements FlightService, WXSConstants {
 		c.set(Calendar.MILLISECOND, 0);
 		return c.getTime();
 	}
-	
-	@Override
-	public List<Flight> getFlightByAirports(String fromAirport, String toAirport) {
-		try {
-			Session session = null;
-			String originPortAndDestPortQueryString = fromAirport + toAirport;
-			FlightSegment segment = originAndDestPortToSegmentCache.get(originPortAndDestPortQueryString);
-			boolean startedTran = false;
-
-			if (segment == null) {				
-				//session = sessionManager.getObjectGridSession();
-				session = og.getSession();
-				if (!session.isTransactionActive()) {
-					startedTran = true;
-					session.begin();
-				}
-				ObjectMap flightSegmentMap = session.getMap(FLIGHT_SEGMENT_MAP_NAME);
-				
-				HashSet<FlightSegment> segmentsByOrigPort = (HashSet<FlightSegment>)flightSegmentMap.get(fromAirport);
-				for (FlightSegment fs : segmentsByOrigPort) {
-					if (fs.getDestPort().equals(toAirport)) {
-						segment = fs;
-					}
-				}
-				
-				if (segment == null) {
-					segment = new FlightSegmentImpl(); // put a sentinel value of a non-populated flightsegment
-				}
-				originAndDestPortToSegmentCache.putIfAbsent(originPortAndDestPortQueryString, segment);
-			}
-
-			// cache flights that not available (checks against sentinel value above indirectly)
-			if (segment.getFlightName() == null) {
-				return new ArrayList<Flight>();
-			}
-
-			String segId = segment.getFlightName();
-			
-			ArrayList <Flight> flights = new ArrayList<Flight>();
-			if (session == null) {
-				//session = sessionManager.getObjectGridSession();
-				session = og.getSession();
-				if (!session.isTransactionActive()) {
-					startedTran = true;
-					session.begin();
-				}
-			}
-	
-				
-			ObjectMap flightMap = session.getMap(FLIGHT_MAP_NAME);
-			HashSet<Flight> flightsBySegment = (HashSet<Flight>)flightMap.get(segment.getFlightName());
-			for (Flight f : flightsBySegment) {
-				f.setFlightSegment(segment);
-				flights.add(f);
-			}
-				
-			if (startedTran)
-				session.commit();
-			return flights;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
 	
 	
 	@Override
@@ -361,8 +295,6 @@ public class FlightServiceImpl implements FlightService, WXSConstants {
 		{
 			throw new RuntimeException(e);
 		}
-
-		
 	}
 
 	@Override 
@@ -389,6 +321,7 @@ public class FlightServiceImpl implements FlightService, WXSConstants {
 			ObjectMap flightMap = session.getMap(FLIGHT_MAP_NAME);
 			//flightMap.insert(flight.getPkey(), flight);
 			//return flight;
+			@SuppressWarnings("unchecked")
 			HashSet<Flight> flightsBySegment = (HashSet<Flight>)flightMap.get(flightSegmentId);
 			if (flightsBySegment == null) {
 				flightsBySegment = new HashSet<Flight>();
@@ -411,6 +344,7 @@ public class FlightServiceImpl implements FlightService, WXSConstants {
 			Session session = og.getSession();
 			ObjectMap flightSegmentMap = session.getMap(FLIGHT_SEGMENT_MAP_NAME);
 			// TODO: Consider moving this to a ArrayList - List ??
+			@SuppressWarnings("unchecked")
 			HashSet<FlightSegment> segmentsByOrigPort = (HashSet<FlightSegment>)flightSegmentMap.get(flightSeg.getOriginPort());
 			if (segmentsByOrigPort == null) {
 				segmentsByOrigPort = new HashSet<FlightSegment>();

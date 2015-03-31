@@ -18,6 +18,7 @@ import com.acmeair.morphia.entities.CustomerImpl;
 import com.acmeair.morphia.services.util.MongoConnectionManager;
 import com.acmeair.service.DataService;
 import com.acmeair.service.CustomerService;
+import com.acmeair.service.KeyGenerator;
 
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.query.Query;
@@ -25,13 +26,14 @@ import org.mongodb.morphia.query.Query;
 
 
 @DataService(name=MorphiaConstants.KEY,description=MorphiaConstants.KEY_DESCRIPTION)
-public class CustomerServiceImpl implements CustomerService, MorphiaConstants {	
+public class CustomerServiceImpl extends CustomerService implements MorphiaConstants {	
 		
+//	private final static Logger logger = Logger.getLogger(CustomerService.class.getName()); 
 	
 	protected Datastore datastore;
 		
 	@Inject
-	DefaultKeyGeneratorImpl keyGenerator;
+	KeyGenerator keyGenerator;
 	
 	
 	@PostConstruct
@@ -55,14 +57,9 @@ public class CustomerServiceImpl implements CustomerService, MorphiaConstants {
 			String phoneNumber, PhoneType phoneNumberType,
 			CustomerAddress address) {
 	
-
 		Customer customer = new CustomerImpl(username, password, status, total_miles, miles_ytd, address, phoneNumber, phoneNumberType);
-		try{
-			datastore.save(customer);
-			return customer;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		datastore.save(customer);
+		return customer;
 	}
 	
 	@Override 
@@ -75,106 +72,55 @@ public class CustomerServiceImpl implements CustomerService, MorphiaConstants {
 
 	@Override
 	public Customer updateCustomer(Customer customer) {
-		try{
-			datastore.save(customer);
-			return customer;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		datastore.save(customer);
+		return customer;
 	}
 
-	private Customer getCustomer(String username) {
-		try{
-			
-			Query<CustomerImpl> q = datastore.find(CustomerImpl.class).field("_id").equal(username);
-			Customer customer = q.get();					
-			return customer;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+	@Override
+	protected Customer getCustomer(String username) {
+		Query<CustomerImpl> q = datastore.find(CustomerImpl.class).field("_id").equal(username);
+		Customer customer = q.get();					
+		return customer;
 	}
 	
 	@Override
 	public Customer getCustomerByUsername(String username) {
-		try{
-			Query<CustomerImpl> q = datastore.find(CustomerImpl.class).field("_id").equal(username);
-			Customer customer = q.get();
-			if (customer != null) {
-				customer.setPassword(null);
-			}			
-			return customer;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		Query<CustomerImpl> q = datastore.find(CustomerImpl.class).field("_id").equal(username);
+		Customer customer = q.get();
+		if (customer != null) {
+			customer.setPassword(null);
+		}			
+		return customer;
 	}
-
+	
 	@Override
-	public boolean validateCustomer(String username, String password) {
-		boolean validatedCustomer = false;
-		Customer customerToValidate = getCustomer(username);		
-		if (customerToValidate != null) {
-			validatedCustomer = password.equals(customerToValidate.getPassword());
-		}		
-		return validatedCustomer;
+	protected CustomerSession getSession(String sessionid){
+		Query<CustomerSessionImpl> q = datastore.find(CustomerSessionImpl.class).field("_id").equal(sessionid);		
+		return q.get();
 	}
-
+	
 	@Override
-	public Customer getCustomerByUsernameAndPassword(String username,
-			String password) {
-		Customer c = getCustomer(username);
-		if (!c.getPassword().equals(password)) {
-			return null;
-		}
-		return c;
+	protected void removeSession(CustomerSession session){		
+		datastore.delete(session);	
 	}
-
-	@Override
-	public CustomerSession validateSession(String sessionid) {
-		try {
-			Query<CustomerSessionImpl> q = datastore.find(CustomerSessionImpl.class).field("_id").equal(sessionid);
-			
-			CustomerSession cSession = q.get();
-			if (cSession == null) {
-				return null;
-			}
-			
-			Date now = new Date();
-			
-			if (cSession.getTimeoutTime().before(now)) {
-				datastore.delete(cSession);
-				return null;
-			}
-			return cSession;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
+	
 	@Override
 	public CustomerSession createSession(String customerId) {
-		try {
-			String sessionId = keyGenerator.generate().toString();
-			Date now = new Date();
-			Calendar c = Calendar.getInstance();
-			c.setTime(now);
-			c.add(Calendar.DAY_OF_YEAR, DAYS_TO_ALLOW_SESSION);
-			Date expiration = c.getTime();
-			CustomerSession cSession = new CustomerSessionImpl(sessionId, customerId, now, expiration);
-			datastore.save(cSession);
-			return cSession;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		String sessionId = keyGenerator.generate().toString();
+		Date now = new Date();
+		Calendar c = Calendar.getInstance();
+		c.setTime(now);
+		c.add(Calendar.DAY_OF_YEAR, DAYS_TO_ALLOW_SESSION);
+		Date expiration = c.getTime();
+		CustomerSession cSession = new CustomerSessionImpl(sessionId, customerId, now, expiration);
+		datastore.save(cSession);
+		return cSession;
 	}
 
 	@Override
-	public void invalidateSession(String sessionid) {
-		try {
-			Query<CustomerSessionImpl> q = datastore.find(CustomerSessionImpl.class).field("_id").equal(sessionid);
-			datastore.delete(q);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+	public void invalidateSession(String sessionid) {		
+		Query<CustomerSessionImpl> q = datastore.find(CustomerSessionImpl.class).field("_id").equal(sessionid);
+		datastore.delete(q);
 	}
 
 }

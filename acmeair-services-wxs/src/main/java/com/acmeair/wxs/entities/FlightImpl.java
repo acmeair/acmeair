@@ -27,9 +27,8 @@ import com.acmeair.entities.FlightSegment;
 public class FlightImpl implements Flight, Serializable{
 
 	private static final long serialVersionUID = 1L;
-	
-	@SuppressWarnings("unused")
-	private FlightPK _id;
+		
+	private String _id;
 	
 	private FlightPK pkey;
 	private Date scheduledDepartureTime;
@@ -51,7 +50,7 @@ public class FlightImpl implements Flight, Serializable{
 			int numFirstClassSeats, int numEconomyClassSeats,
 			String airplaneTypeId) {
 		this.pkey = new FlightPKImpl(flightSegmentId,id);
-		this._id = this.pkey;
+		this._id = id;
 		this.scheduledDepartureTime = scheduledDepartureTime;
 		this.scheduledArrivalTime = scheduledArrivalTime;
 		this.firstClassBaseCost = firstClassBaseCost;
@@ -66,10 +65,17 @@ public class FlightImpl implements Flight, Serializable{
 	}
 
 	public void setPkey(FlightPK pkey) {
-		this.pkey = pkey;
-		this._id = pkey;
+		this.pkey = pkey;		
+	}
+	
+	public String getId (){
+		return this._id;
 	}
 
+	public void setId(String id){
+		this._id = id;
+	}
+	
 	// The method is needed for index calculation
 	public String getFlightSegmentId()
 	{

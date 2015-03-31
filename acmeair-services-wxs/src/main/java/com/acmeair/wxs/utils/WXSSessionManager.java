@@ -47,7 +47,6 @@ import com.ibm.websphere.objectgrid.security.config.ClientSecurityConfiguration;
 import com.ibm.websphere.objectgrid.security.config.ClientSecurityConfigurationFactory;
 import com.ibm.websphere.objectgrid.security.plugins.CredentialGenerator;
 import com.ibm.websphere.objectgrid.security.plugins.builtins.UserPasswordCredentialGenerator;
-import com.ibm.websphere.objectgrid.server.CatalogServerProperties;
 import com.ibm.websphere.objectgrid.spring.SpringLocalTxManager;
 
 @DataService(name=WXSConstants.KEY,description=WXSConstants.KEY_DESCRIPTION)
