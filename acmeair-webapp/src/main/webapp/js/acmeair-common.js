@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2013 IBM Corp.
+* Copyright (c) 2013-2015 IBM Corp.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -38,7 +38,6 @@ function hideWaitDialog() {
 }
 
 
-
 function updateLoggedInUserWelcome() {
 	var loggedinuser = dojo.cookie("loggedinuser");
 	if (loggedinuser == null) {
@@ -48,25 +47,7 @@ function updateLoggedInUserWelcome() {
 		dojo.byId("loggedinwelcome").innerHTML = 'Welcome Back ' + loggedinuser;
 	}
 }
-/*
-function loaddb() {
-	showWaitDialog();
-	dojo.xhrGet({
-		content : {
-		},
-		url: 'rest/api/loaddb',
-		load: function(response, ioArgs) {
-			hideWaitDialog();
-			alert('Database Loaded, response: ' + response);
-		},
-		error: function(response, ioArgs) {
-			hideWaitDialog();
-			alert('error loaddb, response: ' + response);
-		}
-	});
-	
-}
-*/
+
 function login() {
 	hideLoginDialog();
 	showLoginWaitDialog();
