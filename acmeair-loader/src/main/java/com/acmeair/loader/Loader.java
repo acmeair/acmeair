@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2013 IBM Corp.
+* Copyright (c) 2013-2015 IBM Corp.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -56,9 +56,10 @@ public class Loader {
 		String message = "";
 		if(numCustomers == -1)
 			message = execute();
-		else
+		else {
+			System.setProperty("loader.numCustomers", Long.toString(numCustomers));
 			message = execute(numCustomers);
-		
+		}
 		return Response.ok(message).build();	
 	}
 	
