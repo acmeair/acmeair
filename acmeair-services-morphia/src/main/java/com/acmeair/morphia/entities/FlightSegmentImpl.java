@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2013 IBM Corp.
+* Copyright (c) 2013-2015 IBM Corp.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,8 +17,11 @@ package com.acmeair.morphia.entities;
 
 import java.io.Serializable;
 
+import org.mongodb.morphia.annotations.Entity;
+
 import com.acmeair.entities.FlightSegment;
 
+@Entity(value="flightSegment")
 public class FlightSegmentImpl implements FlightSegment, Serializable{
 
 	private static final long serialVersionUID = 1L;

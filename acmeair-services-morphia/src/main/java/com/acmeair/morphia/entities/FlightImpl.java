@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2013 IBM Corp.
+* Copyright (c) 2013-2015 IBM Corp.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,19 +19,21 @@ import java.util.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Id;
+
 import com.acmeair.entities.Flight;
 import com.acmeair.entities.FlightPK;
 import com.acmeair.entities.FlightSegment;
 
-
+@Entity(value="flight")
 public class FlightImpl implements Flight, Serializable{
 
 	private static final long serialVersionUID = 1L;
 	
-	@SuppressWarnings("unused")
+	@Id
 	private FlightPK _id;
-	
-	private FlightPK pkey;
+		
 	private Date scheduledDepartureTime;
 	private Date scheduledArrivalTime;
 	private BigDecimal firstClassBaseCost;
@@ -50,8 +52,7 @@ public class FlightImpl implements Flight, Serializable{
 			BigDecimal firstClassBaseCost, BigDecimal economyClassBaseCost,
 			int numFirstClassSeats, int numEconomyClassSeats,
 			String airplaneTypeId) {
-		this.pkey = new FlightPKImpl(flightSegmentId,id);
-		this._id = this.pkey;
+		this._id = new FlightPKImpl(flightSegmentId,id);
 		this.scheduledDepartureTime = scheduledDepartureTime;
 		this.scheduledArrivalTime = scheduledArrivalTime;
 		this.firstClassBaseCost = firstClassBaseCost;
@@ -62,18 +63,17 @@ public class FlightImpl implements Flight, Serializable{
 	}
 
 	public FlightPK getPkey() {
-		return pkey;
+		return _id;
 	}
 
 	public void setPkey(FlightPK pkey) {
-		this.pkey = pkey;
 		this._id = pkey;
 	}
 
 	// The method is needed for index calculation
 	public String getFlightSegmentId()
 	{
-		return pkey.getFlightSegmentId();
+		return _id.getFlightSegmentId();
 	}
 	
 	public Date getScheduledDepartureTime() {
@@ -156,7 +156,7 @@ public class FlightImpl implements Flight, Serializable{
 
 	@Override
 	public String toString() {
-		return "Flight key="+pkey
+		return "Flight key="+_id
 				+ ", scheduledDepartureTime=" + scheduledDepartureTime
 				+ ", scheduledArrivalTime=" + scheduledArrivalTime
 				+ ", firstClassBaseCost=" + firstClassBaseCost
@@ -195,10 +195,10 @@ public class FlightImpl implements Flight, Serializable{
 				return false;
 		} else if (!flightSegment.equals(other.flightSegment))
 			return false;
-		if (pkey == null) {
-			if (other.pkey != null)
+		if (_id == null) {
+			if (other._id != null)
 				return false;
-		} else if (!pkey.equals(other.pkey))
+		} else if (!_id.equals(other._id))
 			return false;
 		if (numEconomyClassSeats != other.numEconomyClassSeats)
 			return false;
