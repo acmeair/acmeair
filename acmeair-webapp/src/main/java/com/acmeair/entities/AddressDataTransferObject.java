@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2013 IBM Corp.
+* Copyright (c) 2015 IBM Corp.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -47,6 +47,16 @@ public class AddressDataTransferObject implements Serializable{
 		this.stateProvince = stateProvince;
 		this.country = country;
 		this.postalCode = postalCode;
+	}
+	
+	public AddressDataTransferObject(CustomerAddress address) {
+		super();
+		this.streetAddress1 = address.getStreetAddress1();
+		this.streetAddress2 = address.getStreetAddress2();
+		this.city = address.getCity();
+		this.stateProvince = address.getStateProvince();
+		this.country = address.getCountry();
+		this.postalCode = address.getPostalCode();
 	}
 	
 	public String getStreetAddress1() {

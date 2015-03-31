@@ -40,15 +40,16 @@ public class CustomerREST {
 	@GET
 	@Path("/byid/{custid}")
 	@Produces("application/json")
-	public /* Customer */ Response getCustomer(@CookieParam("sessionid") String sessionid, @PathParam("custid") String customerid) {
+	public Response getCustomer(@CookieParam("sessionid") String sessionid, @PathParam("custid") String customerid) {
 		try {
 			// make sure the user isn't trying to update a customer other than the one currently logged in
 			if (!validate(customerid)) {
 				return Response.status(Response.Status.FORBIDDEN).build();
 				
 			}
-			Customer customer = customerService.getCustomerByUsername(customerid);			
-			return Response.ok(customer).build();
+			Customer customer = customerService.getCustomerByUsername(customerid);	
+			CustomerDataTransferObject customerDTO = new CustomerDataTransferObject(customer);			
+			return Response.ok(customerDTO).build();
 		}
 		catch (Exception e) {
 			e.printStackTrace();

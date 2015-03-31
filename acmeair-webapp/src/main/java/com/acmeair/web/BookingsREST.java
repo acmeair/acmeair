@@ -23,7 +23,6 @@ import javax.ws.rs.core.Response.Status;
 
 import com.acmeair.entities.Booking;
 import com.acmeair.entities.BookingPK;
-import com.acmeair.entities.FlightPK;
 import com.acmeair.service.BookingService;
 import com.acmeair.service.ServiceLocator;
 

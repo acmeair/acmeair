@@ -68,7 +68,7 @@
     }
     
     function updateFormData(customerdata) {
-		dijit.byId('accountIdInput').set('value', customerdata.username);
+		dijit.byId('accountIdInput').set('value', customerdata._id);
 		dijit.byId('milesYTDInput').set('value', customerdata.miles_ytd);
 		dijit.byId('totalMilesInput').set('value', customerdata.total_miles);
 		dijit.byId('memberShipStatusInput').set('value', customerdata.status);
@@ -94,7 +94,7 @@
     	}
     	
     	var customerData = {
-			'username': dijit.byId('accountIdInput').value,
+			'_id': dijit.byId('accountIdInput').value,
 			'password': dijit.byId('passwordInput').value,
 			'phoneNumber': dijit.byId('phoneNumberInput').value,
 			'phoneNumberType': dijit.byId('phoneNumberTypeInput').value,
