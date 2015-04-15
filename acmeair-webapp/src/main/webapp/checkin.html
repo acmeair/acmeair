@@ -144,10 +144,11 @@
 					return;
 				}
 				var grid = dijit.byId("gridFlights");
-				var bookingPK = grid.store.getValue(grid.getItem(selectedIndexForFlights), "pkey");	
+				var bookingId = grid.store.getValue(grid.getItem(selectedIndexForFlights), "bookingId");
+				var customerId = grid.store.getValue(grid.getItem(selectedIndexForFlights), "customerId");
 				var xhrContent = { userid : loggedinuser }
-				xhrContent.number = bookingPK.id;
-				xhrContent.userid = bookingPK.customerId;
+				xhrContent.number = bookingId;
+				xhrContent.userid = customerId;
 				dojo.xhrPost({
 					content : xhrContent,
 					url : 'rest/api/bookings/cancelbooking',
@@ -221,16 +222,14 @@
 			<div id="toolbar5.login" data-dojo-type="dijit.form.Button" data-dojo-props='showLabel:true' onClick="showLoginDialog()">Login</div>
 			<div id="toolbar5.logout" data-dojo-type="dijit.form.Button" data-dojo-props='showLabel:true' onClick="logout()">Logout</div>
 			<div id="toolbar5.account" data-dojo-type="dijit.form.Button" data-dojo-props='showLabel:true' onClick="window.location='customerprofile.html'">Account</div>
-			<div id="toolbar5.loaddb" data-dojo-type="dijit.form.Button" data-dojo-props='showLabel:true' onClick="window.location='loader.html'">Load the database</div>
-			<div id="toolbar5.info" data-dojo-type="dijit.form.Button" data-dojo-props='showLabel:true' onClick="window.location='config.html'">Runtime Info</div>			
-		</div>
+			</div>
 		
 		<div class="content">
 		<table data-dojo-type="dojox.grid.DataGrid" id="gridFlights" style="height: 200px">
 			<script type="dojo/connect" event="onCellClick" args="e">cellclick(e)</script> 
   	        	<thead>
      	        	<tr>
-						<th field="flight" formatter="formatFlightNumnber" width="100px">Flight</th>
+						<th field="flightId" width="100px">Flight</th>
 						<th field="dateOfBooking" formatter="dateFormatter" width="175px">Date Booked</th>
 						<th field="selected" formatter="formatSelected" width="120px" value="Check In">Check In</th>
 					</tr>
@@ -242,6 +241,7 @@
 	<footer>
 		<p>ACME Air</p>
 	</footer>
+	<a href="config.html">configure the Acme Air environment. </a>
 </div>
 
 <p>&nbsp;</p>

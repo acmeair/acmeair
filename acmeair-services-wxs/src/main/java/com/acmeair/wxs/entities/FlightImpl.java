@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2013 IBM Corp.
+* Copyright (c) 2013-2015 IBM Corp.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,22 +15,20 @@
 *******************************************************************************/
 package com.acmeair.wxs.entities;
 
-import java.util.*;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Date;
 
 import com.acmeair.entities.Flight;
-import com.acmeair.entities.FlightPK;
 import com.acmeair.entities.FlightSegment;
 
 
 public class FlightImpl implements Flight, Serializable{
 
 	private static final long serialVersionUID = 1L;
-		
-	private String _id;
-	
-	private FlightPK pkey;
+				
+	private FlightPKImpl pkey;
 	private Date scheduledDepartureTime;
 	private Date scheduledArrivalTime;
 	private BigDecimal firstClassBaseCost;
@@ -50,7 +48,7 @@ public class FlightImpl implements Flight, Serializable{
 			int numFirstClassSeats, int numEconomyClassSeats,
 			String airplaneTypeId) {
 		this.pkey = new FlightPKImpl(flightSegmentId,id);
-		this._id = id;
+		
 		this.scheduledDepartureTime = scheduledDepartureTime;
 		this.scheduledArrivalTime = scheduledArrivalTime;
 		this.firstClassBaseCost = firstClassBaseCost;
@@ -60,21 +58,25 @@ public class FlightImpl implements Flight, Serializable{
 		this.airplaneTypeId = airplaneTypeId;
 	}
 
-	public FlightPK getPkey() {
+	public FlightPKImpl getPkey() {
 		return pkey;
 	}
 
-	public void setPkey(FlightPK pkey) {
+	public void setPkey(FlightPKImpl pkey) {
 		this.pkey = pkey;		
 	}
 	
-	public String getId (){
-		return this._id;
+
+	@Override
+	public String getFlightId() {
+		return pkey.getId();
 	}
 
-	public void setId(String id){
-		this._id = id;
+	@Override
+	public void setFlightId(String id) {
+		pkey.setId(id);		
 	}
+
 	
 	// The method is needed for index calculation
 	public String getFlightSegmentId()
@@ -222,6 +224,12 @@ public class FlightImpl implements Flight, Serializable{
 			return false;
 		return true;
 	}
-	
+
+
+	/*
+	public void setFlightSegmentId(String segmentId) {
+		pkey.setFlightSegmentId(segmentId);
+	}
+	*/
 	
 }

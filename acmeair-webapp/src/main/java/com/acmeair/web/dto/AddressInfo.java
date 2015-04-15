@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
-package com.acmeair.entities;
+package com.acmeair.web.dto;
 
 import java.io.Serializable;
 
@@ -21,11 +21,13 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.acmeair.entities.CustomerAddress;
+
 
 
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 @XmlRootElement(name="CustomerAddress")
-public class AddressDataTransferObject implements Serializable{
+public class AddressInfo implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
 	private String streetAddress1;
@@ -35,10 +37,10 @@ public class AddressDataTransferObject implements Serializable{
 	private String country;
 	private String postalCode;
 
-	public AddressDataTransferObject() {
+	public AddressInfo() {
 	}
 	
-	public AddressDataTransferObject(String streetAddress1, String streetAddress2,
+	public AddressInfo(String streetAddress1, String streetAddress2,
 			String city, String stateProvince, String country, String postalCode) {
 		super();
 		this.streetAddress1 = streetAddress1;
@@ -49,7 +51,7 @@ public class AddressDataTransferObject implements Serializable{
 		this.postalCode = postalCode;
 	}
 	
-	public AddressDataTransferObject(CustomerAddress address) {
+	public AddressInfo(CustomerAddress address) {
 		super();
 		this.streetAddress1 = address.getStreetAddress1();
 		this.streetAddress2 = address.getStreetAddress2();
@@ -111,7 +113,7 @@ public class AddressDataTransferObject implements Serializable{
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		AddressDataTransferObject other = (AddressDataTransferObject) obj;
+		AddressInfo other = (AddressInfo) obj;
 		if (city == null) {
 			if (other.city != null)
 				return false;

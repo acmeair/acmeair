@@ -137,7 +137,7 @@
     	var airportCodeMapping, booking, customer, customerSession, flight, flightSegment;
 
     	dojo.xhrGet({
-			url: basePath.concat("customer/count"),
+			url: basePath.concat("config/countCustomers"),
 			handleAs: "json",
 			load: function(response, ioArgs) {	
 		    	//alert("Response: " + response);
@@ -149,7 +149,7 @@
     	});
     		
     	dojo.xhrGet({
-			url: basePath.concat("customer/countSessions"),
+			url: basePath.concat("config/countSessions"),
 			handleAs: "json",
 			load: function(response, ioArgs) {			    	
 		    	document.getElementById('sessionData').innerHTML=response;
@@ -160,7 +160,7 @@
     	});
     	
        	dojo.xhrGet({
-			url: basePath.concat("flights/countFlights"),
+			url: basePath.concat("config/countFlights"),
 			handleAs: "json",
 			load: function(response, ioArgs) {			    	
 		    	document.getElementById('flightData').innerHTML=response;
@@ -171,7 +171,7 @@
     	});
 	 
        	dojo.xhrGet({
-			url: basePath.concat("flights/countFlightSegments"),
+			url: basePath.concat("config/countFlightSegments"),
 			handleAs: "json",
 			load: function(response, ioArgs) {			    
 		    	document.getElementById('flightSegmentData').innerHTML=response;
@@ -183,7 +183,7 @@
        	
        	
     	dojo.xhrGet({
-			url: basePath.concat("bookings/count"),
+			url: basePath.concat("config/countBookings"),
 			handleAs: "json",
 			load: function(response, ioArgs) {	
 		    	document.getElementById('bookingData').innerHTML=response;
@@ -194,7 +194,7 @@
     	});	
     	
     	dojo.xhrGet({
-			url: basePath.concat("flights/countAirports"),
+			url: basePath.concat("config/countAirports"),
 			handleAs: "json",
 			load: function(response, ioArgs) {	
 		    	document.getElementById('airportData').innerHTML=response;
@@ -273,12 +273,7 @@
 
 		<div id="toolbar5" data-dojo-type="dijit.Toolbar">
 			<div data-dojo-type="ToolbarSectionStart" data-dojo-props='label:"Actions"'></div>
-			<div id="toolbar5.home" data-dojo-type="dijit.form.Button" data-dojo-props='showLabel:true' onClick="window.location='index.html'">Home</div>
-			<div id="toolbar5.flights" data-dojo-type="dijit.form.Button" data-dojo-props='showLabel:true' onClick="window.location='flights.html'">Flights</div>
-			<div id="toolbar5.checkin" data-dojo-type="dijit.form.Button" data-dojo-props='showLabel:true' onClick="window.location='checkin.html'">Checkin</div>
-			<div id="toolbar5.login" data-dojo-type="dijit.form.Button" data-dojo-props='showLabel:true' onClick="showLoginDialog()">Login</div>
-			<div id="toolbar5.logout" data-dojo-type="dijit.form.Button" data-dojo-props='showLabel:true' onClick="logout()">Logout</div>
-			<div id="toolbar5.account" data-dojo-type="dijit.form.Button" data-dojo-props='showLabel:true' onClick="window.location='customerprofile.html'">Account</div>
+			<div id="toolbar5.home" data-dojo-type="dijit.form.Button" data-dojo-props='showLabel:true' onClick="window.location='index.html'">Acme Air Home</div>
 			<div id="toolbar5.loaddb" data-dojo-type="dijit.form.Button" data-dojo-props='showLabel:true' onClick="window.location='loader.html'">Load the database</div>
 			<div id="toolbar5.info" data-dojo-type="dijit.form.Button" data-dojo-props='showLabel:true' onClick="window.location='config.html'">Runtime Info</div>
 		</div>
@@ -323,6 +318,7 @@
 	<footer>
 		<p>Acme Air</p>
 	</footer>
+	<a href="index.html">Acme Air Home. </a>
 </div>
 
 <p>&nbsp;</p>

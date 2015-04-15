@@ -20,16 +20,15 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import com.acmeair.entities.Booking;
-import com.acmeair.entities.BookingPK;
 import com.acmeair.entities.Customer;
 import com.acmeair.entities.Flight;
-import com.acmeair.entities.FlightPK;
 import com.acmeair.service.BookingService;
 import com.acmeair.service.CustomerService;
 import com.acmeair.service.DataService;
@@ -38,6 +37,7 @@ import com.acmeair.service.KeyGenerator;
 import com.acmeair.service.ServiceLocator;
 import com.acmeair.wxs.WXSConstants;
 import com.acmeair.wxs.entities.BookingImpl;
+import com.acmeair.wxs.entities.BookingPKImpl;
 import com.acmeair.wxs.entities.FlightPKImpl;
 import com.acmeair.wxs.utils.WXSSessionManager;
 import com.ibm.websphere.objectgrid.ObjectGrid;
@@ -76,15 +76,15 @@ public class BookingServiceImpl implements BookingService, WXSConstants  {
 		}
 	}
 	
-	@Override
-	public BookingPK bookFlight(String customerId, FlightPK flightId) {
+		
+	public BookingPKImpl bookFlight(String customerId, FlightPKImpl flightId) {
 		try{
 			// We still delegate to the flight and customer service for the map access than getting the map instance directly
-			Flight f = flightService.getFlightByFlightKey(flightId);
+			Flight f = flightService.getFlightByFlightId(flightId.getId(), flightId.getFlightSegmentId());
 			Customer c = customerService.getCustomerByUsername(customerId);
 			
-			Booking newBooking = new BookingImpl(keyGenerator.generate().toString(), new Date(), c, f);
-			BookingPK key = newBooking.getPkey();
+			BookingImpl newBooking = new BookingImpl(keyGenerator.generate().toString(), new Date(), c, f);
+			BookingPKImpl key = newBooking.getPkey();
 			
 			//Session session = sessionManager.getObjectGridSession();
 			Session session = og.getSession();
@@ -107,9 +107,10 @@ public class BookingServiceImpl implements BookingService, WXSConstants  {
 	}
 
 	@Override
-	public BookingPK bookFlight(String customerId, String flightSegmentId, String id) {
-		return bookFlight(customerId, new FlightPKImpl(flightSegmentId, id));
-	
+	public String bookFlight(String customerId, String flightSegmentId, String id) {
+		if(logger.isLoggable(Level.FINER))
+			logger.finer("WXS booking service,  bookFlight with customerId = '"+ customerId+"', flightSegmentId = '"+ flightSegmentId + "',  and id = '" + id + "'");
+		return bookFlight(customerId, new FlightPKImpl(flightSegmentId, id)).getId();
 	}
 	
 	@Override
@@ -122,11 +123,11 @@ public class BookingServiceImpl implements BookingService, WXSConstants  {
 			
 //			return (Booking)bookingMap.get(new BookingPK(user, id));
 			@SuppressWarnings("unchecked")
-			HashSet<Booking> bookingsByUser = (HashSet<Booking>)bookingMap.get(user);
+			HashSet<BookingImpl> bookingsByUser = (HashSet<BookingImpl>)bookingMap.get(user);
 			if (bookingsByUser == null) {
 				return null;
 			}
-			for (Booking b : bookingsByUser) {
+			for (BookingImpl b : bookingsByUser) {
 				if (b.getPkey().getId().equals(id)) {
 					return b;
 				}
@@ -147,13 +148,13 @@ public class BookingServiceImpl implements BookingService, WXSConstants  {
 			//Session session = sessionManager.getObjectGridSession();
 			ObjectMap bookingMap = session.getMap(BOOKING_MAP_NAME);
 			@SuppressWarnings("unchecked")
-			HashSet<Booking> bookingsByUser = (HashSet<Booking>)bookingMap.get(user);
+			HashSet<BookingImpl> bookingsByUser = (HashSet<BookingImpl>)bookingMap.get(user);
 			if (bookingsByUser == null) {
 				return;
 			}
 			boolean found = false;
 			HashSet<Booking> newBookings = new HashSet<Booking>();
-			for (Booking b : bookingsByUser) {
+			for (BookingImpl b : bookingsByUser) {
 				if (b.getPkey().getId().equals(id)) {
 					found = true;
 				}

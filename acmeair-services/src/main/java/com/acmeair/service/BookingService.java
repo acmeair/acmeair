@@ -18,14 +18,14 @@ package com.acmeair.service;
 import java.util.List;
 
 import com.acmeair.entities.Booking;
-import com.acmeair.entities.BookingPK;
-import com.acmeair.entities.FlightPK;
+
 
 public interface BookingService {
 
-	BookingPK bookFlight(String customerId, FlightPK flightId);
+	//String bookFlight(String customerId, FlightPK flightId);
+//	String bookFlight(String customerId, String flightId);
 	
-	BookingPK bookFlight(String customerId, String flightSegmentId, String id);
+	String bookFlight(String customerId, String flightSegmentId, String FlightId);
 	
 	Booking getBooking(String user, String id);
 

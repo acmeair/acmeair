@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
-package com.acmeair.entities;
+package com.acmeair.web.dto;
 
 import java.io.Serializable;
 
@@ -22,10 +22,12 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.acmeair.entities.Customer;
+
 
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
 @XmlRootElement(name="Customer")
-public class CustomerDataTransferObject implements Serializable{
+public class CustomerInfo implements Serializable{
 
 	
 	private static final long serialVersionUID = 1L;
@@ -45,7 +47,7 @@ public class CustomerDataTransferObject implements Serializable{
 	private int miles_ytd;
 
 	@XmlElement(name="address")
-	private AddressDataTransferObject address;
+	private AddressInfo address;
 	
 	@XmlElement(name="phoneNumber")
 	private String phoneNumber;
@@ -53,10 +55,10 @@ public class CustomerDataTransferObject implements Serializable{
 	@XmlElement(name="phoneNumberType")
 	private String phoneNumberType;
 	
-	public CustomerDataTransferObject() {
+	public CustomerInfo() {
 	}
 	
-	public CustomerDataTransferObject(String username, String password, String status, int total_miles, int miles_ytd, AddressDataTransferObject address, String phoneNumber, String phoneNumberType) {
+	public CustomerInfo(String username, String password, String status, int total_miles, int miles_ytd, AddressInfo address, String phoneNumber, String phoneNumberType) {
 		this._id = username;
 		this.password = password;
 		this.status = status;
@@ -67,13 +69,13 @@ public class CustomerDataTransferObject implements Serializable{
 		this.phoneNumberType = phoneNumberType;
 	}
 	
-	public CustomerDataTransferObject(Customer c) {
+	public CustomerInfo(Customer c) {
 		this._id = c.getUsername();
 		this.password = c.getPassword();
 		this.status = c.getStatus().toString();
 		this.total_miles = c.getTotal_miles();
 		this.miles_ytd = c.getMiles_ytd();
-		this.address = new AddressDataTransferObject(c.getAddress());
+		this.address = new AddressInfo(c.getAddress());
 		this.phoneNumber = c.getPhoneNumber();
 		this.phoneNumberType = c.getPhoneNumberType().toString();
 	}
@@ -134,11 +136,11 @@ public class CustomerDataTransferObject implements Serializable{
 		this.phoneNumberType = phoneNumberType;
 	}
 
-	public AddressDataTransferObject getAddress() {
+	public AddressInfo getAddress() {
 		return address;
 	}
 
-	public void setAddress(AddressDataTransferObject address) {
+	public void setAddress(AddressInfo address) {
 		this.address = address;
 	}
 
@@ -158,7 +160,7 @@ public class CustomerDataTransferObject implements Serializable{
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		CustomerDataTransferObject other = (CustomerDataTransferObject) obj;
+		CustomerInfo other = (CustomerInfo) obj;
 		if (address == null) {
 			if (other.address != null)
 				return false;

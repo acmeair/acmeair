@@ -15,7 +15,6 @@
 *******************************************************************************/
 package com.acmeair.wxs.service;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.logging.Logger;
@@ -57,8 +56,7 @@ public class CustomerServiceImpl extends CustomerService implements WXSConstants
 	private static String CUSTOMER_MAP_NAME="Customer";
 	private static String CUSTOMER_SESSION_MAP_NAME="CustomerSession";
 	
-	
-	private static final int DAYS_TO_ALLOW_SESSION = 1;
+		
 	private final static Logger logger = Logger.getLogger(BookingService.class.getName()); 
 
 	private ObjectGrid og;
@@ -153,8 +151,7 @@ public class CustomerServiceImpl extends CustomerService implements WXSConstants
 			ObjectMap customerMap = session.getMap(CUSTOMER_MAP_NAME);
 			customerMap.insert(customer.getUsername(), customer);
 			return customer;
-		}catch (Exception e)
-		{
+		}catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -175,8 +172,7 @@ public class CustomerServiceImpl extends CustomerService implements WXSConstants
 			ObjectMap customerMap = session.getMap(CUSTOMER_MAP_NAME);
 			customerMap.update(customer.getUsername(), customer);
 			return customer;
-		}catch (Exception e)
-		{
+		}catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -190,8 +186,7 @@ public class CustomerServiceImpl extends CustomerService implements WXSConstants
 			
 			Customer c = (Customer) customerMap.get(username);
 			return c;
-		}catch (Exception e)
-		{
+		}catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -222,22 +217,15 @@ public class CustomerServiceImpl extends CustomerService implements WXSConstants
 	}
 	
 	@Override
-	public CustomerSession createSession(String customerId) {
+	protected CustomerSession createSession(String sessionId, String customerId, Date creation, Date expiration) {
 		try{
-			String sessionId = keyGenerator.generate().toString();
-			Date now = new Date();
-			Calendar c = Calendar.getInstance();
-			c.setTime(now);
-			c.add(Calendar.DAY_OF_YEAR, DAYS_TO_ALLOW_SESSION);
-			Date expiration = c.getTime();
-			CustomerSession cSession = new CustomerSessionImpl(sessionId, customerId, now, expiration);
+			CustomerSession cSession = new CustomerSessionImpl(sessionId, customerId, creation, expiration);
 			// Session session = sessionManager.getObjectGridSession();
 			Session session = og.getSession();
 			ObjectMap customerSessionMap = session.getMap(CUSTOMER_SESSION_MAP_NAME);
 			customerSessionMap.insert(cSession.getId(), cSession);
 			return cSession;
-		}catch (Exception e)
-		{
+		}catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -249,8 +237,7 @@ public class CustomerServiceImpl extends CustomerService implements WXSConstants
 			Session session = og.getSession();
 			ObjectMap customerSessionMap = session.getMap(CUSTOMER_SESSION_MAP_NAME);
 			customerSessionMap.remove(sessionid);
-		}catch (Exception e)
-		{
+		}catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}

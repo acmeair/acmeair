@@ -23,6 +23,8 @@ public interface Customer {
 	public enum PhoneType { UNKNOWN, HOME, BUSINESS, MOBILE };
 	
 	
+	public String getCustomerId();
+	
 	public String getUsername();
 	
 	public void setUsername(String username);
@@ -37,11 +39,7 @@ public interface Customer {
 	
 	public int getTotal_miles();
 	
-	public void setTotal_miles(int total_miles);
-	
 	public int getMiles_ytd();
-	
-	public void setMiles_ytd(int miles_ytd);
 	
 	public String getPhoneNumber();
 

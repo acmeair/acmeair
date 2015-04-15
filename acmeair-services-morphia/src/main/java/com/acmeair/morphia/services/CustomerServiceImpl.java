@@ -1,10 +1,8 @@
 package com.acmeair.morphia.services;
 
-import java.util.Calendar;
 import java.util.Date;
 
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 
 import com.acmeair.entities.Customer;
 import com.acmeair.entities.Customer.MemberShipStatus;
@@ -18,7 +16,6 @@ import com.acmeair.morphia.entities.CustomerImpl;
 import com.acmeair.morphia.services.util.MongoConnectionManager;
 import com.acmeair.service.DataService;
 import com.acmeair.service.CustomerService;
-import com.acmeair.service.KeyGenerator;
 
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.query.Query;
@@ -32,9 +29,6 @@ public class CustomerServiceImpl extends CustomerService implements MorphiaConst
 	
 	protected Datastore datastore;
 		
-	@Inject
-	KeyGenerator keyGenerator;
-	
 	
 	@PostConstruct
 	public void initialization() {	
@@ -105,14 +99,8 @@ public class CustomerServiceImpl extends CustomerService implements MorphiaConst
 	}
 	
 	@Override
-	public CustomerSession createSession(String customerId) {
-		String sessionId = keyGenerator.generate().toString();
-		Date now = new Date();
-		Calendar c = Calendar.getInstance();
-		c.setTime(now);
-		c.add(Calendar.DAY_OF_YEAR, DAYS_TO_ALLOW_SESSION);
-		Date expiration = c.getTime();
-		CustomerSession cSession = new CustomerSessionImpl(sessionId, customerId, now, expiration);
+	protected  CustomerSession createSession(String sessionId, String customerId, Date creation, Date expiration) {
+		CustomerSession cSession = new CustomerSessionImpl(sessionId, customerId, creation, expiration);
 		datastore.save(cSession);
 		return cSession;
 	}

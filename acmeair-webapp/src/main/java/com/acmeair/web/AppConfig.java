@@ -8,11 +8,11 @@ import javax.ws.rs.core.Application;
 import javax.ws.rs.ApplicationPath;
 
 import com.acmeair.config.AcmeAirConfiguration;
-import com.acmeair.loader.Loader;
+import com.acmeair.config.LoaderREST;
 
 @ApplicationPath("/rest/info")
 public class AppConfig extends Application {
     public Set<Class<?>> getClasses() {
-        return new HashSet<Class<?>>(Arrays.asList(BookingsREST.class, CustomerREST.class, FlightsREST.class, LoginREST.class, Loader.class, AcmeAirConfiguration.class));
+        return new HashSet<Class<?>>(Arrays.asList(LoaderREST.class, AcmeAirConfiguration.class));
     }
 }

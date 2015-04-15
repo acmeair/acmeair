@@ -16,66 +16,61 @@
 package com.acmeair.morphia.entities;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.Date;
 
 import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Id;
 
 import com.acmeair.entities.Booking;
-import com.acmeair.entities.BookingPK;
 import com.acmeair.entities.Customer;
 import com.acmeair.entities.Flight;
-import com.acmeair.entities.FlightPK;
 
 @Entity(value="booking")
 public class BookingImpl implements Booking, Serializable{
 	
 	private static final long serialVersionUID = 1L;
-	private BookingPK pkey;
-
-	@SuppressWarnings("unused")
-	private BookingPK _id;
-	private FlightPK flightKey;
-	private Date dateOfBooking;
-	private Customer customer;
-	private Flight flight;
 	
+	@Id
+	private String _id;	
+	private String flightId;
+	private String customerId;
+	private Date dateOfBooking;
+		
 	public BookingImpl() {
 	}
 	
-	public BookingImpl(String id, Date dateOfFlight, Customer customer, Flight flight) {
-		this.pkey = new BookingPKImpl(customer.getUsername(),id);
-		this._id = this.pkey;
-		this.flightKey = flight.getPkey();
+	public BookingImpl(String bookingId, Date dateOfFlight, String customerId, String flightId) {
+		this._id = bookingId;		
+		this.flightId = flightId;
+		this.customerId = customerId;
 		this.dateOfBooking = dateOfFlight;
-		this.customer = customer;
-		this.flight = flight;
 	}
 	
-	public BookingPK getPkey() {
-		return pkey;
+	public BookingImpl(String bookingId, Date dateOfFlight, Customer customer, Flight flight) {		
+		this._id = bookingId;
+		this.flightId = flight.getFlightId();
+		this.dateOfBooking = dateOfFlight;
+		this.customerId = customer.getCustomerId();		
+	}
+	
+	
+	public String getBookingId() {
+		return _id;
+	}
+	
+	public void setBookingId(String bookingId) {
+		this._id = bookingId;
 	}
 
-	// adding the method for index calculation
-	public String getCustomerId()
-	{
-		return pkey.getCustomerId();
-	}
-	public void setPkey(BookingPK pkey) {
-		this.pkey = pkey;
+	public String getFlightId() {
+		return flightId;
 	}
 
-	public FlightPK getFlightKey() {
-		return flightKey;
-	}
-
-	public void setFlightKey(FlightPK flightKey) {
-		this.flightKey = flightKey;
+	public void setFlightId(String flightId) {
+		this.flightId = flightId;
 	}
 
 	
-	public void setFlight(Flight flight) {
-		this.flight = flight;
-	}
 
 	public Date getDateOfBooking() {
 		return dateOfBooking;
@@ -85,24 +80,20 @@ public class BookingImpl implements Booking, Serializable{
 		this.dateOfBooking = dateOfBooking;
 	}
 
-	public Customer getCustomer() {
-		return customer;
+	public String getCustomerId() {
+		return customerId;
 	}
 	
-	public void setCustomer(Customer customer) {
-		this.customer = customer;
+	public void setCustomer(String customerId) {
+		this.customerId = customerId;
 	}
 
-	public Flight getFlight() {
-		return flight;
-	}
 
 
 	@Override
 	public String toString() {
-		return "Booking [key=" + pkey + ", flightKey=" + flightKey
-				+ ", dateOfBooking=" + dateOfBooking + ", customer=" + customer
-				+ ", flight=" + flight + "]";
+		return "Booking [key=" + _id + ", flightId=" + flightId
+				+ ", dateOfBooking=" + dateOfBooking + ", customerId=" + customerId + "]";
 	}
 
 	@Override
@@ -114,31 +105,21 @@ public class BookingImpl implements Booking, Serializable{
 		if (getClass() != obj.getClass())
 			return false;
 		BookingImpl other = (BookingImpl) obj;
-		if (customer == null) {
-			if (other.customer != null)
+		if (customerId == null) {
+			if (other.customerId != null)
 				return false;
-		} else if (!customer.equals(other.customer))
+		} else if (!customerId.equals(other.customerId))
 			return false;
 		if (dateOfBooking == null) {
 			if (other.dateOfBooking != null)
 				return false;
 		} else if (!dateOfBooking.equals(other.dateOfBooking))
 			return false;
-		if (flight == null) {
-			if (other.flight != null)
+		if (flightId == null) {
+			if (other.flightId != null)
 				return false;
-		} else if (!flight.equals(other.flight))
-			return false;
-		if (flightKey == null) {
-			if (other.flightKey != null)
-				return false;
-		} else if (!flightKey.equals(other.flightKey))
-			return false;
-		if (pkey == null) {
-			if (other.pkey != null)
-				return false;
-		} else if (!pkey.equals(other.pkey))
-			return false;
+		} else if (!flightId.equals(other.flightId))
+			return false;		
 		return true;
 	}
 

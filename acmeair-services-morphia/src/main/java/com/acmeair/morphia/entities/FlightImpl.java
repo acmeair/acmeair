@@ -15,15 +15,14 @@
 *******************************************************************************/
 package com.acmeair.morphia.entities;
 
-import java.util.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Date;
 
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
 
 import com.acmeair.entities.Flight;
-import com.acmeair.entities.FlightPK;
 import com.acmeair.entities.FlightSegment;
 
 @Entity(value="flight")
@@ -32,7 +31,9 @@ public class FlightImpl implements Flight, Serializable{
 	private static final long serialVersionUID = 1L;
 	
 	@Id
-	private FlightPK _id;
+	private String _id;
+	
+	private String flightSegmentId;
 		
 	private Date scheduledDepartureTime;
 	private Date scheduledArrivalTime;
@@ -52,7 +53,8 @@ public class FlightImpl implements Flight, Serializable{
 			BigDecimal firstClassBaseCost, BigDecimal economyClassBaseCost,
 			int numFirstClassSeats, int numEconomyClassSeats,
 			String airplaneTypeId) {
-		this._id = new FlightPKImpl(flightSegmentId,id);
+		this._id = id;
+		this.flightSegmentId = flightSegmentId;
 		this.scheduledDepartureTime = scheduledDepartureTime;
 		this.scheduledArrivalTime = scheduledArrivalTime;
 		this.firstClassBaseCost = firstClassBaseCost;
@@ -62,18 +64,21 @@ public class FlightImpl implements Flight, Serializable{
 		this.airplaneTypeId = airplaneTypeId;
 	}
 
-	public FlightPK getPkey() {
+	public String getFlightId(){
 		return _id;
 	}
-
-	public void setPkey(FlightPK pkey) {
-		this._id = pkey;
+	
+	public void setFlightId(String id){
+		this._id = id;
 	}
-
-	// The method is needed for index calculation
+	
 	public String getFlightSegmentId()
 	{
-		return _id.getFlightSegmentId();
+		return flightSegmentId;
+	}
+	
+	public void setFlightSegmentId(String segmentId){
+		this.flightSegmentId = segmentId;
 	}
 	
 	public Date getScheduledDepartureTime() {

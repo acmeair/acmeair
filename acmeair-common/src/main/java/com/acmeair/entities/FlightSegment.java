@@ -17,22 +17,13 @@ package com.acmeair.entities;
 
 
 public interface FlightSegment {
-
 	
 	public String getFlightName();
 
-	public void setFlightName(String flightName);
-
 	public String getOriginPort();
-
-	public void setOriginPort(String originPort);
 
 	public String getDestPort();
 
-	public void setDestPort(String destPort);
-
 	public int getMiles();
-
-	public void setMiles(int miles);
 		
 }

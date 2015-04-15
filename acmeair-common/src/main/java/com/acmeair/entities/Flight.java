@@ -24,57 +24,32 @@ import java.util.Date;
 public interface Flight{
 
 	
-	public FlightPK getPkey();
-
-	public void setPkey(FlightPK pkey);
-
-	// The method is needed for index calculation
-	public String getFlightSegmentId();
+	String getFlightId();
 	
-	public Date getScheduledDepartureTime();
+	void setFlightId(String id);
+	
+	String getFlightSegmentId();
+	
+	FlightSegment getFlightSegment();
+
+	void setFlightSegment(FlightSegment flightSegment);
+		
+	Date getScheduledDepartureTime();
+
+	Date getScheduledArrivalTime();
+
+	BigDecimal getFirstClassBaseCost();
 
 
-	public void setScheduledDepartureTime(Date scheduledDepartureTime);
+	BigDecimal getEconomyClassBaseCost();
 
 
-	public Date getScheduledArrivalTime();
+	int getNumFirstClassSeats();
 
 
-	public void setScheduledArrivalTime(Date scheduledArrivalTime);
+	int getNumEconomyClassSeats();
 
 
-	public BigDecimal getFirstClassBaseCost();
-
-
-	public void setFirstClassBaseCost(BigDecimal firstClassBaseCost);
-
-
-	public BigDecimal getEconomyClassBaseCost();
-
-
-	public void setEconomyClassBaseCost(BigDecimal economyClassBaseCost);
-
-
-	public int getNumFirstClassSeats();
-
-
-	public void setNumFirstClassSeats(int numFirstClassSeats);
-
-
-	public int getNumEconomyClassSeats();
-
-
-	public void setNumEconomyClassSeats(int numEconomyClassSeats);
-
-
-	public String getAirplaneTypeId();
-
-
-	public void setAirplaneTypeId(String airplaneTypeId);
-
-
-	public FlightSegment getFlightSegment();
-
-	public void setFlightSegment(FlightSegment flightSegment);
+	String getAirplaneTypeId();
 
 }

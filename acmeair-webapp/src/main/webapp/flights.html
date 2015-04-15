@@ -260,9 +260,8 @@
 			return;
 		}
 		var grid = dijit.byId("gridOutbound");
-		var toFlightKey = grid.store.getValue(grid.getItem(selectedIndexForToFlights), "pkey");
-		var toFlightId = grid.store.getValue(toFlightKey, "id");
-		var toFlightSegId = grid.store.getValue(toFlightKey, "flightSegmentId");
+		var toFlightId = grid.store.getValue(grid.getItem(selectedIndexForToFlights), "_id");
+		var toFlightSegId = grid.store.getValue(grid.getItem(selectedIndexForToFlights), "flightSegmentId");
 		
 		var retFlightId;
 		var retFlightSegId;
@@ -273,9 +272,8 @@
 				return;
 			}
 			var grid = dijit.byId("gridReturn");
-			var retFlightKey = grid.store.getValue(grid.getItem(selectedIndexForRetFlights), "pkey");
-			retFlightId = grid.store.getValue(retFlightKey, "id");
-			retFlightSegId = grid.store.getValue(retFlightKey, "flightSegmentId");
+			retFlightId = grid.store.getValue(grid.getItem(selectedIndexForRetFlights), "_id");			
+			retFlightSegId = grid.store.getValue(grid.getItem(selectedIndexForRetFlights), "flightSegmentId");
 		}
 		
 		var xhrContent = { userid : loggedinuser }
@@ -390,8 +388,6 @@
 			<div id="toolbar5.login" data-dojo-type="dijit.form.Button" data-dojo-props='showLabel:true' onClick="showLoginDialog()">Login</div>
 			<div id="toolbar5.logout" data-dojo-type="dijit.form.Button" data-dojo-props='showLabel:true' onClick="logout()">Logout</div>
 			<div id="toolbar5.account" data-dojo-type="dijit.form.Button" data-dojo-props='showLabel:true' onClick="window.location='customerprofile.html'">Account</div>
-			<div id="toolbar5.loaddb" data-dojo-type="dijit.form.Button" data-dojo-props='showLabel:true' onClick="window.location='loader.html'">Load the database</div>
-			<div id="toolbar5.info" data-dojo-type="dijit.form.Button" data-dojo-props='showLabel:true' onClick="window.location='config.html'">Runtime Info</div>			
 		</div>
 		
 		<div class="content">
@@ -442,6 +438,7 @@
 	<footer>
 		<p>Acme Air</p>
 	</footer>
+	<a href="config.html">configure the Acme Air environment. </a>
 </div>
 
 <p>&nbsp;</p>

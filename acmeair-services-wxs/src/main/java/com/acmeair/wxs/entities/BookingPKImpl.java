@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2013 IBM Corp.
+* Copyright (c) 2013-2015 IBM Corp.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,9 +18,10 @@ package com.acmeair.wxs.entities;
 import java.io.Serializable;
 
 import com.acmeair.entities.BookingPK;
-//import com.ibm.websphere.objectgrid.plugins.PartitionableKey;
 
-public class BookingPKImpl implements BookingPK, Serializable /*, PartitionableKey*/{
+import com.ibm.websphere.objectgrid.plugins.PartitionableKey;
+
+public class BookingPKImpl implements BookingPK, Serializable, PartitionableKey {
 	
 	private static final long serialVersionUID = 1L;
 	private String id;
@@ -52,7 +53,7 @@ public class BookingPKImpl implements BookingPK, Serializable /*, PartitionableK
 		this.customerId = customerId;
 	}
 
-	//@Override
+	@Override
 	public Object ibmGetPartition() {
 		return this.customerId;
 	}

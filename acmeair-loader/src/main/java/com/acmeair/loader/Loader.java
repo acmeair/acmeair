@@ -21,38 +21,22 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Response;
-
-@Path("/loader")
 public class Loader {
 	public static String REPOSITORY_LOOKUP_KEY = "com.acmeair.repository.type";
 
 	private static Logger logger = Logger.getLogger(Loader.class.getName());
 
-	
-	@GET
-	@Path("/query")
-	@Produces("text/plain")
-	public Response loaddb() {	
-		
+	public String queryLoader() {			
 		String message = System.getProperty("loader.numCustomers");
 		if (message == null){
 			logger.info("The system property 'loader.numCustomers' has not been set yet. Looking up the default properties.");
 			lookupDefaults();
 			message = System.getProperty("loader.numCustomers");
 		}				
-		return Response.ok(message).build();	
+		return message;	
 	}
 	
-	@GET
-	@Path("/load")
-	@Produces("text/plain")
-	public Response loadDB(@DefaultValue("-1") @QueryParam("numCustomers") long numCustomers) {		
+	public String loadDB(long numCustomers) {		
 		String message = "";
 		if(numCustomers == -1)
 			message = execute();
@@ -60,7 +44,7 @@ public class Loader {
 			System.setProperty("loader.numCustomers", Long.toString(numCustomers));
 			message = execute(numCustomers);
 		}
-		return Response.ok(message).build();	
+		return message;	
 	}
 	
 	

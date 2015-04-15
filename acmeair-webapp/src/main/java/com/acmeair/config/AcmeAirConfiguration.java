@@ -13,6 +13,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
+import com.acmeair.service.BookingService;
+import com.acmeair.service.CustomerService;
+import com.acmeair.service.FlightService;
 import com.acmeair.service.ServiceLocator;
 
 
@@ -23,6 +26,11 @@ public class AcmeAirConfiguration {
 	BeanManager beanManager;
 	Logger logger = Logger.getLogger(AcmeAirConfiguration.class.getName());
 
+	private BookingService bs = ServiceLocator.instance().getService(BookingService.class);
+	private CustomerService customerService = ServiceLocator.instance().getService(CustomerService.class);
+	private FlightService flightService = ServiceLocator.instance().getService(FlightService.class);
+
+	
     public AcmeAirConfiguration() {
         super();
     }
@@ -107,4 +115,93 @@ public class AcmeAirConfiguration {
 		public String name = "";
 		public String description = "";
 	}
+	
+	@GET
+	@Path("/countBookings")
+	@Produces("application/json")
+	public Response countBookings() {
+		try {
+			Long count = bs.count();			
+			return Response.ok(count).build();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return Response.ok(-1).build();
+		}
+	}
+	
+	@GET
+	@Path("/countCustomers")
+	@Produces("application/json")
+	public Response countCustomer() {
+		try {
+			Long customerCount = customerService.count();
+			
+			return Response.ok(customerCount).build();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return Response.ok(-1).build();
+		}
+	}
+	
+	
+	@GET
+	@Path("/countSessions")
+	@Produces("application/json")
+	public Response countCustomerSessions() {
+		try {
+			Long customerCount = customerService.countSessions();
+			
+			return Response.ok(customerCount).build();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return Response.ok(-1).build();
+		}
+	}
+	
+	
+	@GET
+	@Path("/countFlights")
+	@Produces("application/json")
+	public Response countFlights() {
+		try {
+			Long count = flightService.countFlights();			
+			return Response.ok(count).build();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return Response.ok(-1).build();
+		}
+	}
+	
+	@GET
+	@Path("/countFlightSegments")
+	@Produces("application/json")
+	public Response countFlightSegments() {
+		try {
+			Long count = flightService.countFlightSegments();			
+			return Response.ok(count).build();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return Response.ok(-1).build();
+		}
+	}
+	
+	@GET
+	@Path("/countAirports")
+	@Produces("application/json")
+	public Response countAirports() {
+		try {			
+			Long count = flightService.countAirports();	
+			return Response.ok(count).build();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return Response.ok(-1).build();
+		}
+	}
+	
 }

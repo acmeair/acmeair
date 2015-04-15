@@ -13,21 +13,21 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
-package com.acmeair.web;
+package com.acmeair.web.dto;
 
-public class BookingInfo {
+public class BookingReceiptInfo {
 	
 	private String departBookingId;
 	private String returnBookingId;
 	private boolean oneWay;
 	
-	public BookingInfo(String departBookingId, String returnBookingId, boolean oneWay) {
+	public BookingReceiptInfo(String departBookingId, String returnBookingId, boolean oneWay) {
 		this.departBookingId = departBookingId;
 		this.returnBookingId = returnBookingId;
 		this.oneWay = oneWay;
 	}
 	
-	public BookingInfo() {
+	public BookingReceiptInfo() {
 	}
 	
 	public String getDepartBookingId() {

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2013 IBM Corp.
+* Copyright (c) 2013-2015 IBM Corp.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,14 +15,8 @@
 *******************************************************************************/
 package com.acmeair.entities;
 
-public interface FlightPK {
+public interface BookingPK {
 
 	public String getId();
-	
-	public void setId(String id);
-	
-	public String getFlightSegmentId();
-	
-	public void setFlightSegmentId(String flightSegmentId);
-	
+	public String getCustomerId();
 }

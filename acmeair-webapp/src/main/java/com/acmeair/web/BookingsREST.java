@@ -22,9 +22,10 @@ import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.Status;
 
 import com.acmeair.entities.Booking;
-import com.acmeair.entities.BookingPK;
 import com.acmeair.service.BookingService;
 import com.acmeair.service.ServiceLocator;
+import com.acmeair.web.dto.BookingInfo;
+import com.acmeair.web.dto.BookingReceiptInfo;
 
 @Path("/bookings")
 public class BookingsREST {
@@ -43,17 +44,17 @@ public class BookingsREST {
 			@FormParam("retFlightSegId") String retFlightSegId,
 			@FormParam("oneWayFlight") boolean oneWay) {
 		try {
-			BookingPK bookingIdTo = bs.bookFlight(userid, toFlightSegId, toFlightId);
-			BookingPK bookingIdReturn = null;
+			String bookingIdTo = bs.bookFlight(userid, toFlightSegId, toFlightId);
+			String bookingIdReturn = null;
 			if (!oneWay) {
 				bookingIdReturn = bs.bookFlight(userid, retFlightSegId, retFlightId);
 			}
 			// YL. BookingInfo will only contains the booking generated keys as customer info is always available from the session
-			BookingInfo bi;
+			BookingReceiptInfo bi;
 			if (!oneWay)
-				bi = new BookingInfo(bookingIdTo.getId(), bookingIdReturn.getId(), oneWay);
+				bi = new BookingReceiptInfo(bookingIdTo, bookingIdReturn, oneWay);
 			else
-				bi = new BookingInfo(bookingIdTo.getId(), null, oneWay);
+				bi = new BookingReceiptInfo(bookingIdTo, null, oneWay);
 			
 			return Response.ok(bi).build();
 		}
@@ -66,12 +67,16 @@ public class BookingsREST {
 	@GET
 	@Path("/bybookingnumber/{userid}/{number}")
 	@Produces("application/json")
-	public Booking getBookingByNumber(
+	public BookingInfo getBookingByNumber(
 			@PathParam("number") String number,
 			@FormParam("userid") String userid) {
 		try {
 			Booking b = bs.getBooking(userid, number);
-			return b;
+			BookingInfo bi = null;
+			if(b != null){
+				bi = new BookingInfo(b);
+			}
+			return bi;
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -82,9 +87,14 @@ public class BookingsREST {
 	@GET
 	@Path("/byuser/{user}")
 	@Produces("application/json")
-	public List<Booking> getBookingsByUser(@PathParam("user") String user) {
+	public List<BookingInfo> getBookingsByUser(@PathParam("user") String user) {
 		try {
-			return bs.getBookingsByUser(user);
+			List<Booking> list =  bs.getBookingsByUser(user);
+			List<BookingInfo> newList = new ArrayList<BookingInfo>();
+			for(Booking b : list){
+				newList.add(new BookingInfo(b));
+			}
+			return newList;
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -110,17 +120,5 @@ public class BookingsREST {
 		}
 	}
 	
-	@GET
-	@Path("/count")
-	@Produces("application/json")
-	public Response countBookings() {
-		try {
-			Long count = bs.count();			
-			return Response.ok(count).build();
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			return Response.ok(-1).build();
-		}
-	}
+
 }

@@ -20,29 +20,17 @@ import java.util.Date;
 
 public interface Booking {
 
-	
-	public BookingPK getPkey();
 
-	// adding the method for index calculation
+	public String getBookingId();
+		
+	
+	public String getFlightId();
+	
+	
 	public String getCustomerId();
 	
-	public void setPkey(BookingPK pkey);
-
-	public FlightPK getFlightKey();
-
-	public void setFlightKey(FlightPK flightKey);
-
 	
-	public void setFlight(Flight flight);
-
 	public Date getDateOfBooking();
 	
-	public void setDateOfBooking(Date dateOfBooking);
-
-	public Customer getCustomer();
-	
-	public void setCustomer(Customer customer);
-
-	public Flight getFlight();
 
 }

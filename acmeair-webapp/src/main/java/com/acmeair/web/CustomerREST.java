@@ -19,8 +19,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 
-import com.acmeair.entities.*;
+import com.acmeair.entities.Customer;
+import com.acmeair.entities.CustomerAddress;
 import com.acmeair.service.*;
+import com.acmeair.web.dto.*;
 
 import javax.ws.rs.core.Context;
 
@@ -48,7 +50,7 @@ public class CustomerREST {
 				
 			}
 			Customer customer = customerService.getCustomerByUsername(customerid);	
-			CustomerDataTransferObject customerDTO = new CustomerDataTransferObject(customer);			
+			CustomerInfo customerDTO = new CustomerInfo(customer);			
 			return Response.ok(customerDTO).build();
 		}
 		catch (Exception e) {
@@ -60,7 +62,7 @@ public class CustomerREST {
 	@POST
 	@Path("/byid/{custid}")
 	@Produces("application/json")
-	public /* Customer */ Response putCustomer(@CookieParam("sessionid") String sessionid, CustomerDataTransferObject customer) {
+	public /* Customer */ Response putCustomer(@CookieParam("sessionid") String sessionid, CustomerInfo customer) {
 		if (!validate(customer.getUsername())) {
 			return Response.status(Response.Status.FORBIDDEN).build();
 		}
@@ -90,35 +92,6 @@ public class CustomerREST {
 		return Response.ok(customerFromDB).build();
 	}
 	
-	@GET
-	@Path("/count")
-	@Produces("application/json")
-	public Response countCustomer() {
-		try {
-			Long customerCount = customerService.count();
-			
-			return Response.ok(customerCount).build();
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			return Response.ok(-1).build();
-		}
-	}
-	
-	
-	@GET
-	@Path("/countSessions")
-	@Produces("application/json")
-	public Response countCustomerSessions() {
-		try {
-			Long customerCount = customerService.countSessions();
-			
-			return Response.ok(customerCount).build();
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			return Response.ok(-1).build();
-		}
-	}
+
 	
 }

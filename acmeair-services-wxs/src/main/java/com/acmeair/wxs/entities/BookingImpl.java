@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2013 IBM Corp.
+* Copyright (c) 2013-2015 IBM Corp.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,20 +19,16 @@ import java.io.Serializable;
 import java.util.*;
 
 import com.acmeair.entities.Booking;
-import com.acmeair.entities.BookingPK;
 import com.acmeair.entities.Customer;
 import com.acmeair.entities.Flight;
-import com.acmeair.entities.FlightPK;
 
 
 public class BookingImpl implements Booking, Serializable{
 	
 	private static final long serialVersionUID = 1L;
-	private BookingPK pkey;
 
-	@SuppressWarnings("unused")
-	private BookingPK _id;
-	private FlightPK flightKey;
+	private BookingPKImpl pkey;
+	private FlightPKImpl flightKey;
 	private Date dateOfBooking;
 	private Customer customer;
 	private Flight flight;
@@ -41,32 +37,36 @@ public class BookingImpl implements Booking, Serializable{
 	}
 	
 	public BookingImpl(String id, Date dateOfFlight, Customer customer, Flight flight) {
+		this(id, dateOfFlight, customer, (FlightImpl)flight);
+	}
+	
+	public BookingImpl(String id, Date dateOfFlight, Customer customer, FlightImpl flight) {
 		this.pkey = new BookingPKImpl(customer.getUsername(),id);
-		this._id = this.pkey;
+		
 		this.flightKey = flight.getPkey();
 		this.dateOfBooking = dateOfFlight;
 		this.customer = customer;
 		this.flight = flight;
 	}
 	
-	public BookingPK getPkey() {
+	public BookingPKImpl getPkey() {
 		return pkey;
 	}
 
 	// adding the method for index calculation
-	public String getCustomerId()
-	{
+	public String getCustomerId() {
 		return pkey.getCustomerId();
 	}
-	public void setPkey(BookingPK pkey) {
+	
+	public void setPkey(BookingPKImpl pkey) {
 		this.pkey = pkey;
 	}
 
-	public FlightPK getFlightKey() {
+	public FlightPKImpl getFlightKey() {
 		return flightKey;
 	}
 
-	public void setFlightKey(FlightPK flightKey) {
+	public void setFlightKey(FlightPKImpl flightKey) {
 		this.flightKey = flightKey;
 	}
 
@@ -138,6 +138,16 @@ public class BookingImpl implements Booking, Serializable{
 		} else if (!pkey.equals(other.pkey))
 			return false;
 		return true;
+	}
+
+	@Override
+	public String getBookingId() {
+		return pkey.getId();
+	}
+
+	@Override
+	public String getFlightId() {
+		return flight.getFlightId();		
 	}
 
 }

@@ -20,51 +20,69 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.acmeair.entities.Flight;
 import com.acmeair.entities.FlightSegment;
-import com.acmeair.entities.FlightPK;
 import com.acmeair.entities.AirportCodeMapping;
 
 public abstract class FlightService {
-
+	protected Logger logger =  Logger.getLogger(FlightService.class.getName());
+	
 	//TODO:need to find a way to invalidate these maps
 	protected static ConcurrentHashMap<String, FlightSegment> originAndDestPortToSegmentCache = new ConcurrentHashMap<String,FlightSegment>();
 	protected static ConcurrentHashMap<String, List<Flight>> flightSegmentAndDataToFlightCache = new ConcurrentHashMap<String,List<Flight>>();
-	protected static ConcurrentHashMap<FlightPK, Flight> flightPKtoFlightCache = new ConcurrentHashMap<FlightPK, Flight>();
+	protected static ConcurrentHashMap<String, Flight> flightPKtoFlightCache = new ConcurrentHashMap<String, Flight>();
 	
-	
-	public abstract Flight getFlightByFlightKey(FlightPK key);
 	
 
-	public List<Flight> getFlightByAirportsAndDepartureDate(String fromAirport,	String toAirport, Date deptDate) {
+	public Flight getFlightByFlightId(String flightId, String flightSegment) {
 		try {
-			String originPortAndDestPortQueryString= fromAirport+toAirport;
-			FlightSegment segment = originAndDestPortToSegmentCache.get(originPortAndDestPortQueryString);
-			
-			if (segment == null) {
-				segment = getFlightSegment(fromAirport, toAirport);
-				originAndDestPortToSegmentCache.putIfAbsent(originPortAndDestPortQueryString, segment);
+			Flight flight = flightPKtoFlightCache.get(flightId);
+			if (flight == null) {				
+				flight = getFlight(flightId, flightSegment);
+				if (flightId != null && flight != null) {
+					flightPKtoFlightCache.putIfAbsent(flightId, flight);
+				}
 			}
-			
-			// cache flights that not available (checks against sentinel value above indirectly)
-			if (segment.getFlightName() == null) {
-				return new ArrayList<Flight>(); 
-			}
-			
-			String segId = segment.getFlightName();
-			String flightSegmentIdAndScheduledDepartureTimeQueryString = segId + deptDate.toString();
-			List<Flight> flights = flightSegmentAndDataToFlightCache.get(flightSegmentIdAndScheduledDepartureTimeQueryString);
-			
-			if (flights == null) {				
-				flights = getFlightBySegment(segment, deptDate);
-				flightSegmentAndDataToFlightCache.putIfAbsent(flightSegmentIdAndScheduledDepartureTimeQueryString, flights);
-			}
-			
-			return flights;
+			return flight;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+	
+	
+	protected abstract Flight getFlight(String flightId, String flightSegment);
+	
+	public List<Flight> getFlightByAirportsAndDepartureDate(String fromAirport,	String toAirport, Date deptDate) {
+		if(logger.isLoggable(Level.FINE))
+			logger.fine("Search for flights from "+ fromAirport + " to " + toAirport + " on " + deptDate.toString());
+
+		String originPortAndDestPortQueryString= fromAirport+toAirport;
+		FlightSegment segment = originAndDestPortToSegmentCache.get(originPortAndDestPortQueryString);
+
+		if (segment == null) {
+			segment = getFlightSegment(fromAirport, toAirport);
+			originAndDestPortToSegmentCache.putIfAbsent(originPortAndDestPortQueryString, segment);
+		}		
+		// cache flights that not available (checks against sentinel value above indirectly)
+		if (segment.getFlightName() == null) {
+			return new ArrayList<Flight>(); 
+		}
+
+		String segId = segment.getFlightName();
+		String flightSegmentIdAndScheduledDepartureTimeQueryString = segId + deptDate.toString();
+		List<Flight> flights = flightSegmentAndDataToFlightCache.get(flightSegmentIdAndScheduledDepartureTimeQueryString);
+
+		if (flights == null) {				
+			flights = getFlightBySegment(segment, deptDate);
+			flightSegmentAndDataToFlightCache.putIfAbsent(flightSegmentIdAndScheduledDepartureTimeQueryString, flights);
+		}
+		if(logger.isLoggable(Level.FINEST))
+			logger.finest("Returning "+ flights);
+		return flights;
+
 	}
 
 	// NOTE:  This is not cached

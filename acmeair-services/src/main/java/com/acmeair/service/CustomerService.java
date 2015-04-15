@@ -15,7 +15,10 @@
 *******************************************************************************/
 package com.acmeair.service;
 
+import java.util.Calendar;
 import java.util.Date;
+
+import javax.inject.Inject;
 
 import com.acmeair.entities.Customer;
 import com.acmeair.entities.CustomerAddress;
@@ -25,6 +28,9 @@ import com.acmeair.entities.CustomerSession;
 
 public abstract class CustomerService {
 	protected static final int DAYS_TO_ALLOW_SESSION = 1;
+	
+	@Inject
+	protected KeyGenerator keyGenerator;
 	
 	public abstract Customer createCustomer(
 			String username, String password, MemberShipStatus status, int total_miles,
@@ -84,7 +90,18 @@ public abstract class CustomerService {
 	
 	protected abstract void removeSession(CustomerSession session);
 	
-	public abstract CustomerSession createSession(String customerId);
+	public CustomerSession createSession(String customerId) {
+		String sessionId = keyGenerator.generate().toString();
+		Date now = new Date();
+		Calendar c = Calendar.getInstance();
+		c.setTime(now);
+		c.add(Calendar.DAY_OF_YEAR, DAYS_TO_ALLOW_SESSION);
+		Date expiration = c.getTime();
+		
+		return createSession(sessionId, customerId, now, expiration);
+	}
+	
+	protected abstract CustomerSession createSession(String sessionId, String customerId, Date creation, Date expiration);
 
 	public abstract void invalidateSession(String sessionid);
 	

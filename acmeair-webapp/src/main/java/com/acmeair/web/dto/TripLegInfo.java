@@ -13,8 +13,9 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
-package com.acmeair.web;
+package com.acmeair.web.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.acmeair.entities.Flight;
@@ -34,7 +35,7 @@ public class TripLegInfo {
 	private int pageSize;
 	private int currentPage;
 	
-	private List<Flight> flightsOptions;
+	private List<FlightInfo> flightsOptions;
 
 	public boolean isHasMoreOptions() {
 		return hasMoreOptions;
@@ -68,11 +69,17 @@ public class TripLegInfo {
 		this.currentPage = currentPage;
 	}
 
-	public List<Flight> getFlightsOptions() {
+	public List<FlightInfo> getFlightsOptions() {
 		return flightsOptions;
 	}
 
 	public void setFlightsOptions(List<Flight> flightsOptions) {
-		this.flightsOptions = flightsOptions;
+		List<FlightInfo> flightInfoOptions = new ArrayList<FlightInfo>();
+		for(Flight info : flightsOptions){
+			flightInfoOptions.add(new FlightInfo(info));
+		}
+		this.flightsOptions = flightInfoOptions;
 	}
+	
+
 }

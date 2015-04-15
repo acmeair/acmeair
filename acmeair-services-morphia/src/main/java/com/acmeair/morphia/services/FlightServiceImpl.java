@@ -25,7 +25,6 @@ import javax.inject.Inject;
 
 import com.acmeair.entities.AirportCodeMapping;
 import com.acmeair.entities.Flight;
-import com.acmeair.entities.FlightPK;
 import com.acmeair.entities.FlightSegment;
 import com.acmeair.morphia.MorphiaConstants;
 import com.acmeair.morphia.entities.AirportCodeMappingImpl;
@@ -72,21 +71,28 @@ public class FlightServiceImpl extends FlightService implements  MorphiaConstant
 		return datastore.find(AirportCodeMappingImpl.class).countAll();
 	}
 	
+	/*
 	@Override
-	public Flight getFlightByFlightKey(FlightPK key) {
+	public Flight getFlightByFlightId(String flightId, String flightSegmentId) {
 		try {
-			Flight flight = flightPKtoFlightCache.get(key);
+			Flight flight = flightPKtoFlightCache.get(flightId);
 			if (flight == null) {
-				Query<FlightImpl> q = datastore.find(FlightImpl.class).field("_id").equal(key);
+				Query<FlightImpl> q = datastore.find(FlightImpl.class).field("_id").equal(flightId);
 				flight = q.get();
-				if (key != null && flight != null) {
-					flightPKtoFlightCache.putIfAbsent(key, flight);
+				if (flightId != null && flight != null) {
+					flightPKtoFlightCache.putIfAbsent(flight, flight);
 				}
 			}
 			return flight;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+	*/
+	
+	protected Flight getFlight(String flightId, String segmentId) {
+		Query<FlightImpl> q = datastore.find(FlightImpl.class).field("_id").equal(flightId);
+		return q.get();
 	}
 
 	@Override
@@ -103,9 +109,9 @@ public class FlightServiceImpl extends FlightService implements  MorphiaConstant
 	protected  List<Flight> getFlightBySegment(FlightSegment segment, Date deptDate){
 		Query<FlightImpl> q2;
 		if(deptDate != null) {
-			q2 = datastore.find(FlightImpl.class).disableValidation().field("_id.flightSegmentId").equal(segment.getFlightName()).field("scheduledDepartureTime").equal(deptDate);
+			q2 = datastore.find(FlightImpl.class).disableValidation().field("flightSegmentId").equal(segment.getFlightName()).field("scheduledDepartureTime").equal(deptDate);
 		} else {
-			q2 = datastore.find(FlightImpl.class).disableValidation().field("_id.flightSegmentId").equal(segment.getFlightName());
+			q2 = datastore.find(FlightImpl.class).disableValidation().field("flightSegmentId").equal(segment.getFlightName());
 		}
 		List<FlightImpl> flightImpls = q2.asList();
 		List<Flight> flights;

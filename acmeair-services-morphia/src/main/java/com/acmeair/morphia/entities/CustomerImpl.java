@@ -51,6 +51,10 @@ public class CustomerImpl implements Customer, Serializable{
 		this.phoneNumberType = phoneNumberType;
 	}
 
+	public String getCustomerId(){
+		return _id;
+	}
+	
 	public String getUsername() {
 		return _id;
 	}

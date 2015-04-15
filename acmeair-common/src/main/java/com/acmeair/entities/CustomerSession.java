@@ -23,18 +23,14 @@ public interface CustomerSession {
 	
 	public String getId();
 
-	public void setId(String id);
 
 	public String getCustomerid();
 
-	public void setCustomerid(String customerid);
 
 	public Date getLastAccessedTime();
 	
-	public void setLastAccessedTime(Date lastAccessedTime);
 
 	public Date getTimeoutTime();
 
-	public void setTimeoutTime(Date timeoutTime);
 	
 }

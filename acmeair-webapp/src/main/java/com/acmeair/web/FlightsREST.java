@@ -21,16 +21,14 @@ import java.util.Date;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Response;
-
 import com.acmeair.entities.Flight;
 import com.acmeair.service.FlightService;
 import com.acmeair.service.ServiceLocator;
-import com.acmeair.web.TripLegInfo;
+import com.acmeair.web.dto.TripFlightOptions;
+import com.acmeair.web.dto.TripLegInfo;
 
 @Path("/flights")
 public class FlightsREST {
@@ -122,47 +120,5 @@ public class FlightsREST {
 		
 		return options;
 	}	
-	
-	@GET
-	@Path("/countFlights")
-	@Produces("application/json")
-	public Response countFlights() {
-		try {
-			Long count = flightService.countFlights();			
-			return Response.ok(count).build();
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			return Response.ok(-1).build();
-		}
-	}
-	
-	@GET
-	@Path("/countFlightSegments")
-	@Produces("application/json")
-	public Response countFlightSegments() {
-		try {
-			Long count = flightService.countFlightSegments();			
-			return Response.ok(count).build();
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			return Response.ok(-1).build();
-		}
-	}
-	
-	@GET
-	@Path("/countAirports")
-	@Produces("application/json")
-	public Response countAirports() {
-		try {			
-			Long count = flightService.countAirports();	
-			return Response.ok(count).build();
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			return Response.ok(-1).build();
-		}
-	}
-	
+
 }

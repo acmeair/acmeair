@@ -27,8 +27,4 @@
     <servlet-name>com.acmeair.web.AppConfig</servlet-name>
     <url-pattern>/rest/info/*</url-pattern>
   </servlet-mapping>
-  <resource-env-ref>
-    <resource-env-ref-name>mongo/acmeair</resource-env-ref-name>
-    <resource-env-ref-type>com.mongodb.DB</resource-env-ref-type>
-  </resource-env-ref>
 </web-app>
