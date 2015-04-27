@@ -4,12 +4,13 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
-import javax.ws.rs.FormParam;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
@@ -35,13 +36,32 @@ public class AcmeAirConfiguration {
         super();
     }
 
+	@PostConstruct
+	private void initialization()  {		
+		if(beanManager == null){
+			logger.info("Attempting to look up BeanManager through JNDI at java:comp/BeanManager");
+			try {
+				beanManager = (BeanManager) new InitialContext().lookup("java:comp/BeanManager");
+			} catch (NamingException e) {
+				logger.severe("BeanManager not found at java:comp/BeanManager");
+			}
+		}
+		
+		if(beanManager == null){
+			logger.info("Attempting to look up BeanManager through JNDI at java:comp/env/BeanManager");
+			try {
+				beanManager = (BeanManager) new InitialContext().lookup("java:comp/env/BeanManager");
+			} catch (NamingException e) {
+				logger.severe("BeanManager not found at java:comp/env/BeanManager ");
+			}
+		}
+	}
+    
     
 	@GET
 	@Path("/dataServices")
 	@Produces("application/json")
-	public ArrayList<ServiceData> getDataServiceInfo(
-			@PathParam("number") String number,
-			@FormParam("userid") String userid) {
+	public ArrayList<ServiceData> getDataServiceInfo() {
 		try {	
 			ArrayList<ServiceData> list = new ArrayList<ServiceData>();
 			Map<String, String> services =  ServiceLocator.instance().getServices();
@@ -65,9 +85,7 @@ public class AcmeAirConfiguration {
 	@GET
 	@Path("/activeDataService")
 	@Produces("application/json")
-	public Response getActiveDataServiceInfo(
-			@PathParam("number") String number,
-			@FormParam("userid") String userid) {
+	public Response getActiveDataServiceInfo() {
 		try {		
 			logger.fine("Get active Data Service info");
 			return  Response.ok(ServiceLocator.instance().getServiceType()).build();
@@ -81,9 +99,7 @@ public class AcmeAirConfiguration {
 	@GET
 	@Path("/runtime")
 	@Produces("application/json")
-	public ArrayList<ServiceData> getRuntimeInfo(
-			@PathParam("number") String number,
-			@FormParam("userid") String userid) {
+	public ArrayList<ServiceData> getRuntimeInfo() {
 		try {
 			logger.fine("Getting Runtime info");
 			ArrayList<ServiceData> list = new ArrayList<ServiceData>();
