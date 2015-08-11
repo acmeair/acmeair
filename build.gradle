@@ -87,11 +87,10 @@ project(':acmeair-webapp') {
            println "Including WXS service "
 
            compile project(':acmeair-services-wxs')
+           providedRuntime 'com.ibm.websphere.objectgrid:objectgrid:8.6.0.2'
         }
 
-
         providedRuntime 'javax:javaee-web-api:7.0'
-        providedRuntime 'com.ibm.websphere.objectgrid:objectgrid:8.6.0.2'
     }
 }
 
