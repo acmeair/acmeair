@@ -25,6 +25,7 @@ Source:
 
 * See the [wiki](https://github.com/acmeair/acmeair/wiki)
 * Websphere Liberty Profile to [MongoDB Instructions](https://github.com/acmeair/acmeair/blob/master/MONGO_README.md)
+* Deploying to [IBM Bluemix](Documentation/Bluemix_Instructions.md)
 * Acme Air for Node.js [Instructions](https://github.com/acmeair/acmeair-nodejs/blob/master/README.md)
 
 ## Ask Questions
@@ -41,4 +42,4 @@ We use github issues to report and handle bug reports.
 
 We accept contributions via pull requests.
 
-We will be posting important information about CLA agreements needed for us to accept pull requests soon.
+CLA agreements needed for us to accept pull requests soon can be found in the [CLAs directory](CLAs) of the repository.
