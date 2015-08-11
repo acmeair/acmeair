@@ -54,13 +54,6 @@ project(':acmeair-loader') {
     }
 }
 
-//project(':acmeair-driver') {
-//    dependencies {
-//        compile 'org.apache.jmeter:ApacheJMeter_core:2.13'
-//        compile 'com.googlecode.json-simple:json-simple:1.1.1'
-//    }
-//}
-
 
 project(':acmeair-webapp') {
     apply plugin: 'war'
