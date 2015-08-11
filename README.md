@@ -20,7 +20,6 @@ Source:
 - **acmeair-service-wxs**:  A WebSphere eXtreme Scale data service implementation
 - **acmeair-service-morphia**:  A mongodb data service implementation
 - **acmeair-webapp**:  The Web 2.0 application and associated Java REST services
-- **acmeair-driver**: The workload driver script and supporting classes and resources
 
 ## How to get started
 
