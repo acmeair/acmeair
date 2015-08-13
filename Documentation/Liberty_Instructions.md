@@ -76,12 +76,8 @@ bin\server start server1
 
 ```xml
    <featureManager>
-         <feature>jaxrs-1.1</feature>
-         <feature>jndi-1.0</feature>
+         <feature>webProfile-7.0</feature>
          <feature>eXtremeScale.client-1.1</feature>
-         <feature>jsp-2.2</feature>
-         <feature>cdi-1.0</feature>
-         <feature>jsonp-1.0</feature>
     </featureManager>
 ```
 
