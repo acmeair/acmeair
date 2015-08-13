@@ -23,7 +23,8 @@ Source:
 
 ## How to get started
 
-* See the [wiki](https://github.com/acmeair/acmeair/wiki)
+* Instructions for [setting up and building the codebase](Documentation/Build_Instructions.md)
+* Deploying the sample application to [Websphere Liberty](Documentation/Liberty_Instructions.md)
 * Websphere Liberty Profile to [MongoDB Instructions](https://github.com/acmeair/acmeair/blob/master/MONGO_README.md)
 * Deploying to [IBM Bluemix](Documentation/Bluemix_Instructions.md)
 * Acme Air for Node.js [Instructions](https://github.com/acmeair/acmeair-nodejs/blob/master/README.md)
