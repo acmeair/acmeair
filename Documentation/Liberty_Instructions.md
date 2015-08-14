@@ -1,4 +1,4 @@
-## WebSphere Liberty Setup Instructions 
+# WebSphere Liberty Setup Instructions 
 
 If you have not already done so, read through the [instructions for building the codebase](Build_Instructions.md) first. 
 
@@ -10,19 +10,10 @@ WebSphere Liberty 8.5.5.6
 * Click on the "Download Zip" for the "WAS Liberty with Java EE 7 Web Profile" image 
 * Review and agree to the license, click the "Accept and download" button and save the resulting "wlp-webProfile7-8.5.5.6.zip" file.
 
-In addition, if you wish to use the WebSphere eXtreme Scale service you will need to install the  "WebSphere eXtreme Scale for Developers Liberty Profile" addon. 
-* Download link:  https://www.ibmdw.net/wasdev/downloads/
-* Click on the "Download V8.6" image under "WebSphere eXtreme Scale for Developers Liberty Profile"
-* Click on the "I confirm" button, review and agree to the license, click the "Download Now" link and save the resulting "wxs-wlp_8.6.0.8.jar" file.
 
 * Install the WebSphere Liberty Profile Developers Runtime file into a directory of your choice
 ```text
 unzip wlp-webProfile7-8.5.5.6.zip
-```
-
-* Install the "WebSphere eXtreme Scale for Developers Liberty Profile" file into the same directory as the developers runtime
-```text
-java -jar wxs-wlp_8.6.0.8.jar
 ```
 
 * For the rest of these instructions we will assume this to be the WLP_SERVERDIR
@@ -61,72 +52,12 @@ Linux:
 cp $ACMEAIR_SRCDIR/acmeair-webapp/build/libs/acmeair-webapp-1.1.0-SNAPSHOT.war $WLP_SERVERDIR/usr/servers/server1/dropins/
 ```
 
-* Start the WebSphere Liberty server
-```text
-cd %WLP_SERVERDIR%
-bin\server start server1
-```
+## Choose a Data Service
+The Acme Air sample application is able to utilize several types of data services. 
+Choose one of the following -
+* [WebSphere eXtreme Scale](Liberty_to_WXS_Instructions.md)
+* [MongoDB](Liberty_to_Mongo_Instructions.md)
 
-
-# Using WebSphere eXtreme Scale for the Data Service 
-
-## Modify the WebSphere Liberty server configuration file.  
-
-* Edit %WLP_SERVERDIR%\usr\servers\server1\server.xml to change the featureManager section to:
-
-```xml
-   <featureManager>
-         <feature>webProfile-7.0</feature>
-         <feature>eXtremeScale.client-1.1</feature>
-    </featureManager>
-```
-
-add the eXtreme Scale bindings
-```xml
-    <xsBindings>
-       <xsGrid jndiName="wxs/acmeair" gridName="AcmeGrid"/>
-    </xsBindings>
-    <xsClientDomain default="dev">    
-      <endpointConfig> dev ; localhost:2809 </endpointConfig>    
-    </xsClientDomain>
-```
-
-And add a jndiEntry to indicate the service type to use
-```xml
-    <jndiEntry jndiName="com/acmeair/repository/type" value="wxs"/>
-```
-
-## Create a WebSphere eXtreme Scale configuration
-* To create a new configuration we will create a copy of the "gettingstarted" configuration and customize it to a configuration and directory called "acmeair"
-```text
-cd %WXS_SERVERDIR%
-xcopy gettingstarted\*.* acmeair\. /s/e/i/v/q
-```
-* Under %WXS_SERVERDIR%\acmeair, customize the env.bat to include pointers to the classes you have built
-* You will find a line with SAMPLE_SERVER_CLASSPATH, modify it as below (ensure these directories and jars exist based on your environment variables)
-```text
-SET SAMPLE_SERVER_CLASSPATH=%SAMPLE_HOME%\server\bin;%SAMPLE_COMMON_CLASSPATH%;%ACMEAIR_SRCDIR%\acmeair-common\target\classes;%ACMEAIR_SRCDIR%\acmeair-services-wxs\target\classes;%HOMEPATH%\.m2\repository\commons-logging\commons-logging\\1.1.1\commons-logging-1.1.1.jar
-
-```
-* Next we copy the Acme Air specific eXtreme Scale configuration files from our source directory
-```text
-cd %WXS_SERVERDIR%\acmeair
-copy /y %ACMEAIR_SRCDIR%\acmeair-services-wxs\src\main\resources\deployment.xml server\config\.
-copy /y %ACMEAIR_SRCDIR%\acmeair-services-wxs\src\main\resources\objectgrid.xml server\config\.
-```
-
-## Now start the Acme Air WebSphere eXtreme Scale configuration catalog server and container server
-* In one window start the catalog server
-```text
-cd %WXS_SERVERDIR%\acmeair
-.\runcat.bat
-```
-* In another window start a single container server
- * Ensure that you have set JAVA_HOME and have Java in the path as before
-```text
-cd %WXS_SERVERDIR%\acmeair
-.\runcontainer.bat c0
-```
 
 
 ## Start the WebSphere Liberty server
