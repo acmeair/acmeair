@@ -11,15 +11,6 @@ These instructions outline some of the key components necessary for adding a new
 
 #### Entity Model 
 
-There are 7 Entity classes:
-* AirportCodeMapping
-* Booking
-* CustomerAddress
-* Customer
-* CustomerSession
-* Flight
-* FlightSegment
-
 ![Acme Air Entity Model Diagram](images/AcmeAir-Entity-Diagram.png)
 
 #### Entity Interfaces
@@ -46,6 +37,17 @@ In this way, more than one data service can be built in with the Acme Air applic
 ## Creating a Service Implementation 
 
 ### Implement the 7 Entity interfaces
+
+As shown in the Entity model diagram above, there are 7 Entity classes:
+* AirportCodeMapping
+* Booking
+* CustomerAddress
+* Customer
+* CustomerSession
+* Flight
+* FlightSegment
+
+Each of these classes need to be implemented and annotated as necessary for the targeted data store. 
 
 ### Implement the 3 Service classes 
 The Three abstract services are FlightService, CustomerService, and BookingService
