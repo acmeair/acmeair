@@ -28,6 +28,7 @@ Source:
 * Websphere Liberty Profile to [MongoDB Instructions](https://github.com/acmeair/acmeair/blob/master/MONGO_README.md)
 * Deploying to [IBM Bluemix](Documentation/Bluemix_Instructions.md)
 * Acme Air for Node.js [Instructions](https://github.com/acmeair/acmeair-nodejs/blob/master/README.md)
+* Extending Acme Air by [adding additional data services.](Documentation/Extending_AcmeAir_Services.md)
 
 ## Ask Questions
 
